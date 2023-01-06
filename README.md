@@ -36,7 +36,7 @@ conda activate asqlcell
 Install the python. This will also build the TypeScript package.
 
 ```bash
-pip install -e ".[test, examples]"
+pip install -e ".[test, examples, docs]"
 ```
 
 ### Jupyter
