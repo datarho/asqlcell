@@ -11,4 +11,4 @@ from ..example import ExampleWidget
 
 def test_example_creation_blank():
     w = ExampleWidget()
-    assert w.value == 'Hello World'
+    assert w.value == 'Jupyter'
