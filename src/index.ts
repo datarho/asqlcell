@@ -1,3 +1,4 @@
 export * from "./version";
-export * from "./widget";
-
+export * from "./WidgetModel";
+export * from "./components/table";
+export * from "./components/dataimport"
