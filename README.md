@@ -1,31 +1,30 @@
-# Jupyter Sql Cell
+# Analytical Sql Cell
 
 Analytical sql cell for Jupyter.
 
 [![Build Status](https://travis-ci.org/datarho.tech/sqlcell.svg?branch=master)](https://travis-ci.org/datarho.tech/sqlcell)
 [![codecov](https://codecov.io/gh/datarho.tech/sqlcell/branch/master/graph/badge.svg)](https://codecov.io/gh/datarho.tech/sqlcell)
 
-
-Analytical sql cell for Jupyter
-
 ## Installation
 
 You can install using `pip`:
 
 ```bash
-pip install sqlcell
+pip install asqlcell
 ```
 
 If you are using Jupyter Notebook 5.2 or earlier, you may also need to enable
 the nbextension:
 ```bash
-jupyter nbextension enable --py [--sys-prefix|--user|--system] sqlcell
+jupyter nbextension enable --py [--sys-prefix|--user|--system] asqlcell
 ```
 
 ## Development
 
-This widget is developed with Python 3.9 and Node 16. Please ensure a consistent develop environment for a smooth
-development experience.
+This widget is developed with conda to ensure a consistent developer experience. The project is developed in both
+Mac OS and Windows Subsystem for Linux.
+
+Please run the following commands to create a conda environment:
 
 ```bash
 conda create -n asqlcell -c conda-forge nodejs yarn python jupyterlab
@@ -48,15 +47,14 @@ For lab, this is done by the command:
 
 ```
 jupyter labextension develop --overwrite .
-jlpm
 jlpm run build
 ```
 
 For classic notebook, you need to run:
 
 ```
-jupyter nbextension install --sys-prefix --symlink --overwrite --py sqlcell
-jupyter nbextension enable --sys-prefix --py sqlcell
+jupyter nbextension install --sys-prefix --symlink --overwrite --py asqlcell
+jupyter nbextension enable --sys-prefix --py asqlcell
 ```
 
 Note that the `--symlink` flag doesn't work on Windows, so you will here have to run
