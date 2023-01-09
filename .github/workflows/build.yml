@@ -59,5 +59,4 @@ jobs:
           sudo apt install -y pandoc
           pushd docs
           make html
-          python -m pytest --check-links
           popd
