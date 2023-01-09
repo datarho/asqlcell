@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { WidgetModel } from "@jupyter-widgets/base";
 import { useModelState, WidgetModelContext } from "./hooks";
-import { Box, Group, Stack, Text, Textarea, TextInput, ActionIcon } from '@mantine/core';
+import { Box, Group, Stack, Text, Textarea, TextInput, ActionIcon } from "@mantine/core";
 import { DataTable } from "./components/table"
 import { VscDebugStart } from "react-icons/vsc";
 import { DataImport } from "./components/dataimport";
@@ -131,7 +131,7 @@ const ReactWidget = (props: WidgetProps) => {
                                                 borderColor: "#fafafa",
                                                 fontWeight: "bold",
                                                 paddingLeft: 0,
-                                                ':focus': {
+                                                ":focus": {
                                                     borderColor: "lightgray",
                                                 }
                                             },

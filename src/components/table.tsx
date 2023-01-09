@@ -3,7 +3,7 @@ import { Button, Group, Stack, Table, Text, NumberInput, Pagination, Select, Scr
 import React from "react";
 import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { uuid } from "@jupyter-widgets/base";
-// import { Bar } from '@nivo/bar';
+// import { Bar } from "@nivo/bar";
 import { Dfhead } from "../WidgetView";
 
 interface prop {
@@ -30,7 +30,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
     const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
-    var currentOrder = Order.None;
+    let currentOrder = Order.None;
 
 
     useEffect(() => {
@@ -41,7 +41,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
 
     const rows = [...Array(info.index.length).keys()].map((index) => (
         <tr key={uuid()}>
-            <td>{info.index[index]}</td>
+            <td key={index}>{info.index[index]}</td>
             {
                 info.data[index].map((item: any) => (
                     <td style={{ fontSize: "12px" }}>
@@ -75,17 +75,17 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                     striped
                     sx={{
                         width: "100%",
-                        '& tbody tr td': {
+                        "& tbody tr td": {
                             padding: "0px 3px",
                         },
-                        '&  td:first-of-type': {
+                        "&  td:first-of-type": {
                             backgroundColor: "#ebebeb",
                             width: "7%"
                         },
-                        '&  tr:first-of-type': {
+                        "&  tr:first-of-type": {
                             backgroundColor: "#ebebeb",
                         },
-                        '&  tr:nth-of-type(even)': {
+                        "&  tr:nth-of-type(even)": {
                             backgroundColor: "#f2f2f2",
                         },
                     }}>
@@ -104,7 +104,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                             sx={{
                                                 width: "100%",
                                                 height: "27px",
-                                                '&.mantine-UnstyledButton-root:hover': {
+                                                "&.mantine-UnstyledButton-root:hover": {
                                                     backgroundColor: "#ebebeb"
                                                 }
                                             }}
@@ -151,14 +151,14 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                                         data={hist.filter(his => his.columnName === item)[0].bins}
                                                         enableGridY={false}
                                                         colorBy={"id"}
-                                                        keys={['count']}
+                                                        keys={["count"]}
                                                         indexBy="bin_start"
                                                         layout={"vertical"}
-                                                        groupMode={'stacked'}
+                                                        groupMode={"stacked"}
                                                         reverse={false}
                                                         height={40} width={60}
                                                         enableLabel={false}
-                                                        valueScale={{ type: 'symlog' }}
+                                                        valueScale={{ type: "symlog" }}
                                                     />
                                                     :
                                                     <></>
@@ -185,9 +185,9 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                             sx={{
                                 width: "40px",
                                 height: "22px",
-                                '.mantine-Select-item': { padding: "0px" },
-                                '.mantine-Select-rightSection': { width: "20px" },
-                                '.mantine-Select-input': {
+                                ".mantine-Select-item": { padding: "0px" },
+                                ".mantine-Select-rightSection": { width: "20px" },
+                                ".mantine-Select-input": {
                                     paddingLeft: "5px",
                                     paddingRight: "0px",
                                     height: "22px",
@@ -220,7 +220,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                     item: {
                                         color: theme.colors.gray[4],
                                         backgroundColor: theme.colors.gray[0],
-                                        '&[data-active]': {
+                                        "&[data-active]": {
                                             color: theme.colors.dark[2],
                                             backgroundColor: theme.colors.gray[4],
                                         },

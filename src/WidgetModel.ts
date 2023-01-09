@@ -43,8 +43,8 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
 
     initialize(attributes: any, options: any) {
         super.initialize(attributes, options);
-        this.on('msg:custom', this.handle_custom_messages, this);
-        this.on('change:output', this.handle_update_messages, this);
+        this.on("msg:custom", this.handle_custom_messages, this);
+        this.on("change:output", this.handle_update_messages, this);
     }
 
     handle_custom_messages(msg: any) {

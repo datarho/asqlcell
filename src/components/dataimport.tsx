@@ -44,7 +44,7 @@ export const DataImport: FunctionComponent<prop> = ({ model }) => {
                         radius="xs"
                         sx={{
                             outline: "none",
-                            '&:hover': {
+                            "&:hover": {
                                 backgroundColor: "transparent"
                             },
                         }}
