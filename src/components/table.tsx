@@ -43,8 +43,8 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
         <tr key={uuid()}>
             <td key={index}>{info.index[index]}</td>
             {
-                info.data[index].map((item: any) => (
-                    <td style={{ fontSize: "12px" }}>
+                info.data[index].map((item: any, tdIndex: number) => (
+                    <td key={tdIndex} style={{ fontSize: "12px" }}>
                         {
                             typeof (item) === "boolean" ?
                                 item ?
@@ -95,6 +95,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                             {
                                 header.map((item, index) =>
                                     <th
+                                        key={index}
                                         style={{
                                             textAlign: "center",
                                             padding: 0,

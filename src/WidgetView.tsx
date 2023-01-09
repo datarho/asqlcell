@@ -28,9 +28,7 @@ const ReactWidget = (props: WidgetProps) => {
     const [openTimer, setOpenTimer] = useState<boolean>(false);
     const [timerId, setTimerId] = useState<number>();
 
-
-    const latestCallback = useRef(() => {
-    });
+    const latestCallback = useRef<any | null>(null);
 
     useEffect(() => {
         latestCallback.current = () => { setTime(time + 1); };
