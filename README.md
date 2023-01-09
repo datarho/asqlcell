@@ -64,8 +64,7 @@ of those flags here.
 
 #### Typescript
 
-If you use Jupyter Lab to develop then you can watch the source directory and run Jupyter Lab at the same time in different
-terminals to watch for changes in the extension's source and automatically rebuild the widget.
+You must start watching the change of the widget:
 
 ```bash
 jlpm run watch
