@@ -51,7 +51,7 @@ jobs:
           python -m pip install --upgrade -v -e ".[test, examples, docs]"
           yarn run lint:check
 
-          pytest
+          ipython -c "import pytest; pytest.main(['.'])"
           yarn run test
 
       - name: Check docs can be build + links
