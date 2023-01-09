@@ -87,10 +87,11 @@ setup_args = dict(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Framework :: Jupyter',
     ],
     include_package_data = True,
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     install_requires=[
         "ipywidgets>=8.0.0",
         "pandas>=1.5.2",
