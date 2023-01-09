@@ -2,7 +2,7 @@ import { IJupyterWidgetRegistry } from "@jupyter-widgets/base";
 import { Application, IPlugin } from "@phosphor/application";
 import { Widget } from "@phosphor/widgets";
 import { MODULE_NAME, MODULE_VERSION } from "./version";
-import * as widgetExports from "./widget";
+import * as widgetExports from "./widgets";
 
 const EXTENSION_ID = "asqlcell:plugin";
 
