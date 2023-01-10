@@ -1,10 +1,9 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { Button, Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea } from "@mantine/core"
+import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea } from "@mantine/core"
 import React from "react";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { uuid } from "@jupyter-widgets/base";
-// import { Bar } from "@nivo/bar";
 import { Dfhead } from "../WidgetView";
+import { DataframeHeader } from "./header";
 
 interface prop {
     data: string,
@@ -16,28 +15,18 @@ interface prop {
     hist: Dfhead[];
 }
 
-const Order = {
-    Increasing: 1,
-    Descending: -1,
-    None: 0,
-}
-
 export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage, rowNumber, setRowNumber, hist }) => {
-    const [order, setOrder] = useState(Order.Increasing);
-    const [col, setColName] = useState<string>(" ");
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
     const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
-    let currentOrder = Order.None;
-
+    const headerContent = hist.slice(0, -1);
 
     useEffect(() => {
         model.set("json_dump", new Date().toISOString());
         model.save_changes();
-    }, [])
-
+    }, []);
 
     const rows = [...Array(info.index.length).keys()].map((index) => (
         <tr key={uuid()}>
@@ -89,88 +78,9 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                             backgroundColor: "#f2f2f2",
                         },
                     }}>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            {
-                                header.map((item, index) =>
-                                    <th
-                                        key={index}
-                                        style={{
-                                            textAlign: "center",
-                                            padding: 0,
-                                        }}>
-                                        <Button
-                                            color="dark"
-                                            sx={{
-                                                width: "100%",
-                                                height: "27px",
-                                                "&.mantine-UnstyledButton-root:hover": {
-                                                    backgroundColor: "#ebebeb"
-                                                }
-                                            }}
-                                            rightIcon={
-                                                col === item ?
-                                                    order === Order.Increasing ?
-                                                        <FaSortUp color="gray" size={10} />
-                                                        :
-                                                        order === Order.Descending ?
-                                                            <FaSortDown color="gray" size={10} />
-                                                            :
-                                                            <FaSort color="lightgray" size={10} />
-                                                    :
-                                                    <FaSort color="lightgray" size={10} />
-                                            }
-                                            variant="subtle"
-                                            onClick={() => {
-                                                if (col === item) {
-                                                    if (order === Order.Increasing) {
-                                                        currentOrder = Order.Descending
-                                                        setOrder(Order.Descending)
-                                                    }
-                                                    else if (order === Order.Descending) {
-                                                        currentOrder = Order.None;
-                                                        setOrder(Order.None);
-                                                    } else {
-                                                        currentOrder = Order.Increasing
-                                                        setOrder(Order.Increasing)
-                                                    }
-                                                } else {
-                                                    currentOrder = Order.Increasing
-                                                    setOrder(Order.Increasing)
-                                                    setColName(item)
-                                                }
-                                                model?.trigger("sort", [item, currentOrder])
-                                            }}
-                                        >
-                                            {item}
-                                        </Button>
-                                        {/* {
-                                            hist ?
-                                                hist.filter(his => his.columnName === item).length !== 0 ?
-                                                    <Bar
-                                                        data={hist.filter(his => his.columnName === item)[0].bins}
-                                                        enableGridY={false}
-                                                        colorBy={"id"}
-                                                        keys={["count"]}
-                                                        indexBy="bin_start"
-                                                        layout={"vertical"}
-                                                        groupMode={"stacked"}
-                                                        reverse={false}
-                                                        height={40} width={60}
-                                                        enableLabel={false}
-                                                        valueScale={{ type: "symlog" }}
-                                                    />
-                                                    :
-                                                    <></>
-                                                :
-                                                <></>
-                                        } */}
-                                    </th>
-                                )
-                            }
-                        </tr>
-                    </thead>
+
+                    <DataframeHeader headerContent={headerContent} header={header} model={model} />
+
                     <tbody>
                         {rows}
                     </tbody>

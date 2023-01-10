@@ -70,8 +70,11 @@ class SqlcellWidget(DOMWidget):
                 col = self.df[column]
                 if (is_type_numeric(col.dtypes)):
                     np_array= np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
-                    y, bins = np.histogram(np_array, bins=5)
-                    hist.append({"columnName" : column , "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
+                    y, bins = np.histogram(np_array, bins=10)
+                    hist.append({"columnName" : column, "dtype" : self.df.dtypes[column].name,
+                        "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
+                else:
+                   hist.append({"columnName" : column, "dtype" : self.df.dtypes[column].name})
         time2 = datetime.datetime.now()
         hist.append({"time1" : str(time1), "time2" : str(time2)})
         return hist

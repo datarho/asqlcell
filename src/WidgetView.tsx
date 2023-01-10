@@ -2,20 +2,21 @@ import React, { useEffect, useRef, useState } from "react";
 import { WidgetModel } from "@jupyter-widgets/base";
 import { useModelState, WidgetModelContext } from "./hooks";
 import { Box, Group, Stack, Text, Textarea, TextInput, ActionIcon } from "@mantine/core";
-import { DataTable } from "./components/table"
+
 import { VscDebugStart } from "react-icons/vsc";
-import { DataImport } from "./components/dataimport";
+import { DataImport, DataTable } from "./components";
 
 interface WidgetProps {
     model: WidgetModel;
 }
 export interface Dfhead {
     columnName: string,
+    dtype: string,
     bins: { bin_start: number, bin_end: number, count: number }[],
 }
 
 const ReactWidget = (props: WidgetProps) => {
-    const [hist, setHist] = useState<Dfhead[]>([{ columnName: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }]);
+    const [hist, setHist] = useState<Dfhead[]>([{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }]);
     const [sqlContent, setSqlContent] = useState(props.model.get("value") ?? "");
     const [show, setShow] = useState<boolean>(props.model.get("show") ?? true);
     const [output, setOutput] = useModelState("output");
@@ -173,7 +174,7 @@ const ReactWidget = (props: WidgetProps) => {
                                         props.model?.trigger("clickButton")
                                         setTime(0)
                                         setOpenTimer(true)
-                                        setHist([{ columnName: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }])
+                                        setHist([{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }])
                                         setData("")
                                     }}
                                     sx={{ height: "100%" }}
