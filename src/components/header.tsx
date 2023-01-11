@@ -136,9 +136,19 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                         }}
                                                     />
                                                     <Text size="xs">
-                                                        [{headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start.toFixed(3) + " "}
+                                                        [{
+                                                            Math.abs(headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start) >= 100 ?
+                                                                headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start.toFixed(0) + " "
+                                                                :
+                                                                headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start.toFixed(3) + " "
+                                                        }
                                                         ,
-                                                        {" " + headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end.toFixed(3)}]
+                                                        {
+                                                            Math.abs(headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end) >= 100 ?
+                                                                " " + headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end.toFixed(0)
+                                                                :
+                                                                " " + headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end.toFixed(3)
+                                                        }]
                                                     </Text>
                                                 </Stack>
                                                 :
