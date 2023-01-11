@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent, useState } from "react";
 import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea } from "@mantine/core"
 import React from "react";
 import { uuid } from "@jupyter-widgets/base";
@@ -13,20 +13,17 @@ interface prop {
     rowNumber: number,
     setRowNumber: React.Dispatch<React.SetStateAction<number>>,
     hist: Dfhead[];
+    show: boolean;
 }
 
-export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage, rowNumber, setRowNumber, hist }) => {
+export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage, rowNumber, setRowNumber, hist, show }) => {
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
     const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
     const headerContent = hist.slice(0, -1);
-
-    useEffect(() => {
-        model.set("json_dump", new Date().toISOString());
-        model.save_changes();
-    }, []);
+    const timeDiff = (new Date(hist.slice(-1)[0].time2 as string).getTime() - new Date(hist.slice(-1)[0].time1 as string).getTime()) / 1000;
 
     const rows = [...Array(info.index.length).keys()].map((index) => (
         <tr key={uuid()}>
@@ -89,7 +86,15 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
             <Group
                 position="apart"
                 sx={{ width: "100%" }}>
-                <Group><Text color="#8d8d8d">{dataLength} rows</Text></Group>
+                <Group>
+                    <Text color="#8d8d8d">{dataLength} rows</Text>
+                    {
+                        !show ?
+                            <Text color="#8d8d8d">{timeDiff} s</Text>
+                            :
+                            <></>
+                    }
+                </Group>
                 <Group align={"center"}>
                     <Group sx={{ gap: 0 }}>
                         <Select

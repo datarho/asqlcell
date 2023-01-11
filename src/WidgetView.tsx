@@ -13,6 +13,8 @@ export interface Dfhead {
     columnName: string,
     dtype: string,
     bins: { bin_start: number, bin_end: number, count: number }[],
+    time1?: string;
+    time2?: string;
 }
 
 const ReactWidget = (props: WidgetProps) => {
@@ -206,6 +208,7 @@ const ReactWidget = (props: WidgetProps) => {
                                 rowNumber={rowNumber}
                                 setRowNumber={setRowNumber}
                                 hist={hist}
+                                show={show}
                             />
                             :
                             <Box sx={{ height: "60px" }} />

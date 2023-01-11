@@ -114,8 +114,8 @@ class SqlcellWidget(DOMWidget):
         self.send(json.dumps({'dfname' : self.dfname, 'iscommand' : self.iscommand, 'sql' : self.sql, "dfhead" : self.get_histogram()}))
 
     def send_df(self):
-        self.send(("__DFT:" if self.iscommand else "__DFM:") + str(self.df[self.row_start : self.row_end].to_json(orient="split")) + "\n" + str(len(self.df)))
-
+        self.send(("__DFT:" if self.iscommand else "__DFM:") + str(self.df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + str(len(self.df)))
+    
     @observe('dfs_button')
     def on_dfs_button(self, change):
         dfs = get_dfs()
