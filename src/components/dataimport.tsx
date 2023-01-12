@@ -10,7 +10,8 @@ interface prop {
 export const DataImport: FunctionComponent<prop> = ({ model }) => {
 
     const [opened, setOpened] = useState<boolean>(false);
-    const [dataframe, setDataFrame] = useState("")
+    const [dataframe, setDataFrame] = useState("");
+    const DropdownHeight = dataframe.trim().split(/\r?\n/).length >= 3 ? `120px` : `${dataframe.trim().split(/\r?\n/).length * 40}px`;
     const items = dataframe.split("\n").map((name, index) => (
         name === "" ?
             <></>
@@ -78,7 +79,7 @@ export const DataImport: FunctionComponent<prop> = ({ model }) => {
                 >
                     {
                         dataframe ?
-                            <ScrollArea sx={{ height: "120px" }}>
+                            <ScrollArea sx={{ height: DropdownHeight }}>
                                 <Group style={{ width: "100%" }}>
                                     <Box sx={{
                                         padding: 0,
