@@ -76,15 +76,20 @@ export const DataImport: FunctionComponent<prop> = ({ model }) => {
                         padding: "2px",
                     }}
                 >
-                    <ScrollArea sx={{ height: "120px" }}>
-                        <Group style={{ width: "100%" }}>
-                            <Box sx={{
-                                padding: 0,
-                            }}>
-                                {items}
-                            </Box>
-                        </Group>
-                    </ScrollArea>
+                    {
+                        dataframe ?
+                            <ScrollArea sx={{ height: "120px" }}>
+                                <Group style={{ width: "100%" }}>
+                                    <Box sx={{
+                                        padding: 0,
+                                    }}>
+                                        {items}
+                                    </Box>
+                                </Group>
+                            </ScrollArea>
+                            :
+                            <Text color={"lightgray"}>There is no dataframe.</Text>
+                    }
                 </Popover.Dropdown>
             </Popover>
         </>
