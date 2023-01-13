@@ -32,6 +32,17 @@ const ReactWidget = (props: WidgetProps) => {
     const [timerId, setTimerId] = useState<number>();
 
     const latestCallback = useRef<any | null>(null);
+    const escape = () => {
+        if (document.activeElement instanceof HTMLElement) {
+            if (outputName.trim().length > 0) {
+                setOutput(outputName);
+                document.activeElement.blur();
+            }
+            else {
+                setOutputName(output);
+            }
+        }
+    }
 
     useEffect(() => {
         latestCallback.current = () => { setTime(time + 1); };
@@ -133,14 +144,25 @@ const ReactWidget = (props: WidgetProps) => {
                                                 fontWeight: "bold",
                                                 paddingLeft: 0,
                                                 ":focus": {
-                                                    borderColor: "lightgray",
+                                                    borderColor: outputName.trim().length === 0 ? "red" : "lightgray",
                                                 }
                                             },
                                         })}
                                         value={outputName}
-                                        onChange={(e) => {
-                                            setOutput(e.target.value);
+                                        onBlur={() => {
+                                            escape();
                                         }}
+                                        onKeyDown={(e) => {
+                                            if (["Enter", "Escape"].includes(e.code)) {
+                                                console.log("a")
+                                                e.preventDefault();
+                                                escape();
+                                            }
+                                        }}
+                                        onChange={(e) => {
+                                            setOutputName(e.target.value);
+                                        }}
+
                                     />
                                 </Group>
                             </Group>
@@ -159,6 +181,7 @@ const ReactWidget = (props: WidgetProps) => {
                                         autosize
                                         minRows={3}
                                         sx={{
+                                            marginTop: "10px",
                                             ".mantine-Textarea-input": {
                                                 height: "88px",
                                             }

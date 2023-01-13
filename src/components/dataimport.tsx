@@ -57,12 +57,6 @@ export const DataImport: FunctionComponent<prop> = ({ model }) => {
                     >
                         <Text
                             color="gray"
-                            sx={{ marginRight: "10px" }}
-                        >
-                            SOURCE
-                        </Text>
-                        <Text
-                            color="gray"
                             sx={{ fontWeight: "bold" }}
                         >
                             Dataframe
