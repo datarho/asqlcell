@@ -11,12 +11,13 @@ export const DataImport: FunctionComponent<prop> = ({ model }) => {
 
     const [opened, setOpened] = useState<boolean>(false);
     const [dataframe, setDataFrame] = useState("");
-    const DropdownHeight = dataframe.trim().split(/\r?\n/).length >= 3 ? `120px` : `${dataframe.trim().split(/\r?\n/).length * 40}px`;
+    const DropdownHeight = dataframe.trim().split(/\r?\n/).length >= 5 ? `125px` : `${dataframe.trim().split(/\r?\n/).length * 25}px`;
     const items = dataframe.split("\n").map((name, index) => (
         name === "" ?
             <></>
             :
             <NavLink
+                sx={{ height: "25px" }}
                 className="data list"
                 key={index}
                 label={name.split("\t")[0]}
