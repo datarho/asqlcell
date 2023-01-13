@@ -44,7 +44,7 @@ def get_duckdb_result(sql):
     return df
 
 def get_value(variable_name):
-    return getattr(__main__, variable_name)
+    return getattr(__main__, variable_name, None)
 
 def is_type_numeric(dtype):
     #if pd.api.types.is_datetime64_any_dtype(dtype) or pd.api.types.is_timedelta64_dtype(dtype):
@@ -106,8 +106,12 @@ class SqlcellWidget(DOMWidget):
 
     @observe('json_dump')
     def on_json_dump(self, change):
-        self.send(json.dumps({'dfname' : self.dfname, 'iscommand' : self.iscommand, 'sql' : self.sql, 
-                "dfhead" : get_histogram(get_value(self.dfname))}))
+        dump = {}
+        dump['dfname' ] = self.dfname
+        dump['iscommand'] = self.iscommand
+        dump['sql'] = self.sql
+        dump['dfhead'] = get_histogram(get_value(self.dfname))
+        self.send(json.dumps(dump))
 
     def send_df(self):
         df = get_value(self.dfname)
