@@ -20,7 +20,7 @@ export interface Dfhead {
 const ReactWidget = (props: WidgetProps) => {
     const [hist, setHist] = useState<Dfhead[]>([{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }]);
     const [sqlContent, setSqlContent] = useState(props.model.get("value") ?? "");
-    const [show, setShow] = useState<boolean>(props.model.get("show") ?? true);
+    const [show, setShow] = useState<boolean>(props.model.get("show"));
     const [output, setOutput] = useModelState("output");
     const [outputName, setOutputName] = useState(output);
     const [page, setPage] = useState(1);
