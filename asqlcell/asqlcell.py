@@ -17,7 +17,7 @@ def sql(line, cell=''):
 
 @register_line_magic
 def sql(line=""):
-    return SqlcellWidget(line, True, "").df
+    return get_duckdb_result(line)
 
 __DUCKDB = None
 
@@ -27,7 +27,23 @@ def get_duckdb_connection():
         __DUCKDB = duckdb.connect(database=":memory:", read_only=False)
     return __DUCKDB
 
-def get_scope_value(variable_name):
+def get_dfs():
+    dfs = []
+    for v in dir(__main__):
+        var = get_value(v)
+        if not v.startswith("_") and isinstance(var, pd.DataFrame):
+            dfs.append((v, var))
+    return dfs
+
+def get_duckdb_result(sql):
+    for v in get_dfs():
+        get_duckdb_connection().register(v[0], v[1])
+    df = get_duckdb_connection().execute(sql).df()
+    for v in get_dfs():
+        get_duckdb_connection().unregister(v[0])
+    return df
+
+def get_value(variable_name):
     return getattr(__main__, variable_name)
 
 def is_type_numeric(dtype):
@@ -38,13 +54,22 @@ def is_type_numeric(dtype):
     except TypeError:
         return False
 
-def get_dfs():
-    dfs = []
-    for v in dir(__main__):
-        var = get_scope_value(v)
-        if not v.startswith("_") and isinstance(var, pd.DataFrame):
-            dfs.append((v, var))
-    return dfs
+def get_histogram(sqlcelldf):
+    hist = []
+    time1 = datetime.datetime.now() 
+    if isinstance(sqlcelldf, pd.DataFrame):
+        for column in sqlcelldf:
+            col = sqlcelldf[column]
+            if (is_type_numeric(col.dtypes)):
+                np_array= np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
+                y, bins = np.histogram(np_array, bins=10)
+                hist.append({"columnName" : column, "dtype" : sqlcelldf.dtypes[column].name,
+                    "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
+            else:
+                hist.append({"columnName" : column, "dtype" : sqlcelldf.dtypes[column].name})
+    time2 = datetime.datetime.now()
+    hist.append({"time1" : str(time1), "time2" : str(time2)})
+    return hist
 
 class SqlcellWidget(DOMWidget):
     _model_name = Unicode('SqlCellModel').tag(sync=True)
@@ -62,65 +87,36 @@ class SqlcellWidget(DOMWidget):
     sql_button = Unicode('').tag(sync=True)
     json_dump = Unicode('').tag(sync=True)
 
-    def get_histogram(self):
-        hist = []
-        time1 = datetime.datetime.now() 
-        if isinstance(self.df, pd.DataFrame):
-            for column in self.df:
-                col = self.df[column]
-                if (is_type_numeric(col.dtypes)):
-                    np_array= np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
-                    y, bins = np.histogram(np_array, bins=10)
-                    hist.append({"columnName" : column, "dtype" : self.df.dtypes[column].name,
-                        "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
-                else:
-                   hist.append({"columnName" : column, "dtype" : self.df.dtypes[column].name})
-        time2 = datetime.datetime.now()
-        hist.append({"time1" : str(time1), "time2" : str(time2)})
-        return hist
-
     def run_sql(self):
-        self.sql = self.sql.strip()
-        if len(self.sql) == 0:
-            return
-        dfs = get_dfs()
         try:
-            for v in dfs:
-                get_duckdb_connection().register(v[0], v[1])
-            self.df = get_duckdb_connection().execute(self.sql).fetch_df()
-            if (len(self.dfname) > 0):
-                setattr(__main__, self.dfname, self.df)
-            else:
-                setattr(__main__, 'sqlcelldf', self.df)
+            setattr(__main__, self.dfname, get_duckdb_result(self.sql))
             self.send_df()
         except Exception as r: 
             self.send(("__ERT:" if self.iscommand else "__ERR:") + str(r))
-        finally:
-            for v in dfs:
-                get_duckdb_connection().unregister(v[0])
 
-    def __init__(self, sql='', iscommand=False, dfname=''):
+    def __init__(self, sql='', iscommand=False, dfname='sqlcelldf'):
         super(SqlcellWidget, self).__init__()
         self.dfname = dfname
-        self.df = None
         self.row_start = 0
         self.row_end = 10
         self.iscommand = iscommand
         self.sql = sql
-        self.run_sql()
+        if (len(sql) > 0):
+            self.run_sql()
 
     @observe('json_dump')
     def on_json_dump(self, change):
-        self.send(json.dumps({'dfname' : self.dfname, 'iscommand' : self.iscommand, 'sql' : self.sql, "dfhead" : self.get_histogram()}))
+        self.send(json.dumps({'dfname' : self.dfname, 'iscommand' : self.iscommand, 'sql' : self.sql, 
+                "dfhead" : get_histogram(get_value(self.dfname))}))
 
     def send_df(self):
-        self.send(("__DFT:" if self.iscommand else "__DFM:") + str(self.df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + str(len(self.df)))
+        df = get_value(self.dfname)
+        self.send(("__DFT:" if self.iscommand else "__DFM:") + str(df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + str(len(df)))
     
     @observe('dfs_button')
     def on_dfs_button(self, change):
-        dfs = get_dfs()
         result = ""
-        for v in dfs:
+        for v in get_dfs():
             result += v[0] + "\t" + str(v[1].shape) + "\n"
         self.send("__DFS:" + result)
 
@@ -138,10 +134,11 @@ class SqlcellWidget(DOMWidget):
     def on_index_sort(self, change):
         sort_by = change.new[0]
         sort_ascending = change.new[1]
+        df = get_value(self.dfname)
         if (sort_ascending == 0):
-            self.df.sort_index(axis=0, inplace=True)
+            df.sort_index(axis=0, inplace=True)
         else:
-            self.df.sort_values(by=sort_by, ascending=(True if sort_ascending > 0 else False), inplace=True, kind='stable')
+            df.sort_values(by=sort_by, ascending=(True if sort_ascending > 0 else False), inplace=True, kind='stable')
         self.send_df()
 
     @validate('value')
