@@ -52,7 +52,7 @@ const ReactWidget = (props: WidgetProps) => {
         if (!openTimer) {
             window.clearInterval(Number(timerId));
         } else {
-            setTimerId(window.setInterval(() => latestCallback.current(), 1));
+            setTimerId(window.setInterval(() => latestCallback.current(), 10));
         }
     }, [openTimer]);
 
@@ -80,7 +80,6 @@ const ReactWidget = (props: WidgetProps) => {
         if (msg.slice(6, msg.length) !== data) {
             setData(msg.slice(6, msg.length));
         }
-        setOpenTimer(false);
         setError("");
     })
     props.model?.on("update_outputName", (msg) => {
@@ -101,6 +100,7 @@ const ReactWidget = (props: WidgetProps) => {
         if (msg) {
             setHist(msg)
         }
+        setOpenTimer(false);
     })
 
     return (
@@ -197,6 +197,8 @@ const ReactWidget = (props: WidgetProps) => {
                                         props.model?.save_changes();
                                         props.model.set("json_dump", new Date().toISOString());
                                         props.model?.save_changes();
+                                        setTime(0)
+                                        setOpenTimer(true)
                                     }}
                                     sx={{ height: "100%" }}
                                 >
@@ -204,7 +206,7 @@ const ReactWidget = (props: WidgetProps) => {
                                 </ActionIcon>
                             </Group>
                             <Group sx={{ width: "95%" }}>
-                                <Text>{time / 1000}s</Text>
+                                <Text>{time / 100}s</Text>
                             </Group>
                         </>
                         :

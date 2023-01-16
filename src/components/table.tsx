@@ -25,10 +25,13 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
         JSON.parse(hist).dfhead.slice(0, -1)
         :
         [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
-    let timeDiff = hist ?
-        (new Date(JSON.parse(hist).dfhead.slice(-1)[0].time2 as string).getTime() - new Date(JSON.parse(hist).dfhead.slice(-1)[0].time1 as string).getTime()) / 1000
-        :
-        0
+    let timeDiff = 0;
+    if (data) {
+        const timeList = data.split("\n").pop();
+        if (timeList !== "") {
+            timeDiff = (new Date(timeList ? timeList.split(",")[1] : "0").getTime() - new Date(timeList ? timeList.split(",")[0] : "0").getTime()) / 1000;
+        }
+    }
 
 
     const rows = [...Array(info.index.length).keys()].map((index) => (
@@ -95,7 +98,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                 <Group>
                     <Text color="#8d8d8d">{dataLength} rows</Text>
                     {
-                        !show ?
+                        timeDiff !== 0 ?
                             <Text color="#8d8d8d">{timeDiff} s</Text>
                             :
                             <></>
