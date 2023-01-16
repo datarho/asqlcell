@@ -13,7 +13,10 @@ module_version = "0.1.0"
 
 @register_cell_magic
 def sql(line, cell=''):
-    return SqlcellWidget(cell, True, line.strip())
+    name = line.strip()
+    if (len(name) == 0):
+        name = 'sqlcelldf'
+    return SqlcellWidget(cell, True, name)
 
 @register_line_magic
 def sql(line=""):
@@ -56,7 +59,6 @@ def is_type_numeric(dtype):
 
 def get_histogram(sqlcelldf):
     hist = []
-    time1 = datetime.datetime.now() 
     if isinstance(sqlcelldf, pd.DataFrame):
         for column in sqlcelldf:
             col = sqlcelldf[column]
@@ -67,8 +69,6 @@ def get_histogram(sqlcelldf):
                     "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
             else:
                 hist.append({"columnName" : column, "dtype" : sqlcelldf.dtypes[column].name})
-    time2 = datetime.datetime.now()
-    hist.append({"time1" : str(time1), "time2" : str(time2)})
     return hist
 
 class SqlcellWidget(DOMWidget):
@@ -89,9 +89,11 @@ class SqlcellWidget(DOMWidget):
 
     def run_sql(self):
         try:
+            time1 = datetime.datetime.now()
             setattr(__main__, self.dfname, get_duckdb_result(self.sql))
-            self.send_df()
-        except Exception as r: 
+            time2 = datetime.datetime.now()
+            self.send_df(str(time1) + "," + str(time2))
+        except Exception as r:
             self.send(("__ERT:" if self.iscommand else "__ERR:") + str(r))
 
     def __init__(self, sql='', iscommand=False, dfname='sqlcelldf'):
@@ -113,9 +115,11 @@ class SqlcellWidget(DOMWidget):
         dump['dfhead'] = get_histogram(get_value(self.dfname))
         self.send("__JSD:" + str(json.dumps(dump)))
 
-    def send_df(self):
+    def send_df(self, tail=""):
         df = get_value(self.dfname)
-        self.send(("__DFT:" if self.iscommand else "__DFM:") + str(df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + str(len(df)))
+        self.send(("__DFT:" if self.iscommand else "__DFM:") + 
+                str(df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + 
+                    str(len(df)) + "\n" + tail)
     
     @observe('dfs_button')
     def on_dfs_button(self, change):
