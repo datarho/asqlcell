@@ -111,7 +111,7 @@ class SqlcellWidget(DOMWidget):
         dump['iscommand'] = self.iscommand
         dump['sql'] = self.sql
         dump['dfhead'] = get_histogram(get_value(self.dfname))
-        self.send(json.dumps(dump))
+        self.send("__JSD:" + str(json.dumps(dump)))
 
     def send_df(self):
         df = get_value(self.dfname)

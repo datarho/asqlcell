@@ -18,7 +18,7 @@ export interface Dfhead {
 }
 
 const ReactWidget = (props: WidgetProps) => {
-    const [hist, setHist] = useState<Dfhead[]>([{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }]);
+    const [hist, setHist] = useState<string>("");
     const [sqlContent, setSqlContent] = useState(props.model.get("value") ?? "");
     const [show, setShow] = useState<boolean>(props.model.get("show"));
     const [output, setOutput] = useModelState("output");
@@ -77,7 +77,9 @@ const ReactWidget = (props: WidgetProps) => {
         setShow(msg);
     })
     props.model?.on("data_message", (msg) => {
-        setData(msg.slice(6, msg.length));
+        if (msg.slice(6, msg.length) !== data) {
+            setData(msg.slice(6, msg.length));
+        }
         setOpenTimer(false);
         setError("");
     })
@@ -95,14 +97,9 @@ const ReactWidget = (props: WidgetProps) => {
     props.model?.on("importData", (msg) => {
         setSqlContent("select * from " + msg);
     })
-    props.model?.on("clickButton", (msg) => {
-        props.model.set("json_dump", new Date().toISOString());
-        props.model?.set("sql_button", new Date().toISOString());
-        props.model?.save_changes();
-    })
     props.model?.on("hist", (msg: any) => {
         if (msg) {
-            setHist(JSON.parse(msg).dfhead);
+            setHist(msg)
         }
     })
 
@@ -196,11 +193,10 @@ const ReactWidget = (props: WidgetProps) => {
                                     onClick={() => {
                                         setPage(1);
                                         props.model?.trigger("setRange", [0, rowNumber * 1]);
-                                        props.model?.trigger("clickButton")
-                                        setTime(0)
-                                        setOpenTimer(true)
-                                        setHist([{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }])
-                                        setData("")
+                                        props.model?.set("sql_button", new Date().toISOString());
+                                        props.model?.save_changes();
+                                        props.model.set("json_dump", new Date().toISOString());
+                                        props.model?.save_changes();
                                     }}
                                     sx={{ height: "100%" }}
                                 >

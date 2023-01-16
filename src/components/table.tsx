@@ -2,7 +2,6 @@ import { FunctionComponent, useState } from "react";
 import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea } from "@mantine/core"
 import React from "react";
 import { uuid } from "@jupyter-widgets/base";
-import { Dfhead } from "../WidgetView";
 import { DataframeHeader } from "./header";
 
 interface prop {
@@ -12,7 +11,7 @@ interface prop {
     setPage: React.Dispatch<React.SetStateAction<number>>,
     rowNumber: number,
     setRowNumber: React.Dispatch<React.SetStateAction<number>>,
-    hist: Dfhead[];
+    hist: string;
     show: boolean;
 }
 
@@ -22,8 +21,15 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
     const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
-    const headerContent = hist.slice(0, -1);
-    const timeDiff = (new Date(hist.slice(-1)[0].time2 as string).getTime() - new Date(hist.slice(-1)[0].time1 as string).getTime()) / 1000;
+    const headerContent = hist ?
+        JSON.parse(hist).dfhead.slice(0, -1)
+        :
+        [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
+    let timeDiff = hist ?
+        (new Date(JSON.parse(hist).dfhead.slice(-1)[0].time2 as string).getTime() - new Date(JSON.parse(hist).dfhead.slice(-1)[0].time1 as string).getTime()) / 1000
+        :
+        0
+
 
     const rows = [...Array(info.index.length).keys()].map((index) => (
         <tr key={uuid()}>
