@@ -27,6 +27,7 @@ const ReactWidget = (props: WidgetProps) => {
     const [data, setData] = useState(props.model.get("data") ?? "")
     const [error, setError] = useState(props.model.get("error") ?? "")
     const [rowNumber, setRowNumber] = useState<number>(10);
+    const [timeStamp, setTimeStamp] = useState<number>(0);
     const [time, setTime] = useState<number>(0);
     const [openTimer, setOpenTimer] = useState<boolean>(false);
     const [timerId, setTimerId] = useState<number>();
@@ -45,7 +46,7 @@ const ReactWidget = (props: WidgetProps) => {
     }
 
     useEffect(() => {
-        latestCallback.current = () => { setTime(time + 1); };
+        latestCallback.current = () => { setTime(Date.now() - timeStamp); };
     });
 
     useEffect(() => {
@@ -198,6 +199,7 @@ const ReactWidget = (props: WidgetProps) => {
                                         props.model.set("json_dump", new Date().toISOString());
                                         props.model?.save_changes();
                                         setTime(0)
+                                        setTimeStamp(Date.now());
                                         setOpenTimer(true)
                                     }}
                                     sx={{ height: "100%" }}
@@ -206,7 +208,7 @@ const ReactWidget = (props: WidgetProps) => {
                                 </ActionIcon>
                             </Group>
                             <Group sx={{ width: "95%" }}>
-                                <Text>{time / 100}s</Text>
+                                <Text>{time / 1000}s</Text>
                             </Group>
                         </>
                         :
