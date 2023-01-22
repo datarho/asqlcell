@@ -21,10 +21,6 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
     const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
-    const headerContent = hist ?
-        JSON.parse(hist).dfhead.slice(0, -1)
-        :
-        [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
     let timeDiff = 0;
     if (data) {
         const timeList = data.split("\n").pop();
@@ -32,6 +28,10 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
             timeDiff = (new Date(timeList ? timeList.split(",")[1] : "0").getTime() - new Date(timeList ? timeList.split(",")[0] : "0").getTime()) / 1000;
         }
     }
+    const headerContent = hist ?
+        JSON.parse(hist).dfhead
+        :
+        [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
 
 
     const rows = [...Array(info.index.length).keys()].map((index) => (
