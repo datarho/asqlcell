@@ -3,6 +3,7 @@ import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea 
 import React from "react";
 import { uuid } from "@jupyter-widgets/base";
 import { DataframeHeader } from "./header";
+import { TableElement } from "./elemenet";
 
 interface prop {
     data: string,
@@ -47,7 +48,10 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                     :
                                     "False"
                                 :
-                                item
+                                typeof (item) === "string" && item.length > 30 ?
+                                    <TableElement item={item} />
+                                    :
+                                    item
                         }
                     </td>
                 ))
@@ -63,13 +67,19 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                 width: "100%",
                 marginBottom: "16px",
             }}>
-            <ScrollArea style={{ width: "100%" }}>
+            <ScrollArea scrollbarSize={3} style={{ width: "100%" }}>
                 <Table
                     withBorder
                     withColumnBorders
                     striped
                     sx={{
                         width: "100%",
+                        "& thead": {
+                            height: "57px",
+                        },
+                        "& td": {
+                            maxWidth: "200px"
+                        },
                         "& tbody tr td": {
                             padding: "0px 3px",
                         },
