@@ -95,7 +95,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                         },
                     }}>
 
-                    <DataframeHeader headerContent={headerContent} header={header} model={model} />
+                    <DataframeHeader headerContent={headerContent} header={header} model={model} data={data} />
 
                     <tbody>
                         {rows}
