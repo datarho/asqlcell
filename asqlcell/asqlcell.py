@@ -30,6 +30,12 @@ def get_duckdb_connection():
         __DUCKDB = duckdb.connect(database=":memory:", read_only=False)
     return __DUCKDB
 
+def get_vars():
+    vars = {}
+    for v in dir(__main__):
+        vars[v] = get_value(v)
+    return vars
+
 def get_dfs():
     dfs = []
     for v in dir(__main__):
@@ -41,6 +47,7 @@ def get_dfs():
 def get_duckdb_result(sql):
     for v in get_dfs():
         get_duckdb_connection().register(v[0], v[1])
+    #sql = Template(sql).render(get_vars())
     df = get_duckdb_connection().execute(sql).df()
     for v in get_dfs():
         get_duckdb_connection().unregister(v[0])
