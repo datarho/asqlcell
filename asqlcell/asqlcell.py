@@ -14,8 +14,6 @@ module_version = "0.1.0"
 @register_cell_magic
 def sql(line, cell=''):
     name = line.strip()
-    if (len(name) == 0):
-        name = 'sqlcelldf'
     return SqlcellWidget(cell, True, name)
 
 @register_line_magic
@@ -96,6 +94,8 @@ class SqlcellWidget(DOMWidget):
 
     def run_sql(self):
         try:
+            if len(self.dfname) == 0:
+                raise Exception("Dataframe name is null!")
             time1 = datetime.datetime.now()
             setattr(__main__, self.dfname, get_duckdb_result(self.sql))
             time2 = datetime.datetime.now()
