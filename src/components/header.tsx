@@ -46,7 +46,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                 spec={{
                     "background": "transparent",
                     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-                    "data": { "name": 'table' },
+                    "data": { "name": "table" },
                     "width": 60,
                     "height": 40,
                     "config": { "view": { "stroke": null } },
