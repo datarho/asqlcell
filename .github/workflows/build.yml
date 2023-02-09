@@ -48,7 +48,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip setuptools codecov
-          jlpm
+          yarn
           yarn add codecov
 
       - name: Test the extension
@@ -57,7 +57,7 @@ jobs:
           yarn run lint:check
 
           ipython -c "import pytest; pytest.main(['.'])"
-          jlpm test
+          yarn test
 
       - name: Check docs can be build + links
         run: |
