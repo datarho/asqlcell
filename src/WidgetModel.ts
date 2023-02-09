@@ -78,8 +78,8 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             this.trigger("data_message", msg);
         }
 
-        if (msg.includes("dfhead")) {
-            this.trigger("hist", msg);
+        if (msg.includes("__JSD:")) {
+            this.trigger("hist", msg.slice(6, msg.length));
         }
     }
     handle_update_messages(msg: any) {

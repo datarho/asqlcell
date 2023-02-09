@@ -2,43 +2,58 @@ import React, { useEffect, useRef, useState } from "react";
 import { WidgetModel } from "@jupyter-widgets/base";
 import { useModelState, WidgetModelContext } from "./hooks";
 import { Box, Group, Stack, Text, Textarea, TextInput, ActionIcon } from "@mantine/core";
-import { DataTable } from "./components/table"
+
 import { VscDebugStart } from "react-icons/vsc";
-import { DataImport } from "./components/dataimport";
+import { DataImport, DataTable } from "./components";
 
 interface WidgetProps {
     model: WidgetModel;
 }
 export interface Dfhead {
     columnName: string,
+    dtype: string,
     bins: { bin_start: number, bin_end: number, count: number }[],
+    time1?: string;
+    time2?: string;
 }
 
 const ReactWidget = (props: WidgetProps) => {
-    const [hist, setHist] = useState<Dfhead[]>([{ columnName: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }]);
+    const [hist, setHist] = useState<string>("");
     const [sqlContent, setSqlContent] = useState(props.model.get("value") ?? "");
-    const [show, setShow] = useState<boolean>(props.model.get("show") ?? true);
+    const [show, setShow] = useState<boolean>(props.model.get("show"));
     const [output, setOutput] = useModelState("output");
     const [outputName, setOutputName] = useState(output);
     const [page, setPage] = useState(1);
     const [data, setData] = useState(props.model.get("data") ?? "")
     const [error, setError] = useState(props.model.get("error") ?? "")
     const [rowNumber, setRowNumber] = useState<number>(10);
+    const [timeStamp, setTimeStamp] = useState<number>(0);
     const [time, setTime] = useState<number>(0);
     const [openTimer, setOpenTimer] = useState<boolean>(false);
     const [timerId, setTimerId] = useState<number>();
 
     const latestCallback = useRef<any | null>(null);
+    const escape = () => {
+        if (document.activeElement instanceof HTMLElement) {
+            if (outputName.trim().length > 0) {
+                setOutput(outputName);
+                document.activeElement.blur();
+            }
+            else {
+                setOutputName(output);
+            }
+        }
+    }
 
     useEffect(() => {
-        latestCallback.current = () => { setTime(time + 1); };
+        latestCallback.current = () => { setTime(Date.now() - timeStamp); };
     });
 
     useEffect(() => {
         if (!openTimer) {
             window.clearInterval(Number(timerId));
         } else {
-            setTimerId(window.setInterval(() => latestCallback.current(), 1));
+            setTimerId(window.setInterval(() => latestCallback.current(), 10));
         }
     }, [openTimer]);
 
@@ -63,8 +78,9 @@ const ReactWidget = (props: WidgetProps) => {
         setShow(msg);
     })
     props.model?.on("data_message", (msg) => {
-        setData(msg.slice(6, msg.length));
-        setOpenTimer(false);
+        if (msg.slice(6, msg.length) !== data) {
+            setData(msg.slice(6, msg.length));
+        }
         setError("");
     })
     props.model?.on("update_outputName", (msg) => {
@@ -81,15 +97,11 @@ const ReactWidget = (props: WidgetProps) => {
     props.model?.on("importData", (msg) => {
         setSqlContent("select * from " + msg);
     })
-    props.model?.on("clickButton", (msg) => {
-        props.model.set("json_dump", new Date().toISOString());
-        props.model?.set("sql_button", new Date().toISOString());
-        props.model?.save_changes();
-    })
     props.model?.on("hist", (msg: any) => {
         if (msg) {
-            setHist(JSON.parse(msg).dfhead);
+            setHist(msg)
         }
+        setOpenTimer(false);
     })
 
     return (
@@ -130,14 +142,25 @@ const ReactWidget = (props: WidgetProps) => {
                                                 fontWeight: "bold",
                                                 paddingLeft: 0,
                                                 ":focus": {
-                                                    borderColor: "lightgray",
+                                                    borderColor: outputName.trim().length === 0 ? "red" : "lightgray",
                                                 }
                                             },
                                         })}
                                         value={outputName}
-                                        onChange={(e) => {
-                                            setOutput(e.target.value);
+                                        onBlur={() => {
+                                            escape();
                                         }}
+                                        onKeyDown={(e) => {
+                                            if (["Enter", "Escape"].includes(e.code)) {
+                                                console.log("a")
+                                                e.preventDefault();
+                                                escape();
+                                            }
+                                        }}
+                                        onChange={(e) => {
+                                            setOutputName(e.target.value);
+                                        }}
+
                                     />
                                 </Group>
                             </Group>
@@ -156,6 +179,7 @@ const ReactWidget = (props: WidgetProps) => {
                                         autosize
                                         minRows={3}
                                         sx={{
+                                            marginTop: "10px",
                                             ".mantine-Textarea-input": {
                                                 height: "88px",
                                             }
@@ -170,11 +194,13 @@ const ReactWidget = (props: WidgetProps) => {
                                     onClick={() => {
                                         setPage(1);
                                         props.model?.trigger("setRange", [0, rowNumber * 1]);
-                                        props.model?.trigger("clickButton")
+                                        props.model?.set("sql_button", new Date().toISOString());
+                                        props.model?.save_changes();
+                                        props.model.set("json_dump", new Date().toISOString());
+                                        props.model?.save_changes();
                                         setTime(0)
+                                        setTimeStamp(Date.now());
                                         setOpenTimer(true)
-                                        setHist([{ columnName: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }])
-                                        setData("")
                                     }}
                                     sx={{ height: "100%" }}
                                 >
@@ -205,6 +231,7 @@ const ReactWidget = (props: WidgetProps) => {
                                 rowNumber={rowNumber}
                                 setRowNumber={setRowNumber}
                                 hist={hist}
+                                show={show}
                             />
                             :
                             <Box sx={{ height: "60px" }} />

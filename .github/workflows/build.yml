@@ -12,10 +12,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Install node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: "12.x"
+          node-version: "18"
+
       - name: Install Python
         uses: actions/setup-python@v4
         with:
@@ -31,28 +33,31 @@ jobs:
             pip-3.9-
             pip-
 
-      - name: Get npm cache directory
-        id: npm-cache
-        run: |
-          echo "::set-output name=dir::$(npm config get cache)"
-      - uses: actions/cache@v2
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        id: yarn-cache
         with:
-          path: ${{ steps.npm-cache.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-yarn-
 
       - name: Install dependencies
         run: |
           python -m pip install -U pip setuptools codecov
-          npm install -g codecov
+          yarn
+          yarn add codecov
+
       - name: Test the extension
         run: |
           python -m pip install --upgrade -v -e ".[test, examples, docs]"
           yarn run lint:check
 
           ipython -c "import pytest; pytest.main(['.'])"
-          yarn run test
+          yarn test
 
       - name: Check docs can be build + links
         run: |

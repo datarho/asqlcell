@@ -10,12 +10,14 @@ interface prop {
 export const DataImport: FunctionComponent<prop> = ({ model }) => {
 
     const [opened, setOpened] = useState<boolean>(false);
-    const [dataframe, setDataFrame] = useState("")
+    const [dataframe, setDataFrame] = useState("");
+    const DropdownHeight = dataframe.trim().split(/\r?\n/).length >= 5 ? "125px" : `${dataframe.trim().split(/\r?\n/).length * 25}px`;
     const items = dataframe.split("\n").map((name, index) => (
         name === "" ?
             <></>
             :
             <NavLink
+                sx={{ height: "25px" }}
                 className="data list"
                 key={index}
                 label={name.split("\t")[0]}
@@ -56,12 +58,6 @@ export const DataImport: FunctionComponent<prop> = ({ model }) => {
                     >
                         <Text
                             color="gray"
-                            sx={{ marginRight: "10px" }}
-                        >
-                            SOURCE
-                        </Text>
-                        <Text
-                            color="gray"
                             sx={{ fontWeight: "bold" }}
                         >
                             Dataframe
@@ -76,15 +72,20 @@ export const DataImport: FunctionComponent<prop> = ({ model }) => {
                         padding: "2px",
                     }}
                 >
-                    <ScrollArea sx={{ height: "120px" }}>
-                        <Group style={{ width: "100%" }}>
-                            <Box sx={{
-                                padding: 0,
-                            }}>
-                                {items}
-                            </Box>
-                        </Group>
-                    </ScrollArea>
+                    {
+                        dataframe ?
+                            <ScrollArea sx={{ height: DropdownHeight }}>
+                                <Group style={{ width: "100%" }}>
+                                    <Box sx={{
+                                        padding: 0,
+                                    }}>
+                                        {items}
+                                    </Box>
+                                </Group>
+                            </ScrollArea>
+                            :
+                            <Text color={"lightgray"}>There is no dataframe.</Text>
+                    }
                 </Popover.Dropdown>
             </Popover>
         </>

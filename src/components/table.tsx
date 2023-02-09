@@ -1,10 +1,9 @@
-import { FunctionComponent, useEffect, useState } from "react";
-import { Button, Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea } from "@mantine/core"
+import { FunctionComponent, useState } from "react";
+import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea } from "@mantine/core"
 import React from "react";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
 import { uuid } from "@jupyter-widgets/base";
-// import { Bar } from "@nivo/bar";
-import { Dfhead } from "../WidgetView";
+import { DataframeHeader } from "./header";
+import { TableElement } from "./elemenet";
 
 interface prop {
     data: string,
@@ -13,30 +12,27 @@ interface prop {
     setPage: React.Dispatch<React.SetStateAction<number>>,
     rowNumber: number,
     setRowNumber: React.Dispatch<React.SetStateAction<number>>,
-    hist: Dfhead[];
+    hist: string;
+    show: boolean;
 }
 
-const Order = {
-    Increasing: 1,
-    Descending: -1,
-    None: 0,
-}
-
-export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage, rowNumber, setRowNumber, hist }) => {
-    const [order, setOrder] = useState(Order.Increasing);
-    const [col, setColName] = useState<string>(" ");
+export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage, rowNumber, setRowNumber, hist, show }) => {
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
     const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
-    let currentOrder = Order.None;
-
-
-    useEffect(() => {
-        model.set("json_dump", new Date().toISOString());
-        model.save_changes();
-    }, [])
+    let timeDiff = 0;
+    if (data) {
+        const timeList = data.split("\n").pop();
+        if (timeList !== "") {
+            timeDiff = (new Date(timeList ? timeList.split(",")[1] : "0").getTime() - new Date(timeList ? timeList.split(",")[0] : "0").getTime()) / 1000;
+        }
+    }
+    const headerContent = hist ?
+        JSON.parse(hist).dfhead
+        :
+        [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
 
 
     const rows = [...Array(info.index.length).keys()].map((index) => (
@@ -52,7 +48,10 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                     :
                                     "False"
                                 :
-                                item
+                                typeof (item) === "string" && item.length > 30 ?
+                                    <TableElement item={item} />
+                                    :
+                                    item
                         }
                     </td>
                 ))
@@ -68,13 +67,19 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                 width: "100%",
                 marginBottom: "16px",
             }}>
-            <ScrollArea style={{ width: "100%" }}>
+            <ScrollArea scrollbarSize={3} style={{ width: "100%" }}>
                 <Table
                     withBorder
                     withColumnBorders
                     striped
                     sx={{
                         width: "100%",
+                        "& thead": {
+                            height: "57px",
+                        },
+                        "& td": {
+                            maxWidth: "200px"
+                        },
                         "& tbody tr td": {
                             padding: "0px 3px",
                         },
@@ -89,88 +94,9 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                             backgroundColor: "#f2f2f2",
                         },
                     }}>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            {
-                                header.map((item, index) =>
-                                    <th
-                                        key={index}
-                                        style={{
-                                            textAlign: "center",
-                                            padding: 0,
-                                        }}>
-                                        <Button
-                                            color="dark"
-                                            sx={{
-                                                width: "100%",
-                                                height: "27px",
-                                                "&.mantine-UnstyledButton-root:hover": {
-                                                    backgroundColor: "#ebebeb"
-                                                }
-                                            }}
-                                            rightIcon={
-                                                col === item ?
-                                                    order === Order.Increasing ?
-                                                        <FaSortUp color="gray" size={10} />
-                                                        :
-                                                        order === Order.Descending ?
-                                                            <FaSortDown color="gray" size={10} />
-                                                            :
-                                                            <FaSort color="lightgray" size={10} />
-                                                    :
-                                                    <FaSort color="lightgray" size={10} />
-                                            }
-                                            variant="subtle"
-                                            onClick={() => {
-                                                if (col === item) {
-                                                    if (order === Order.Increasing) {
-                                                        currentOrder = Order.Descending
-                                                        setOrder(Order.Descending)
-                                                    }
-                                                    else if (order === Order.Descending) {
-                                                        currentOrder = Order.None;
-                                                        setOrder(Order.None);
-                                                    } else {
-                                                        currentOrder = Order.Increasing
-                                                        setOrder(Order.Increasing)
-                                                    }
-                                                } else {
-                                                    currentOrder = Order.Increasing
-                                                    setOrder(Order.Increasing)
-                                                    setColName(item)
-                                                }
-                                                model?.trigger("sort", [item, currentOrder])
-                                            }}
-                                        >
-                                            {item}
-                                        </Button>
-                                        {/* {
-                                            hist ?
-                                                hist.filter(his => his.columnName === item).length !== 0 ?
-                                                    <Bar
-                                                        data={hist.filter(his => his.columnName === item)[0].bins}
-                                                        enableGridY={false}
-                                                        colorBy={"id"}
-                                                        keys={["count"]}
-                                                        indexBy="bin_start"
-                                                        layout={"vertical"}
-                                                        groupMode={"stacked"}
-                                                        reverse={false}
-                                                        height={40} width={60}
-                                                        enableLabel={false}
-                                                        valueScale={{ type: "symlog" }}
-                                                    />
-                                                    :
-                                                    <></>
-                                                :
-                                                <></>
-                                        } */}
-                                    </th>
-                                )
-                            }
-                        </tr>
-                    </thead>
+
+                    <DataframeHeader headerContent={headerContent} header={header} model={model} data={data} />
+
                     <tbody>
                         {rows}
                     </tbody>
@@ -179,7 +105,15 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
             <Group
                 position="apart"
                 sx={{ width: "100%" }}>
-                <Group><Text color="#8d8d8d">{dataLength} rows</Text></Group>
+                <Group>
+                    <Text color="#8d8d8d">{dataLength} rows</Text>
+                    {
+                        timeDiff !== 0 ?
+                            <Text color="#8d8d8d">{timeDiff} s</Text>
+                            :
+                            <></>
+                    }
+                </Group>
                 <Group align={"center"}>
                     <Group sx={{ gap: 0 }}>
                         <Select
