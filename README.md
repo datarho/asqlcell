@@ -19,7 +19,7 @@ Here's a quick example to get you started with Analytical SQL Cell in Jupyter:
 
 SELECT 
     *
-FROM 'sampledata.csv'
+FROM 'data.csv'
 LIMIT 10
 ```
 
@@ -42,6 +42,11 @@ In case of multiple SQL statements being executed in an Analytical SQL Cell, onl
 If the last SQL statement didn't have any result set, then only the count of executed data rows is shown. 
 
 ![sample result table](screenshot.jpg)
+
+### Tutorial
+
+ * [Introduction](examples/introduction.ipynb)
+ * [World Development in Numbers](examples/gapminder.ipynb)
 
 ## Development
 
