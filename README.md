@@ -1,9 +1,7 @@
-# Analytical Sql Cell
+# Analytical SQL Cell
 
-Analytical sql cell for Jupyter.
+Analytical SQL cell for Jupyter.
 
-[![Build Status](https://travis-ci.org/datarho.tech/sqlcell.svg?branch=master)](https://travis-ci.org/datarho.tech/sqlcell)
-[![codecov](https://codecov.io/gh/datarho.tech/sqlcell/branch/master/graph/badge.svg)](https://codecov.io/gh/datarho.tech/sqlcell)
 
 ## Installation
 
@@ -13,11 +11,37 @@ You can install using `pip`:
 pip install asqlcell
 ```
 
-If you are using Jupyter Notebook 5.2 or earlier, you may also need to enable
-the nbextension:
-```bash
-jupyter nbextension enable --py [--sys-prefix|--user|--system] asqlcell
+## Quick Start
+
+Here's a quick example to get you started with Analytical SQL Cell in Jupyter:
+
+```%%sql result_set
+
+SELECT 
+    *
+FROM 'sampledata.csv'
+LIMIT 10
 ```
+
+In the above sample, `%%sql` is a cell magic indicating that the cell block will be executed as a SQL statement. The following `result_set` is required to be the name of Pandas dataframe holding the result set.
+
+### Data Load
+
+You can query from Pandas DataFrame, CSV files, compressed (e.g. compressed with gzip) CSV files, as well as Parquet files.
+
+### SQL
+
+DuckDB is the default engine of Analytical SQL Cell. Please find more details at the [SQL Introduction](https://duckdb.org/docs/sql/introduction) of DuckDB.
+
+### Result Table
+
+With the SQL query being executed in an Analytical SQL Cell, the result set is presented as a table.
+
+In case of multiple SQL statements being executed in an Analytical SQL Cell, only the result set of the last SQL statement will be presented.
+
+If the last SQL statement didn't have any result set, then only the count of executed data rows is shown. 
+
+![sample result table](screenshot.jpg)
 
 ## Development
 
