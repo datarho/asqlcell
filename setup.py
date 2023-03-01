@@ -95,7 +95,7 @@ setup_args = dict(
     install_requires=[
         "ipywidgets>=8.0.0",
         "pandas>=1.5.2",
-        "duckdb>=0.6.1",
+        "duckdb>=0.7.0",
     ],
     extras_require = {
         'test': [
