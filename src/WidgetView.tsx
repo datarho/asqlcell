@@ -31,6 +31,7 @@ const ReactWidget = (props: WidgetProps) => {
     const [time, setTime] = useState<number>(0);
     const [openTimer, setOpenTimer] = useState<boolean>(false);
     const [timerId, setTimerId] = useState<number>();
+    const [execTime, setExecTime] = useState<string>(props.model.get("exec_time") ?? "");
 
     const latestCallback = useRef<any | null>(null);
     const escape = () => {
@@ -93,11 +94,13 @@ const ReactWidget = (props: WidgetProps) => {
     props.model?.on("importData", (msg) => {
         setSqlContent("select * from " + msg);
     })
-    props.model?.on("hist", (msg: any) => {
-        if (msg) {
-            setHist(msg)
-        }
+    props.model?.on("hist", (msg: string) => {
+        setHist(msg)
         setOpenTimer(false);
+    })
+    props.model?.on("execTime", (msg: string) => {
+        console.log("msg", msg)
+        setExecTime(msg.slice(9, msg.length));
     })
 
     return (
@@ -188,11 +191,12 @@ const ReactWidget = (props: WidgetProps) => {
                                 <ActionIcon
                                     onClick={() => {
                                         setPage(1);
-                                        props.model?.trigger("setRange", [0, rowNumber * 1, new Date().toISOString()]);
                                         props.model?.set("sql_button", new Date().toISOString());
                                         props.model?.save_changes();
-                                        props.model.set("json_dump", new Date().toISOString());
-                                        props.model?.save_changes();
+                                        props.model.set("data_range", [[0, 10], new Date().toISOString()], "")
+                                        props.model.save_changes();
+                                        // props.model.set("json_dump", new Date().toISOString());
+                                        // props.model?.save_changes();
                                         setTime(0)
                                         setTimeStamp(Date.now());
                                         setOpenTimer(true)
@@ -226,7 +230,7 @@ const ReactWidget = (props: WidgetProps) => {
                                 rowNumber={rowNumber}
                                 setRowNumber={setRowNumber}
                                 hist={hist}
-                                show={show}
+                                execTime={execTime}
                             />
                             :
                             <Box sx={{ height: "60px" }} />

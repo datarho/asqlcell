@@ -113,7 +113,7 @@ class SqlcellWidget(DOMWidget):
             setattr(__main__, self.dfname, get_duckdb_result(self.sql))
             self.hist = get_histogram(get_value(self.dfname))
             time2 = datetime.datetime.now()
-            self.send_df(str(time1) + "," + str(time2))
+            self.send_df(str(json.dumps(self.hist)) + "\nExecTime:" + str(time1) + "," + str(time2))
         except Exception as r:
             self.send(("__ERT:" if self.iscommand else "__ERR:") + str(r))
 
@@ -152,7 +152,7 @@ class SqlcellWidget(DOMWidget):
     def on_data_range(self, change):
         self.row_start = change.new[0]
         self.row_end = change.new[1]
-        self.send_df()
+        self.send_df(str(json.dumps(self.hist)))
 
     @observe('index_sort')
     def on_index_sort(self, change):

@@ -15,6 +15,7 @@ const defaultModelProperties = {
     dfs_button: "",
     data: "",
     error: "",
+    exec_time: "",
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -36,6 +37,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             dfs_button: undefined,
             data: undefined,
             error: undefined,
+            exec_time: "",
         };
     }
 
@@ -50,12 +52,12 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
     handle_custom_messages(msg: any) {
         if (msg.includes("\"iscommand\": true")) {
             this.trigger("show", false);
-            this.set("data_range", [...this.get("data_range").slice(0, 2), new Date().toISOString()], "");
+            this.set("data_range", [...this.get("data_range").slice(0, 2), new Date().toISOString()], "")
             this.save_changes();
         }
         else if (msg.includes("\"iscommand\": false")) {
             this.trigger("show", true);
-            if (!this.get("data") && (this.get("value").length > 0)) {
+            if (this.get("value")) {
                 this.set("data_range", [...this.get("data_range").slice(0, 2), new Date().toISOString()], "")
                 this.save_changes();
             }
@@ -75,6 +77,8 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         if (msg.includes("__DFM:")) {
             // set data into widget 
             this.trigger("data_message", msg);
+            this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
+            this.set("exec_time", (msg.slice(6, msg.length)).split("\n")[3]);
         }
         else if (msg.includes("__DFT:")) {
             // store data before into widgetview
@@ -82,10 +86,12 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
 
             // set data into widget 
             this.trigger("data_message", msg);
-        }
+            if (msg.includes("columnName")) {
+                this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
+            } else if (msg.includes("ExecTime")) {
+                this.set("exec_time", (msg.slice(6, msg.length)).split("\n")[2]);
+            }
 
-        if (msg.includes("__JSD:")) {
-            this.trigger("hist", msg.slice(6, msg.length));
         }
     }
     handle_update_messages(msg: any) {

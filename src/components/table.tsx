@@ -13,24 +13,21 @@ interface prop {
     rowNumber: number,
     setRowNumber: React.Dispatch<React.SetStateAction<number>>,
     hist: string;
-    show: boolean;
+    execTime: string;
 }
 
-export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage, rowNumber, setRowNumber, hist, show }) => {
+export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage, rowNumber, setRowNumber, hist, execTime }) => {
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
     const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
     let timeDiff = 0;
-    if (data) {
-        const timeList = data.split("\n").pop();
-        if (timeList !== "") {
-            timeDiff = (new Date(timeList ? timeList.split(",")[1] : "0").getTime() - new Date(timeList ? timeList.split(",")[0] : "0").getTime()) / 1000;
-        }
+    if (execTime.length !== 0) {
+        timeDiff = (new Date(execTime.split(",")[1]).getTime() - new Date(execTime.split(",")[0]).getTime()) / 1000;
     }
     const headerContent = hist ?
-        JSON.parse(hist).dfhead
+        JSON.parse(hist)
         :
         [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
 
