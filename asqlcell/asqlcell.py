@@ -19,8 +19,10 @@ module_version = "0.1.0"
 @needs_local_scope
 @register_cell_magic
 def sql(line, cell='', local_ns={}):
-    name = line.strip()
-    return SqlcellWidget(cell, True, name)
+    cellid = 'asqlcell' + IPython.get_ipython().get_local_scope(10)['cell_id']
+    if (get_value(cellid) == None):
+        setattr(__main__, cellid, SqlcellWidget(cell, True, line.strip()))
+    return get_value(cellid)
 
 @register_line_magic
 def sql(line=""):
@@ -51,7 +53,6 @@ def get_dfs():
 def get_duckdb_result(sql):
     for v in get_dfs():
         get_duckdb_connection().register(v[0], v[1])
-    #sql = Template(sql).render(get_vars())
     df = get_duckdb_connection().execute(sql).df()
     for v in get_dfs():
         get_duckdb_connection().unregister(v[0])
@@ -107,7 +108,6 @@ class SqlcellWidget(DOMWidget):
     def run_sql(self):
         try:
             if len(self.dfname) == 0:
-                #raise Exception("Dataframe name is null!")
                 self.dfname = "__" + IPython.get_ipython().get_local_scope(10)['cell_id']
             time1 = datetime.datetime.now()
             setattr(__main__, self.dfname, get_duckdb_result(self.sql))
