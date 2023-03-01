@@ -99,6 +99,9 @@ const ReactWidget = (props: WidgetProps) => {
         }
         setOpenTimer(false);
     })
+    props.model.on("page", (msg: number) => {
+        setPage(msg);
+    })
 
     return (
         <div className="Widget">
