@@ -92,7 +92,7 @@ class SqlcellWidget(DOMWidget):
 
     value = Unicode('').tag(sync=True)
     output = Unicode('sqlcelldf').tag(sync=True)
-    data_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
+    data_range = Tuple(Int(), Int(), Unicode(), default_value=(0, 10, '')).tag(sync=True)
     index_sort = Tuple(Unicode(), Int(), default_value=('', 0)).tag(sync=True)
     dfs_button = Unicode('').tag(sync=True)
     sql_button = Unicode('').tag(sync=True)
@@ -100,7 +100,6 @@ class SqlcellWidget(DOMWidget):
 
     def send_df(self, tail=""):
         df = get_value(self.dfname)
-
         self.send(("__DFT:" if self.iscommand else "__DFM:") + 
                 str(df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + 
                     str(len(df)) + "\n" + tail)
@@ -109,9 +108,10 @@ class SqlcellWidget(DOMWidget):
         try:
             if len(self.dfname) == 0:
                 #raise Exception("Dataframe name is null!")
-                self.dfname = get_ipython().get_local_scope(10)['cell_id']
+                self.dfname = "__" + IPython.get_ipython().get_local_scope(10)['cell_id']
             time1 = datetime.datetime.now()
             setattr(__main__, self.dfname, get_duckdb_result(self.sql))
+            self.hist = get_histogram(get_value(self.dfname))
             time2 = datetime.datetime.now()
             self.send_df(str(time1) + "," + str(time2))
         except Exception as r:
@@ -123,6 +123,7 @@ class SqlcellWidget(DOMWidget):
         self.row_start = 0
         self.row_end = 10
         self.iscommand = iscommand
+        self.hist = ''
         self.sql = sql
         if (len(sql) > 0):
             self.run_sql()
@@ -133,7 +134,7 @@ class SqlcellWidget(DOMWidget):
         dump['dfname' ] = self.dfname
         dump['iscommand'] = self.iscommand
         dump['sql'] = self.sql
-        dump['dfhead'] = get_histogram(get_value(self.dfname))
+        dump['dfhead'] = self.hist
         self.send("__JSD:" + str(json.dumps(dump)))
 
     @observe('dfs_button')
