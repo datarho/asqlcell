@@ -63,10 +63,6 @@ const ReactWidget = (props: WidgetProps) => {
     }, [sqlContent])
 
     // Ask back-end whether this is a command mode, so we could decide whether to show inputArea
-    useEffect(() => {
-        props.model.set("json_dump", new Date().toISOString());
-        props.model.save_changes();
-    }, [])
 
     // Receive event from Model
     props.model?.on("error", (msg) => {
@@ -152,7 +148,6 @@ const ReactWidget = (props: WidgetProps) => {
                                         }}
                                         onKeyDown={(e) => {
                                             if (["Enter", "Escape"].includes(e.code)) {
-                                                console.log("a")
                                                 e.preventDefault();
                                                 escape();
                                             }

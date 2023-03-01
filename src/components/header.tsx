@@ -23,7 +23,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
     const [col, setColName] = useState<string>(" ");
     const [openLineChart, setOpenLineChart] = useState<boolean>(false);
 
-    const LineChart: FunctionComponent<{ data: any }> = ({ data }) => {
+    const BarChart: FunctionComponent<{ data: any }> = ({ data }) => {
         const barData = {
             table: [
                 { a: `${data[0].bin_start}-${data[0].bin_end}`, b: data[0].count },
@@ -215,7 +215,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                         {
                                             headerContent.filter(header => header.columnName === item && (["int32", "int64", "float64"].includes(header.dtype))).length !== 0 ?
                                                 <Stack sx={{ gap: 0 }}>
-                                                    <LineChart data={headerContent.filter(header => header.columnName === item)[0].bins} />
+                                                    <BarChart data={headerContent.filter(header => header.columnName === item)[0].bins} />
                                                     {/* <Bar
                                                         data={headerContent.filter(header => header.columnName === item)[0].bins}
                                                         enableGridY={false}

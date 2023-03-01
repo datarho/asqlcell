@@ -15,7 +15,6 @@ const defaultModelProperties = {
     dfs_button: "",
     data: "",
     error: "",
-    show: undefined,
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -37,22 +36,29 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             dfs_button: undefined,
             data: undefined,
             error: undefined,
-            show: undefined,
         };
     }
 
     initialize(attributes: any, options: any) {
         super.initialize(attributes, options);
+        this.set("json_dump", new Date().toISOString());
+        this.save_changes();
         this.on("msg:custom", this.handle_custom_messages, this);
         this.on("change:output", this.handle_update_messages, this);
     }
 
     handle_custom_messages(msg: any) {
         if (msg.includes("\"iscommand\": true")) {
-            this.trigger("show", false)
+            this.trigger("show", false);
+            this.set("sql_button", new Date().toISOString());
+            this.save_changes();
         }
         else if (msg.includes("\"iscommand\": false")) {
-            this.trigger("show", true)
+            this.trigger("show", true);
+            if (!this.get("data") && (this.get("value").length > 0)) {
+                this.set("sql_button", new Date().toISOString());
+                this.save_changes();
+            }
         }
 
         if (msg.includes("__ERR:")) {
