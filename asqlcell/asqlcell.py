@@ -1,4 +1,8 @@
-from IPython.core.magic import register_cell_magic, register_line_magic
+from IPython.core.magic import (
+    register_cell_magic,
+    register_line_magic,
+    needs_local_scope
+)
 from ipywidgets import DOMWidget
 from traitlets import Unicode, Tuple, Int, observe, validate
 import duckdb
@@ -7,14 +11,22 @@ import numpy as np
 import json
 import __main__
 import datetime
+import IPython
 
 module_name = "asqlcell"
 module_version = "0.1.0"
 
+@needs_local_scope
 @register_cell_magic
-def sql(line, cell=''):
-    name = line.strip()
-    return SqlcellWidget(cell, True, name)
+def sql(line, cell='', local_ns={}):
+    cellid = 'asqlcell' + get_cell_id()
+    if get_value(cellid) == None:
+        setattr(__main__, cellid, SqlcellWidget(iscommand=True))
+    w = get_value(cellid)
+    w.reset(cell, line.strip())
+    if len(w.sql) > 0:
+        w.run_sql()
+    return w
 
 @register_line_magic
 def sql(line=""):
@@ -27,6 +39,21 @@ def get_duckdb_connection():
     if not __DUCKDB:
         __DUCKDB = duckdb.connect(database=":memory:", read_only=False)
     return __DUCKDB
+
+def get_duckdb_result(sql):
+    for v in get_dfs():
+        get_duckdb_connection().register(v[0], v[1])
+    df = get_duckdb_connection().execute(sql).df()
+    for v in get_dfs():
+        get_duckdb_connection().unregister(v[0])
+    return df
+
+def get_cell_id():
+    for i in range(20):
+        if IPython.get_ipython().get_local_scope(i).get('cell_id') != None:
+            return IPython.get_ipython().get_local_scope(i)['cell_id']
+    print("NO CELL_ID")
+    return ''
 
 def get_vars():
     vars = {}
@@ -42,15 +69,6 @@ def get_dfs():
             dfs.append((v, var))
     return dfs
 
-def get_duckdb_result(sql):
-    for v in get_dfs():
-        get_duckdb_connection().register(v[0], v[1])
-    #sql = Template(sql).render(get_vars())
-    df = get_duckdb_connection().execute(sql).df()
-    for v in get_dfs():
-        get_duckdb_connection().unregister(v[0])
-    return df
-
 def get_value(variable_name):
     return getattr(__main__, variable_name, None)
 
@@ -62,18 +80,18 @@ def is_type_numeric(dtype):
     except TypeError:
         return False
 
-def get_histogram(sqlcelldf):
+def get_histogram(df):
     hist = []
-    if isinstance(sqlcelldf, pd.DataFrame):
-        for column in sqlcelldf:
-            col = sqlcelldf[column]
+    if isinstance(df, pd.DataFrame):
+        for column in df:
+            col = df[column]
             if (is_type_numeric(col.dtypes)):
                 np_array= np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
                 y, bins = np.histogram(np_array, bins=10)
-                hist.append({"columnName" : column, "dtype" : sqlcelldf.dtypes[column].name,
+                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name,
                     "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
             else:
-                hist.append({"columnName" : column, "dtype" : sqlcelldf.dtypes[column].name})
+                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name})
     return hist
 
 class SqlcellWidget(DOMWidget):
@@ -86,32 +104,41 @@ class SqlcellWidget(DOMWidget):
 
     value = Unicode('').tag(sync=True)
     output = Unicode('sqlcelldf').tag(sync=True)
-    data_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
+    data_range = Tuple(Int(), Int(), Unicode(), default_value=(0, 10, '')).tag(sync=True)
     index_sort = Tuple(Unicode(), Int(), default_value=('', 0)).tag(sync=True)
     dfs_button = Unicode('').tag(sync=True)
     sql_button = Unicode('').tag(sync=True)
     json_dump = Unicode('').tag(sync=True)
 
+    def send_df(self, tail=""):
+        df = get_value(self.dfname)
+        self.send(("__DFT:" if self.iscommand else "__DFM:") + 
+                str(df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + 
+                    str(len(df)) + "\n" + tail)
+
     def run_sql(self):
         try:
             if len(self.dfname) == 0:
-                raise Exception("Dataframe name is null!")
+                self.dfname = "__" + get_cell_id()
             time1 = datetime.datetime.now()
             setattr(__main__, self.dfname, get_duckdb_result(self.sql))
+            self.hist = get_histogram(get_value(self.dfname))
             time2 = datetime.datetime.now()
-            self.send_df(str(time1) + "," + str(time2))
+            self.send_df(str(json.dumps(self.hist)) + "\nExecTime:" + str(time1) + "," + str(time2))
         except Exception as r:
             self.send(("__ERT:" if self.iscommand else "__ERR:") + str(r))
 
-    def __init__(self, sql='', iscommand=False, dfname='sqlcelldf'):
-        super(SqlcellWidget, self).__init__()
+    def reset(self, sql, dfname):
         self.dfname = dfname
         self.row_start = 0
         self.row_end = 10
-        self.iscommand = iscommand
+        self.hist = []
         self.sql = sql
-        if (len(sql) > 0):
-            self.run_sql()
+
+    def __init__(self, sql='', iscommand=False, dfname='sqlcelldf'):
+        super(SqlcellWidget, self).__init__()
+        self.iscommand = iscommand
+        self.reset(sql, dfname)
 
     @observe('json_dump')
     def on_json_dump(self, change):
@@ -119,15 +146,8 @@ class SqlcellWidget(DOMWidget):
         dump['dfname' ] = self.dfname
         dump['iscommand'] = self.iscommand
         dump['sql'] = self.sql
-        dump['dfhead'] = get_histogram(get_value(self.dfname))
         self.send("__JSD:" + str(json.dumps(dump)))
 
-    def send_df(self, tail=""):
-        df = get_value(self.dfname)
-        self.send(("__DFT:" if self.iscommand else "__DFM:") + 
-                str(df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + 
-                    str(len(df)) + "\n" + tail)
-    
     @observe('dfs_button')
     def on_dfs_button(self, change):
         result = ""
@@ -143,7 +163,7 @@ class SqlcellWidget(DOMWidget):
     def on_data_range(self, change):
         self.row_start = change.new[0]
         self.row_end = change.new[1]
-        self.send_df()
+        self.send_df(str(json.dumps(self.hist)))
 
     @observe('index_sort')
     def on_index_sort(self, change):

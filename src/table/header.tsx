@@ -3,40 +3,60 @@ import React, { useState } from "react";
 import { FunctionComponent } from "react";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 import { VegaLite } from "react-vega";
+import { useModel } from "../hooks";
 import { Dfhead } from "../WidgetView";
 
 interface props {
     headerContent: Dfhead[];
     header: string[];
-    model: any;
-    data: string,
 }
 
-export const DataframeHeader: FunctionComponent<props> = ({ headerContent, header, model, data }) => {
+export const DataframeHeader: FunctionComponent<props> = ({ headerContent, header }) => {
+    const model = useModel();
     const Order = {
         Increasing: 1,
         Descending: -1,
         None: 0,
     }
-    const [order, setOrder] = useState(Order.Increasing);
+    const [order, setOrder] = useState(model?.get("index_sort")[1]);
     let currentOrder = Order.None;
-    const [col, setColName] = useState<string>(" ");
+    const [col, setColName] = useState<string>(model?.get("index_sort")[0]);
     const [openLineChart, setOpenLineChart] = useState<boolean>(false);
+    const expo = (input: number) => { return input.toExponential(2) };
+    const isScientific = (input: number) => { return (!(0.1 <= Math.abs(input) && Math.abs(input) <= 10000)) };
 
-    const LineChart: FunctionComponent<{ data: any }> = ({ data }) => {
+    const getIntervalSide = (input: number) => {
+        let res = "";
+        if (input === 0) {
+            res = "0";
+        }
+        else if (isScientific(input)) {
+            res = expo(input)
+        } else {
+            res = input.toFixed(2)
+        }
+        return res
+    };
+
+    const globalInterval = (item: string) => {
+        const left = headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start;
+        const right = headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end;
+        return (
+            `[${getIntervalSide(left)}, ${getIntervalSide(right)}]`
+        )
+    }
+
+    const BarChart: FunctionComponent<{ data: any }> = ({ data }) => {
         const barData = {
-            table: [
-                { a: `${data[0].bin_start}-${data[0].bin_end}`, b: data[0].count },
-                { a: `${data[1].bin_start}-${data[1].bin_end}`, b: data[1].count },
-                { a: `${data[2].bin_start}-${data[2].bin_end}`, b: data[2].count },
-                { a: `${data[3].bin_start}-${data[3].bin_end}`, b: data[3].count },
-                { a: `${data[4].bin_start}-${data[4].bin_end}`, b: data[4].count },
-                { a: `${data[5].bin_start}-${data[5].bin_end}`, b: data[5].count },
-                { a: `${data[6].bin_start}-${data[6].bin_end}`, b: data[6].count },
-                { a: `${data[7].bin_start}-${data[7].bin_end}`, b: data[7].count },
-                { a: `${data[8].bin_start}-${data[8].bin_end}`, b: data[8].count },
-                { a: `${data[9].bin_start}-${data[9].bin_end}`, b: data[9].count },
-            ],
+            table:
+                data.map((item: any, index: number) => {
+                    const leftInterval = getIntervalSide(item.bin_start);
+                    const rightInterval = getIntervalSide(item.bin_end);
+                    const interval = `[${leftInterval}, ${rightInterval}]`;
+                    return (
+                        { a: interval, b: item.count, index: index }
+                    )
+                }),
         }
         return (
             <VegaLite
@@ -62,19 +82,18 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                             "transform": [
                                 {
                                     "calculate": "log(datum.b)/log(10)", "as": "log_x",
-                                }, {
-                                    "calculate": "datum.b", "as": "count",
                                 },
                                 {
-                                    "calculate": "datum.a", "as": "interval",
-                                },
+                                    "calculate": "datum.a + ': ' +datum.b", "as": "tooltip",
+                                }
                             ],
                             "encoding": {
                                 "x": {
-                                    "field": "interval",
+                                    "field": "index",
                                     "type": "nominal",
                                     "axis": { "labels": false, "title": null },
                                 },
+                                "tooltip": { "field": "tooltip", "type": "nominal" },
                                 "opacity": {
                                     "condition": { "test": { "param": "hover", "empty": false }, "value": 0.5 },
                                     "value": 0
@@ -89,7 +108,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                             }],
                             "encoding": {
                                 "x": {
-                                    "field": "a",
+                                    "field": "index",
                                     "type": "nominal",
                                     "axis": { "labels": false, "title": null },
                                 },
@@ -215,7 +234,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                         {
                                             headerContent.filter(header => header.columnName === item && (["int32", "int64", "float64"].includes(header.dtype))).length !== 0 ?
                                                 <Stack sx={{ gap: 0 }}>
-                                                    <LineChart data={headerContent.filter(header => header.columnName === item)[0].bins} />
+                                                    <BarChart data={headerContent.filter(header => header.columnName === item)[0].bins} />
                                                     {/* <Bar
                                                         data={headerContent.filter(header => header.columnName === item)[0].bins}
                                                         enableGridY={false}
@@ -254,19 +273,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                         }}
                                                     /> */}
                                                     <Text size="xs">
-                                                        [{
-                                                            Math.abs(headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start) >= 100 ?
-                                                                headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start.toFixed(0) + " "
-                                                                :
-                                                                headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start.toFixed(3) + " "
-                                                        }
-                                                        ,
-                                                        {
-                                                            Math.abs(headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end) >= 100 ?
-                                                                " " + headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end.toFixed(0)
-                                                                :
-                                                                " " + headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end.toFixed(3)
-                                                        }]
+                                                        {globalInterval(item)}
                                                     </Text>
                                                 </Stack>
                                                 :

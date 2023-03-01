@@ -3,37 +3,39 @@ import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea 
 import React from "react";
 import { uuid } from "@jupyter-widgets/base";
 import { DataframeHeader } from "./header";
-import { TableElement } from "./elemenet";
+import { TableElement } from "./element";
+import { useModel } from "../hooks";
 
 interface prop {
-    data: string,
-    model: any,
     page: number,
     setPage: React.Dispatch<React.SetStateAction<number>>,
     rowNumber: number,
     setRowNumber: React.Dispatch<React.SetStateAction<number>>,
-    hist: string;
-    show: boolean;
 }
 
-export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage, rowNumber, setRowNumber, hist, show }) => {
+export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, setRowNumber }) => {
+    const model = useModel();
+
+    const [data, setData] = useState(model?.get("data") ?? "");
+    model?.on("data", (msg) => setData(msg));
+    const [hist, setHist] = useState<string>(model?.get("hist") ?? "");
+    model?.on("hist", (msg) => setHist(msg));
+    const [execTime, setExecTime] = useState<string>(model?.get("exec_time") ?? "");
+    model?.on("execTime", (msg: string) => setExecTime(msg.slice(9, msg.length)));
+
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
     const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
     let timeDiff = 0;
-    if (data) {
-        const timeList = data.split("\n").pop();
-        if (timeList !== "") {
-            timeDiff = (new Date(timeList ? timeList.split(",")[1] : "0").getTime() - new Date(timeList ? timeList.split(",")[0] : "0").getTime()) / 1000;
-        }
+    if (execTime.length !== 0) {
+        timeDiff = (new Date(execTime.split(",")[1]).getTime() - new Date(execTime.split(",")[0]).getTime()) / 1000;
     }
     const headerContent = hist ?
-        JSON.parse(hist).dfhead
+        JSON.parse(hist)
         :
         [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
-
 
     const rows = [...Array(info.index.length).keys()].map((index) => (
         <tr key={uuid()}>
@@ -95,7 +97,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                         },
                     }}>
 
-                    <DataframeHeader headerContent={headerContent} header={header} model={model} data={data} />
+                    <DataframeHeader headerContent={headerContent} header={header} />
 
                     <tbody>
                         {rows}
@@ -130,13 +132,13 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                     color: "#8d8d8d",
                                 },
                             }}
-                            placeholder="10"
+                            placeholder={rowNumber as unknown as string}
                             data={["5", "10", "20", "30"]}
                             onChange={(number) => {
                                 const num = number as unknown as number;
                                 setPage(1);
                                 setRowNumber(num);
-                                model.trigger("setRange", [(0 * num), 1 * num]);
+                                model?.trigger("setRange", [(0 * num), 1 * num, new Date().toISOString()]);
                             }}
                         />
                         <Text color="#8d8d8d">/page</Text>
@@ -149,7 +151,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                 total={Math.ceil(dataLength / rowNumber)}
                                 onChange={(index) => {
                                     setPage(index);
-                                    model.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber]);
+                                    model?.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber, new Date().toISOString()]);
                                 }}
                                 styles={(theme) => ({
                                     item: {
@@ -177,7 +179,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                 if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                     setPage(tempoIndex);
                                     setOutOfRange(false);
-                                    model.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber]);
+                                    model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
                                 } else {
                                     setOutOfRange(true)
                                 }
@@ -188,7 +190,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                     if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                         setPage(tempoIndex);
                                         setOutOfRange(false);
-                                        model.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber]);
+                                        model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
                                     } else {
                                         setOutOfRange(true)
                                     }
