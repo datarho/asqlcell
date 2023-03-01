@@ -22,21 +22,41 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
     let currentOrder = Order.None;
     const [col, setColName] = useState<string>(model.get("index_sort")[0]);
     const [openLineChart, setOpenLineChart] = useState<boolean>(false);
+    const expo = (input: number) => { return input.toExponential(2) };
+    const isScientific = (input: number) => { return (!(1 <= Math.abs(input) && Math.abs(input) <= 10000)) };
+
+    const getIntervalSide = (input: number) => {
+        var res = "";
+        if (input === 0) {
+            res = "0";
+        }
+        else if (isScientific(input)) {
+            res = expo(input)
+        } else {
+            res = input.toFixed(2)
+        }
+        return res
+    };
+
+    const globalInterval = (item: string) => {
+        const left = headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start;
+        const right = headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end;
+        return (
+            `[${getIntervalSide(left)}, ${getIntervalSide(right)}]`
+        )
+    }
 
     const BarChart: FunctionComponent<{ data: any }> = ({ data }) => {
         const barData = {
-            table: [
-                { a: `${data[0].bin_start}-${data[0].bin_end}`, b: data[0].count },
-                { a: `${data[1].bin_start}-${data[1].bin_end}`, b: data[1].count },
-                { a: `${data[2].bin_start}-${data[2].bin_end}`, b: data[2].count },
-                { a: `${data[3].bin_start}-${data[3].bin_end}`, b: data[3].count },
-                { a: `${data[4].bin_start}-${data[4].bin_end}`, b: data[4].count },
-                { a: `${data[5].bin_start}-${data[5].bin_end}`, b: data[5].count },
-                { a: `${data[6].bin_start}-${data[6].bin_end}`, b: data[6].count },
-                { a: `${data[7].bin_start}-${data[7].bin_end}`, b: data[7].count },
-                { a: `${data[8].bin_start}-${data[8].bin_end}`, b: data[8].count },
-                { a: `${data[9].bin_start}-${data[9].bin_end}`, b: data[9].count },
-            ],
+            table:
+                data.map((item: any, index: number) => {
+                    const leftInterval = getIntervalSide(item.bin_start);
+                    const rightInterval = getIntervalSide(item.bin_end);
+                    const interval = `[${leftInterval}, ${rightInterval}]`;
+                    return (
+                        { a: interval, b: item.count, index: index }
+                    )
+                }),
         }
         return (
             <VegaLite
@@ -62,19 +82,18 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                             "transform": [
                                 {
                                     "calculate": "log(datum.b)/log(10)", "as": "log_x",
-                                }, {
-                                    "calculate": "datum.b", "as": "count",
                                 },
                                 {
-                                    "calculate": "datum.a", "as": "interval",
-                                },
+                                    "calculate": "datum.a + ': ' +datum.b", "as": "tooltip",
+                                }
                             ],
                             "encoding": {
                                 "x": {
-                                    "field": "interval",
+                                    "field": "index",
                                     "type": "nominal",
                                     "axis": { "labels": false, "title": null },
                                 },
+                                "tooltip": { "field": "tooltip", "type": "nominal" },
                                 "opacity": {
                                     "condition": { "test": { "param": "hover", "empty": false }, "value": 0.5 },
                                     "value": 0
@@ -89,7 +108,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                             }],
                             "encoding": {
                                 "x": {
-                                    "field": "a",
+                                    "field": "index",
                                     "type": "nominal",
                                     "axis": { "labels": false, "title": null },
                                 },
@@ -254,19 +273,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                         }}
                                                     /> */}
                                                     <Text size="xs">
-                                                        [{
-                                                            Math.abs(headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start) >= 100 ?
-                                                                headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start.toFixed(0) + " "
-                                                                :
-                                                                headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start.toFixed(3) + " "
-                                                        }
-                                                        ,
-                                                        {
-                                                            Math.abs(headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end) >= 100 ?
-                                                                " " + headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end.toFixed(0)
-                                                                :
-                                                                " " + headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end.toFixed(3)
-                                                        }]
+                                                        {globalInterval(item)}
                                                     </Text>
                                                 </Stack>
                                                 :
