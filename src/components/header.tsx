@@ -23,7 +23,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
     const [col, setColName] = useState<string>(model.get("index_sort")[0]);
     const [openLineChart, setOpenLineChart] = useState<boolean>(false);
     const expo = (input: number) => { return input.toExponential(2) };
-    const isScientific = (input: number) => { return (!(1 <= Math.abs(input) && Math.abs(input) <= 10000)) };
+    const isScientific = (input: number) => { return (!(0.1 <= Math.abs(input) && Math.abs(input) <= 10000)) };
 
     const getIntervalSide = (input: number) => {
         var res = "";
