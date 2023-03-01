@@ -1,4 +1,8 @@
-from IPython.core.magic import register_cell_magic, register_line_magic
+from IPython.core.magic import (
+    register_cell_magic,
+    register_line_magic,
+    needs_local_scope
+)
 from ipywidgets import DOMWidget
 from traitlets import Unicode, Tuple, Int, observe, validate
 import duckdb
@@ -7,12 +11,14 @@ import numpy as np
 import json
 import __main__
 import datetime
+import IPython
 
 module_name = "asqlcell"
 module_version = "0.1.0"
 
+@needs_local_scope
 @register_cell_magic
-def sql(line, cell=''):
+def sql(line, cell='', local_ns={}):
     name = line.strip()
     return SqlcellWidget(cell, True, name)
 
@@ -62,18 +68,18 @@ def is_type_numeric(dtype):
     except TypeError:
         return False
 
-def get_histogram(sqlcelldf):
+def get_histogram(df):
     hist = []
-    if isinstance(sqlcelldf, pd.DataFrame):
-        for column in sqlcelldf:
-            col = sqlcelldf[column]
+    if isinstance(df, pd.DataFrame):
+        for column in df:
+            col = df[column]
             if (is_type_numeric(col.dtypes)):
                 np_array= np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
                 y, bins = np.histogram(np_array, bins=10)
-                hist.append({"columnName" : column, "dtype" : sqlcelldf.dtypes[column].name,
+                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name,
                     "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
             else:
-                hist.append({"columnName" : column, "dtype" : sqlcelldf.dtypes[column].name})
+                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name})
     return hist
 
 class SqlcellWidget(DOMWidget):
@@ -92,10 +98,18 @@ class SqlcellWidget(DOMWidget):
     sql_button = Unicode('').tag(sync=True)
     json_dump = Unicode('').tag(sync=True)
 
+    def send_df(self, tail=""):
+        df = get_value(self.dfname)
+
+        self.send(("__DFT:" if self.iscommand else "__DFM:") + 
+                str(df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + 
+                    str(len(df)) + "\n" + tail)
+
     def run_sql(self):
         try:
             if len(self.dfname) == 0:
-                raise Exception("Dataframe name is null!")
+                #raise Exception("Dataframe name is null!")
+                self.dfname = get_ipython().get_local_scope(10)['cell_id']
             time1 = datetime.datetime.now()
             setattr(__main__, self.dfname, get_duckdb_result(self.sql))
             time2 = datetime.datetime.now()
@@ -122,12 +136,6 @@ class SqlcellWidget(DOMWidget):
         dump['dfhead'] = get_histogram(get_value(self.dfname))
         self.send("__JSD:" + str(json.dumps(dump)))
 
-    def send_df(self, tail=""):
-        df = get_value(self.dfname)
-        self.send(("__DFT:" if self.iscommand else "__DFM:") + 
-                str(df[self.row_start : self.row_end].to_json(orient="split", date_format='iso')) + "\n" + 
-                    str(len(df)) + "\n" + tail)
-    
     @observe('dfs_button')
     def on_dfs_button(self, change):
         result = ""
