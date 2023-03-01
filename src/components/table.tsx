@@ -34,7 +34,6 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
         :
         [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
 
-
     const rows = [...Array(info.index.length).keys()].map((index) => (
         <tr key={uuid()}>
             <td key={index}>{info.index[index]}</td>
@@ -130,7 +129,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                     color: "#8d8d8d",
                                 },
                             }}
-                            placeholder="10"
+                            placeholder={rowNumber as unknown as string}
                             data={["5", "10", "20", "30"]}
                             onChange={(number) => {
                                 const num = number as unknown as number;

@@ -23,10 +23,10 @@ const ReactWidget = (props: WidgetProps) => {
     const [show, setShow] = useState<boolean>(props.model.get("show"));
     const [output, setOutput] = useModelState("output");
     const [outputName, setOutputName] = useState(output);
-    const [page, setPage] = useState(1);
     const [data, setData] = useState(props.model.get("data") ?? "")
     const [error, setError] = useState(props.model.get("error") ?? "")
-    const [rowNumber, setRowNumber] = useState<number>(10);
+    const [rowNumber, setRowNumber] = useState<number>(props.model.get("data_range")[1] - props.model.get("data_range")[0]);
+    const [page, setPage] = useState(Math.floor(props.model.get("data_range")[0] / rowNumber) + 1);
     const [timeStamp, setTimeStamp] = useState<number>(0);
     const [time, setTime] = useState<number>(0);
     const [openTimer, setOpenTimer] = useState<boolean>(false);
@@ -98,9 +98,6 @@ const ReactWidget = (props: WidgetProps) => {
             setHist(msg)
         }
         setOpenTimer(false);
-    })
-    props.model.on("page", (msg: number) => {
-        setPage(msg);
     })
 
     return (

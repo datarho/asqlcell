@@ -83,11 +83,6 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             // set data into widget 
             this.trigger("data_message", msg);
         }
-        if (msg.includes("index")) {
-            const index = JSON.parse((/\[[0-9,]*\]/.exec(msg) ?? [0])[0] as string);
-            const page = (index.at(-1) + 1) / index.length;
-            this.trigger("page", page)
-        }
 
         if (msg.includes("__JSD:")) {
             this.trigger("hist", msg.slice(6, msg.length));

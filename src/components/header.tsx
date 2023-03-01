@@ -18,9 +18,9 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
         Descending: -1,
         None: 0,
     }
-    const [order, setOrder] = useState(Order.Increasing);
+    const [order, setOrder] = useState(model.get("index_sort")[1]);
     let currentOrder = Order.None;
-    const [col, setColName] = useState<string>(" ");
+    const [col, setColName] = useState<string>(model.get("index_sort")[0]);
     const [openLineChart, setOpenLineChart] = useState<boolean>(false);
 
     const BarChart: FunctionComponent<{ data: any }> = ({ data }) => {
