@@ -214,7 +214,7 @@ const ReactWidget = (props: WidgetProps) => {
                 }
                 <Group position="left">
                     <Text color="red">{error.slice(0, 6)}</Text>
-                    <Text>{error.slice(6, -1)}</Text>
+                    <Text>{error.slice(6, error.length)}</Text>
                 </Group>
                 <Group
                     sx={{ width: "95%" }}
