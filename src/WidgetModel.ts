@@ -77,8 +77,12 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         if (msg.includes("__DFM:")) {
             // set data into widget 
             this.trigger("data_message", msg);
-            this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
-            this.set("exec_time", (msg.slice(6, msg.length)).split("\n")[3]);
+            if (msg.includes("columnName")) {
+                this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
+            }
+            if (msg.includes("ExecTime")) {
+                this.set("exec_time", (msg.slice(6, msg.length)).split("\n")[3]);
+            }
         }
         else if (msg.includes("__DFT:")) {
             // store data before into widgetview
