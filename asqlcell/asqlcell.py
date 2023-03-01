@@ -20,11 +20,11 @@ module_version = "0.1.0"
 @register_cell_magic
 def sql(line, cell='', local_ns={}):
     cellid = 'asqlcell' + get_cell_id()
-    if (get_value(cellid) == None):
+    if get_value(cellid) == None:
         setattr(__main__, cellid, SqlcellWidget(iscommand=True))
     w = get_value(cellid)
     w.reset(cell, line.strip())
-    if (len(w.sql) > 0):
+    if len(w.sql) > 0:
         w.run_sql()
     return w
 
@@ -39,6 +39,14 @@ def get_duckdb_connection():
     if not __DUCKDB:
         __DUCKDB = duckdb.connect(database=":memory:", read_only=False)
     return __DUCKDB
+
+def get_duckdb_result(sql):
+    for v in get_dfs():
+        get_duckdb_connection().register(v[0], v[1])
+    df = get_duckdb_connection().execute(sql).df()
+    for v in get_dfs():
+        get_duckdb_connection().unregister(v[0])
+    return df
 
 def get_cell_id():
     for i in range(20):
@@ -60,14 +68,6 @@ def get_dfs():
         if not v.startswith("_") and isinstance(var, pd.DataFrame):
             dfs.append((v, var))
     return dfs
-
-def get_duckdb_result(sql):
-    for v in get_dfs():
-        get_duckdb_connection().register(v[0], v[1])
-    df = get_duckdb_connection().execute(sql).df()
-    for v in get_dfs():
-        get_duckdb_connection().unregister(v[0])
-    return df
 
 def get_value(variable_name):
     return getattr(__main__, variable_name, None)
@@ -132,13 +132,12 @@ class SqlcellWidget(DOMWidget):
         self.dfname = dfname
         self.row_start = 0
         self.row_end = 10
-        self.hist = ''
+        self.hist = []
         self.sql = sql
 
     def __init__(self, sql='', iscommand=False, dfname='sqlcelldf'):
         super(SqlcellWidget, self).__init__()
         self.iscommand = iscommand
-        #self.cell_id = 
         self.reset(sql, dfname)
 
     @observe('json_dump')
@@ -147,7 +146,6 @@ class SqlcellWidget(DOMWidget):
         dump['dfname' ] = self.dfname
         dump['iscommand'] = self.iscommand
         dump['sql'] = self.sql
-        dump['dfhead'] = self.hist
         self.send("__JSD:" + str(json.dumps(dump)))
 
     @observe('dfs_button')
