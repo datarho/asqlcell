@@ -26,7 +26,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
     const isScientific = (input: number) => { return (!(0.1 <= Math.abs(input) && Math.abs(input) <= 10000)) };
 
     const getIntervalSide = (input: number) => {
-        var res = "";
+        let res = "";
         if (input === 0) {
             res = "0";
         }
