@@ -3,7 +3,7 @@ import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea 
 import React from "react";
 import { uuid } from "@jupyter-widgets/base";
 import { DataframeHeader } from "./header";
-import { TableElement } from "./elemenet";
+import { TableElement } from "./element";
 
 interface prop {
     data: string,

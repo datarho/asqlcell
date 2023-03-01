@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { WidgetModel } from "@jupyter-widgets/base";
-import { useModelState, WidgetModelContext } from "./hooks";
-import { Box, Group, Stack, Text, Textarea, TextInput, ActionIcon } from "@mantine/core";
+import { WidgetModelContext } from "./hooks";
+import { Box, Group, Stack, Text } from "@mantine/core";
 
-import { VscDebugStart } from "react-icons/vsc";
-import { DataImport, DataTable } from "./components";
+import { DataTable } from "./table";
+import { WidgetInputArea } from "./input";
+
 
 interface WidgetProps {
     model: WidgetModel;
@@ -19,55 +20,15 @@ export interface Dfhead {
 
 const ReactWidget = (props: WidgetProps) => {
     const [hist, setHist] = useState<string>("");
-    const [sqlContent, setSqlContent] = useState(props.model.get("value") ?? "");
     const [show, setShow] = useState<boolean>(props.model.get("show"));
-    const [output, setOutput] = useModelState("output");
-    const [outputName, setOutputName] = useState(output);
     const [data, setData] = useState(props.model.get("data") ?? "")
     const [error, setError] = useState(props.model.get("error") ?? "")
     const [rowNumber, setRowNumber] = useState<number>(props.model.get("data_range")[1] - props.model.get("data_range")[0]);
     const [page, setPage] = useState(Math.floor(props.model.get("data_range")[0] / rowNumber) + 1);
-    const [timeStamp, setTimeStamp] = useState<number>(0);
-    const [time, setTime] = useState<number>(0);
-    const [openTimer, setOpenTimer] = useState<boolean>(false);
-    const [timerId, setTimerId] = useState<number>();
     const [execTime, setExecTime] = useState<string>(props.model.get("exec_time") ?? "");
-
-    const latestCallback = useRef<any | null>(null);
-    const escape = () => {
-        if (document.activeElement instanceof HTMLElement) {
-            if (outputName.trim().length > 0) {
-                setOutput(outputName);
-                document.activeElement.blur();
-            }
-            else {
-                setOutputName(output);
-            }
-        }
-    }
-
-    useEffect(() => {
-        latestCallback.current = () => { setTime(Date.now() - timeStamp); };
-    });
-
-    useEffect(() => {
-        if (!openTimer) {
-            window.clearInterval(Number(timerId));
-        } else {
-            setTimerId(window.setInterval(() => latestCallback.current(), 10));
-        }
-    }, [openTimer]);
-
-    useEffect(() => {
-        props.model.set("value", sqlContent);
-        props.model?.save_changes();
-    }, [sqlContent])
-
-    // Ask back-end whether this is a command mode, so we could decide whether to show inputArea
 
     // Receive event from Model
     props.model?.on("error", (msg) => {
-        setOpenTimer(false);
         setError(msg);
         setData("");
     })
@@ -80,9 +41,6 @@ const ReactWidget = (props: WidgetProps) => {
         }
         setError("");
     })
-    props.model?.on("update_outputName", (msg) => {
-        setOutputName(msg.changed.output)
-    })
     props.model?.on("sort", (msg) => {
         props.model?.set("index_sort", msg, "");
         props.model?.save_changes();
@@ -91,15 +49,10 @@ const ReactWidget = (props: WidgetProps) => {
         props.model?.set("data_range", msg, "");
         props.model?.save_changes();
     })
-    props.model?.on("importData", (msg) => {
-        setSqlContent("select * from " + msg);
-    })
     props.model?.on("hist", (msg: string) => {
         setHist(msg)
-        setOpenTimer(false);
     })
     props.model?.on("execTime", (msg: string) => {
-        console.log("msg", msg)
         setExecTime(msg.slice(9, msg.length));
     })
 
@@ -110,106 +63,7 @@ const ReactWidget = (props: WidgetProps) => {
                 align="center">
                 {
                     show ?
-                        <>
-                            <Group
-                                position="apart"
-                                align={"center"}
-                                sx={{
-                                    width: "95%",
-                                    height: "30px",
-                                }}>
-                                <DataImport model={props.model} />
-                                <Group
-                                    position="right"
-                                    align="center"
-                                    sx={{
-                                        height: "100%",
-                                        gap: "0px",
-                                    }}>
-
-                                    <Text color="#8D8D8D" sx={{ marginRight: "10px" }}>SAVED TO</Text>
-
-                                    <TextInput
-                                        size="xs"
-                                        styles={() => ({
-                                            input: {
-                                                width: "100px",
-                                                color: "#8D8D8D",
-                                                fontSize: "inherit",
-                                                backgroundColor: "#fafafa",
-                                                borderColor: "#fafafa",
-                                                fontWeight: "bold",
-                                                paddingLeft: 0,
-                                                ":focus": {
-                                                    borderColor: outputName.trim().length === 0 ? "red" : "lightgray",
-                                                }
-                                            },
-                                        })}
-                                        value={outputName}
-                                        onBlur={() => {
-                                            escape();
-                                        }}
-                                        onKeyDown={(e) => {
-                                            if (["Enter", "Escape"].includes(e.code)) {
-                                                e.preventDefault();
-                                                escape();
-                                            }
-                                        }}
-                                        onChange={(e) => {
-                                            setOutputName(e.target.value);
-                                        }}
-
-                                    />
-                                </Group>
-                            </Group>
-                            <Group
-                                sx={{
-                                    width: "95%",
-                                    display: "flex",
-                                    gap: 0,
-                                }}>
-                                <Box
-                                    sx={{
-                                        width: "95%"
-                                    }}
-                                >
-                                    <Textarea
-                                        autosize
-                                        minRows={3}
-                                        sx={{
-                                            marginTop: "10px",
-                                            ".mantine-Textarea-input": {
-                                                height: "88px",
-                                            }
-                                        }}
-                                        value={sqlContent}
-                                        onChange={(e) => {
-                                            setSqlContent(e.target.value);
-                                        }}
-                                    />
-                                </Box>
-                                <ActionIcon
-                                    onClick={() => {
-                                        setPage(1);
-                                        props.model?.set("sql_button", new Date().toISOString());
-                                        props.model?.save_changes();
-                                        props.model.set("data_range", [[0, 10], new Date().toISOString()], "")
-                                        props.model.save_changes();
-                                        // props.model.set("json_dump", new Date().toISOString());
-                                        // props.model?.save_changes();
-                                        setTime(0)
-                                        setTimeStamp(Date.now());
-                                        setOpenTimer(true)
-                                    }}
-                                    sx={{ height: "100%" }}
-                                >
-                                    <VscDebugStart size={18} />
-                                </ActionIcon>
-                            </Group>
-                            <Group sx={{ width: "95%" }}>
-                                <Text>{time / 1000}s</Text>
-                            </Group>
-                        </>
+                        <WidgetInputArea model={props.model} page={page} setPage={setPage} />
                         :
                         <></>
                 }

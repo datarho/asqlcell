@@ -81,7 +81,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
                 this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
             }
             if (msg.includes("ExecTime")) {
-                this.set("exec_time", (msg.slice(6, msg.length)).split("\n")[3]);
+                this.trigger("execTime", (msg.slice(6, msg.length)).split("\n")[3]);
             }
         }
         else if (msg.includes("__DFT:")) {
@@ -92,8 +92,9 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             this.trigger("data_message", msg);
             if (msg.includes("columnName")) {
                 this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
-            } else if (msg.includes("ExecTime")) {
-                this.set("exec_time", (msg.slice(6, msg.length)).split("\n")[2]);
+            }
+            if (msg.includes("ExecTime")) {
+                this.set("exec_time", (msg.slice(6, msg.length)).split("\n")[3]);
             }
 
         }
