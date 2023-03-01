@@ -19,10 +19,14 @@ module_version = "0.1.0"
 @needs_local_scope
 @register_cell_magic
 def sql(line, cell='', local_ns={}):
-    cellid = 'asqlcell' + IPython.get_ipython().get_local_scope(10)['cell_id']
+    cellid = 'asqlcell' + get_cell_id()
     if (get_value(cellid) == None):
-        setattr(__main__, cellid, SqlcellWidget(cell, True, line.strip()))
-    return get_value(cellid)
+        setattr(__main__, cellid, SqlcellWidget(iscommand=True))
+    w = get_value(cellid)
+    w.reset(cell, line.strip())
+    if (len(w.sql) > 0):
+        w.run_sql()
+    return w
 
 @register_line_magic
 def sql(line=""):
@@ -35,6 +39,13 @@ def get_duckdb_connection():
     if not __DUCKDB:
         __DUCKDB = duckdb.connect(database=":memory:", read_only=False)
     return __DUCKDB
+
+def get_cell_id():
+    for i in range(20):
+        if IPython.get_ipython().get_local_scope(i).get('cell_id') != None:
+            return IPython.get_ipython().get_local_scope(i)['cell_id']
+    print("NO CELL_ID")
+    return ''
 
 def get_vars():
     vars = {}
@@ -108,7 +119,7 @@ class SqlcellWidget(DOMWidget):
     def run_sql(self):
         try:
             if len(self.dfname) == 0:
-                self.dfname = "__" + IPython.get_ipython().get_local_scope(10)['cell_id']
+                self.dfname = "__" + get_cell_id()
             time1 = datetime.datetime.now()
             setattr(__main__, self.dfname, get_duckdb_result(self.sql))
             self.hist = get_histogram(get_value(self.dfname))
@@ -117,16 +128,18 @@ class SqlcellWidget(DOMWidget):
         except Exception as r:
             self.send(("__ERT:" if self.iscommand else "__ERR:") + str(r))
 
-    def __init__(self, sql='', iscommand=False, dfname='sqlcelldf'):
-        super(SqlcellWidget, self).__init__()
+    def reset(self, sql, dfname):
         self.dfname = dfname
         self.row_start = 0
         self.row_end = 10
-        self.iscommand = iscommand
         self.hist = ''
         self.sql = sql
-        if (len(sql) > 0):
-            self.run_sql()
+
+    def __init__(self, sql='', iscommand=False, dfname='sqlcelldf'):
+        super(SqlcellWidget, self).__init__()
+        self.iscommand = iscommand
+        #self.cell_id = 
+        self.reset(sql, dfname)
 
     @observe('json_dump')
     def on_json_dump(self, change):
