@@ -11,7 +11,7 @@ const defaultModelProperties = {
     value: "",
     output: "sqlcelldf",
     event: "",
-    data_range: [0, 0],
+    data_range: [0, 0, ""],
     dfs_button: "",
     data: "",
     error: "",
@@ -50,13 +50,13 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
     handle_custom_messages(msg: any) {
         if (msg.includes("\"iscommand\": true")) {
             this.trigger("show", false);
-            this.set("sql_button", new Date().toISOString());
+            this.set("data_range", [...this.get("data_range").slice(0, 2), new Date().toISOString()], "");
             this.save_changes();
         }
         else if (msg.includes("\"iscommand\": false")) {
             this.trigger("show", true);
             if (!this.get("data") && (this.get("value").length > 0)) {
-                this.set("sql_button", new Date().toISOString());
+                this.set("data_range", [...this.get("data_range").slice(0, 2), new Date().toISOString()], "")
                 this.save_changes();
             }
         }

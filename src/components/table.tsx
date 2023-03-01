@@ -135,7 +135,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                 const num = number as unknown as number;
                                 setPage(1);
                                 setRowNumber(num);
-                                model.trigger("setRange", [(0 * num), 1 * num]);
+                                model.trigger("setRange", [(0 * num), 1 * num, new Date().toISOString()]);
                             }}
                         />
                         <Text color="#8d8d8d">/page</Text>
@@ -148,7 +148,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                 total={Math.ceil(dataLength / rowNumber)}
                                 onChange={(index) => {
                                     setPage(index);
-                                    model.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber]);
+                                    model.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber, new Date().toISOString()]);
                                 }}
                                 styles={(theme) => ({
                                     item: {
@@ -176,7 +176,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                 if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                     setPage(tempoIndex);
                                     setOutOfRange(false);
-                                    model.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber]);
+                                    model.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
                                 } else {
                                     setOutOfRange(true)
                                 }
@@ -187,7 +187,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                     if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                         setPage(tempoIndex);
                                         setOutOfRange(false);
-                                        model.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber]);
+                                        model.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
                                     } else {
                                         setOutOfRange(true)
                                     }

@@ -188,7 +188,7 @@ const ReactWidget = (props: WidgetProps) => {
                                 <ActionIcon
                                     onClick={() => {
                                         setPage(1);
-                                        props.model?.trigger("setRange", [0, rowNumber * 1]);
+                                        props.model?.trigger("setRange", [0, rowNumber * 1, new Date().toISOString()]);
                                         props.model?.set("sql_button", new Date().toISOString());
                                         props.model?.save_changes();
                                         props.model.set("json_dump", new Date().toISOString());
