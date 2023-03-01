@@ -3,24 +3,24 @@ import React, { useState } from "react";
 import { FunctionComponent } from "react";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 import { VegaLite } from "react-vega";
+import { useModel } from "../hooks";
 import { Dfhead } from "../WidgetView";
 
 interface props {
     headerContent: Dfhead[];
     header: string[];
-    model: any;
-    data: string,
 }
 
-export const DataframeHeader: FunctionComponent<props> = ({ headerContent, header, model, data }) => {
+export const DataframeHeader: FunctionComponent<props> = ({ headerContent, header }) => {
+    const model = useModel();
     const Order = {
         Increasing: 1,
         Descending: -1,
         None: 0,
     }
-    const [order, setOrder] = useState(model.get("index_sort")[1]);
+    const [order, setOrder] = useState(model?.get("index_sort")[1]);
     let currentOrder = Order.None;
-    const [col, setColName] = useState<string>(model.get("index_sort")[0]);
+    const [col, setColName] = useState<string>(model?.get("index_sort")[0]);
     const [openLineChart, setOpenLineChart] = useState<boolean>(false);
     const expo = (input: number) => { return input.toExponential(2) };
     const isScientific = (input: number) => { return (!(0.1 <= Math.abs(input) && Math.abs(input) <= 10000)) };

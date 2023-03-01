@@ -19,27 +19,25 @@ export interface Dfhead {
 }
 
 const ReactWidget = (props: WidgetProps) => {
-    const [hist, setHist] = useState<string>("");
     const [show, setShow] = useState<boolean>(props.model.get("show"));
-    const [data, setData] = useState(props.model.get("data") ?? "")
-    const [error, setError] = useState(props.model.get("error") ?? "")
+    const [data, setData] = useState(props.model.get("data") ? true : false)
+    const [error, setError] = useState(props.model.get("error"))
     const [rowNumber, setRowNumber] = useState<number>(props.model.get("data_range")[1] - props.model.get("data_range")[0]);
     const [page, setPage] = useState(Math.floor(props.model.get("data_range")[0] / rowNumber) + 1);
-    const [execTime, setExecTime] = useState<string>(props.model.get("exec_time") ?? "");
 
     // Receive event from Model
     props.model?.on("error", (msg) => {
         setError(msg);
-        setData("");
+        setData(false);
     })
     props.model?.on("show", (msg) => {
         setShow(msg);
     })
-    props.model?.on("data_message", (msg) => {
+    props.model?.on("data", (msg) => {
         if (msg.slice(6, msg.length) !== data) {
             setData(msg.slice(6, msg.length));
         }
-        setError("");
+        setError(undefined);
     })
     props.model?.on("sort", (msg) => {
         props.model?.set("index_sort", msg, "");
@@ -49,12 +47,6 @@ const ReactWidget = (props: WidgetProps) => {
         props.model?.set("data_range", msg, "");
         props.model?.save_changes();
     })
-    props.model?.on("hist", (msg: string) => {
-        setHist(msg)
-    })
-    props.model?.on("execTime", (msg: string) => {
-        setExecTime(msg.slice(9, msg.length));
-    })
 
     return (
         <div className="Widget">
@@ -63,28 +55,29 @@ const ReactWidget = (props: WidgetProps) => {
                 align="center">
                 {
                     show ?
-                        <WidgetInputArea model={props.model} page={page} setPage={setPage} />
+                        <WidgetInputArea setPage={setPage} />
                         :
                         <></>
                 }
-                <Group position="left">
-                    <Text color="red">{error.slice(0, 6)}</Text>
-                    <Text>{error.slice(6, error.length)}</Text>
-                </Group>
+                {
+                    error ?
+                        <Group position="left">
+                            <Text color="red">{error.slice(0, 6)}</Text>
+                            <Text>{error.slice(6, error.length)}</Text>
+                        </Group>
+                        :
+                        <></>
+                }
                 <Group
                     sx={{ width: "95%" }}
                     position="center">
                     {
                         data ?
                             <DataTable
-                                data={data}
-                                model={props.model}
                                 page={page}
                                 setPage={setPage}
                                 rowNumber={rowNumber}
                                 setRowNumber={setRowNumber}
-                                hist={hist}
-                                execTime={execTime}
                             />
                             :
                             <Box sx={{ height: "60px" }} />

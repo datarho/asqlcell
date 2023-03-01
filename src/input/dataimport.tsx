@@ -1,14 +1,10 @@
 import React, { FunctionComponent, useState } from "react";
 import { Box, Button, Group, Popover, Text, NavLink, ScrollArea } from "@mantine/core";
 import { RiArrowDownSLine } from "react-icons/ri";
-import { WidgetModel } from "@jupyter-widgets/base";
+import { useModel } from "../hooks";
 
-interface prop {
-    model: WidgetModel;
-}
-
-export const DataImport: FunctionComponent<prop> = ({ model }) => {
-
+export const DataImport: FunctionComponent = () => {
+    const model = useModel();
     const [opened, setOpened] = useState<boolean>(false);
     const [dataframe, setDataFrame] = useState("");
     const DropdownHeight = dataframe.trim().split(/\r?\n/).length >= 5 ? "125px" : `${dataframe.trim().split(/\r?\n/).length * 25}px`;

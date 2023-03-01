@@ -1,3 +1,3 @@
 export * from "./dataimport";
-export * from "./outname";
+export * from "./outputname";
 export * from "./inputarea";

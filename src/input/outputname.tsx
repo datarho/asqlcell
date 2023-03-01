@@ -1,18 +1,14 @@
-import { WidgetModel } from "@jupyter-widgets/base";
 import { Group, Text, TextInput } from "@mantine/core";
 import React, { useState } from "react";
 import { FunctionComponent } from "react";
-import { useModelState } from "../hooks";
+import { useModel, useModelState } from "../hooks";
 
-interface prop {
-    model: WidgetModel;
-}
-
-export const NameOutput: FunctionComponent<prop> = ({ model }) => {
+export const NameOutput: FunctionComponent = () => {
+    const model = useModel();
     const [output, setOutput] = useModelState("output");
     const [outputName, setOutputName] = useState(output);
 
-    model.on("update_outputName", (msg) => {
+    model?.on("update_outputName", (msg) => {
         setOutputName(msg.changed.output)
     })
 

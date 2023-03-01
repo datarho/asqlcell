@@ -4,19 +4,25 @@ import React from "react";
 import { uuid } from "@jupyter-widgets/base";
 import { DataframeHeader } from "./header";
 import { TableElement } from "./element";
+import { useModel } from "../hooks";
 
 interface prop {
-    data: string,
-    model: any,
     page: number,
     setPage: React.Dispatch<React.SetStateAction<number>>,
     rowNumber: number,
     setRowNumber: React.Dispatch<React.SetStateAction<number>>,
-    hist: string;
-    execTime: string;
 }
 
-export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage, rowNumber, setRowNumber, hist, execTime }) => {
+export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, setRowNumber }) => {
+    const model = useModel();
+
+    const [data, setData] = useState(model?.get("data") ?? "");
+    model?.on("data", (msg) => setData(msg));
+    const [hist, setHist] = useState<string>(model?.get("hist") ?? "");
+    model?.on("hist", (msg) => setHist(msg));
+    const [execTime, setExecTime] = useState<string>(model?.get("exec_time") ?? "");
+    model?.on("execTime", (msg: string) => setExecTime(msg.slice(9, msg.length)));
+
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
     const info = JSON.parse(data.split("\n")[0]);
@@ -91,7 +97,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                         },
                     }}>
 
-                    <DataframeHeader headerContent={headerContent} header={header} model={model} data={data} />
+                    <DataframeHeader headerContent={headerContent} header={header} />
 
                     <tbody>
                         {rows}
@@ -132,7 +138,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                 const num = number as unknown as number;
                                 setPage(1);
                                 setRowNumber(num);
-                                model.trigger("setRange", [(0 * num), 1 * num, new Date().toISOString()]);
+                                model?.trigger("setRange", [(0 * num), 1 * num, new Date().toISOString()]);
                             }}
                         />
                         <Text color="#8d8d8d">/page</Text>
@@ -145,7 +151,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                 total={Math.ceil(dataLength / rowNumber)}
                                 onChange={(index) => {
                                     setPage(index);
-                                    model.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber, new Date().toISOString()]);
+                                    model?.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber, new Date().toISOString()]);
                                 }}
                                 styles={(theme) => ({
                                     item: {
@@ -173,7 +179,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                 if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                     setPage(tempoIndex);
                                     setOutOfRange(false);
-                                    model.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
+                                    model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
                                 } else {
                                     setOutOfRange(true)
                                 }
@@ -184,7 +190,7 @@ export const DataTable: FunctionComponent<prop> = ({ data, model, page, setPage,
                                     if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                         setPage(tempoIndex);
                                         setOutOfRange(false);
-                                        model.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
+                                        model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
                                     } else {
                                         setOutOfRange(true)
                                     }

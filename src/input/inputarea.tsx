@@ -1,32 +1,31 @@
 import { ActionIcon, Box, Group, Text, Textarea } from "@mantine/core";
 import { FunctionComponent, useEffect, useRef, useState } from "react";
 import { DataImport } from "./dataimport";
-import { NameOutput } from "./outname";
+import { NameOutput } from "./outputname";
 import { VscDebugStart } from "react-icons/vsc";
 import React from "react";
-import { WidgetModel } from "@jupyter-widgets/base";
+import { useModel } from "../hooks";
 
 interface prop {
-    model: WidgetModel;
-    page: number;
     setPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export const WidgetInputArea: FunctionComponent<prop> = ({ model, page, setPage }) => {
+export const WidgetInputArea: FunctionComponent<prop> = ({ setPage }) => {
+    const model = useModel();
     const [timeStamp, setTimeStamp] = useState<number>(0);
     const [time, setTime] = useState<number>(0);
     const [openTimer, setOpenTimer] = useState<boolean>(false);
     const [timerId, setTimerId] = useState<number>();
     const latestCallback = useRef<any | null>(null);
-    const [sqlContent, setSqlContent] = useState(model.get("value") ?? "");
+    const [sqlContent, setSqlContent] = useState(model?.get("value") ?? "");
 
     model?.on("importData", (msg) => {
         setSqlContent("select * from " + msg);
     })
-    model?.on("error", (msg) => {
+    model?.on("error", () => {
         setOpenTimer(false);
     })
-    model?.on("hist", (msg: string) => {
+    model?.on("hist", () => {
         setOpenTimer(false);
     })
 
@@ -42,7 +41,7 @@ export const WidgetInputArea: FunctionComponent<prop> = ({ model, page, setPage 
         }
     }, [openTimer]);
     useEffect(() => {
-        model.set("value", sqlContent);
+        model?.set("value", sqlContent);
         model?.save_changes();
     }, [sqlContent])
 
@@ -55,8 +54,8 @@ export const WidgetInputArea: FunctionComponent<prop> = ({ model, page, setPage 
                     width: "95%",
                     height: "30px",
                 }}>
-                <DataImport model={model} />
-                <NameOutput model={model} />
+                <DataImport />
+                <NameOutput />
             </Group>
             <Group
                 sx={{
@@ -99,7 +98,12 @@ export const WidgetInputArea: FunctionComponent<prop> = ({ model, page, setPage 
                 </ActionIcon>
             </Group>
             <Group sx={{ width: "95%" }}>
-                <Text>{time / 1000}s</Text>
+                {
+                    time === 0 ?
+                        <></>
+                        :
+                        <Text>{time / 1000}s</Text>
+                }
             </Group>
         </>
     )

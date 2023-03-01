@@ -3,7 +3,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import ReactWidget from "./WidgetView";
 import "../css/widget.css";
-
 import { MODULE_NAME, MODULE_VERSION } from "./version";
 import { DOMWidgetView } from "@jupyter-widgets/base";
 
@@ -16,6 +15,7 @@ const defaultModelProperties = {
     data: "",
     error: "",
     exec_time: "",
+    hist: "",
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -38,6 +38,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             data: undefined,
             error: undefined,
             exec_time: "",
+            hist: undefined,
         };
     }
 
@@ -52,14 +53,12 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
     handle_custom_messages(msg: any) {
         if (msg.includes("\"iscommand\": true")) {
             this.trigger("show", false);
-            this.set("data_range", [...this.get("data_range").slice(0, 2), new Date().toISOString()], "")
-            this.save_changes();
+            this.update_json_dump([...this.get("data_range").slice(0, 2), new Date().toISOString()]);
         }
         else if (msg.includes("\"iscommand\": false")) {
             this.trigger("show", true);
             if (this.get("value")) {
-                this.set("data_range", [...this.get("data_range").slice(0, 2), new Date().toISOString()], "")
-                this.save_changes();
+                this.update_json_dump([...this.get("data_range").slice(0, 2), new Date().toISOString()]);
             }
         }
 
@@ -68,6 +67,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         }
         else if (msg.includes("__ERT:")) {
             this.set("error", msg);
+            this.set("data", undefined);
         }
 
         if (msg.includes("__DFS:")) {
@@ -76,7 +76,9 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
 
         if (msg.includes("__DFM:")) {
             // set data into widget 
-            this.trigger("data_message", msg);
+            this.set("data", msg.slice(6, msg.length));
+            // update data 
+            this.trigger("data", msg.slice(6, msg.length));
             if (msg.includes("columnName")) {
                 this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
             }
@@ -87,17 +89,23 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         else if (msg.includes("__DFT:")) {
             // store data before into widgetview
             this.set("data", msg.slice(6, msg.length));
+            this.set("error", undefined);
 
             // set data into widget 
-            this.trigger("data_message", msg);
+            this.trigger("data", msg.slice(6, msg.length));
             if (msg.includes("columnName")) {
                 this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
+                this.set("hist", (msg.slice(6, msg.length)).split("\n")[2]);
             }
             if (msg.includes("ExecTime")) {
                 this.set("exec_time", (msg.slice(6, msg.length)).split("\n")[3]);
             }
 
         }
+    }
+    update_json_dump<T extends keyof WidgetModelState>(data: WidgetModelState[T]) {
+        this.set("data_range", data);
+        this.save_changes();
     }
     handle_update_messages(msg: any) {
         this.trigger("update_outputName", msg);
