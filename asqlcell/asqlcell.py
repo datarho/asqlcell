@@ -50,12 +50,19 @@ def get_duckdb_result(sql):
 
 def get_cell_id():
     for i in range(20):
-        if IPython.get_ipython().get_local_scope(i).get('cell_id') != None:
-            return IPython.get_ipython().get_local_scope(i)['cell_id']
+        scope = IPython.get_ipython().get_local_scope(i)
+        if scope.get('cell_id') != None:
+            return scope['cell_id'].replace('-', '')
+        if 'msg' in scope:
+            msg = scope.get('msg')
+            if 'metadata' in msg:
+                meta = msg.get('metadata')
+                if 'cellId' in meta:
+                    return meta.get('cellId').replace('-', '')
     print("NO CELL_ID")
     return ''
 
-def get_vars():
+def get_vars(): 
     vars = {}
     for v in dir(__main__):
         vars[v] = get_value(v)
@@ -109,6 +116,7 @@ class SqlcellWidget(DOMWidget):
     dfs_button = Unicode('').tag(sync=True)
     sql_button = Unicode('').tag(sync=True)
     json_dump = Unicode('').tag(sync=True)
+    execute = Unicode('').tag(sync=True)
 
     def send_df(self, tail=""):
         df = get_value(self.dfname)
@@ -185,3 +193,11 @@ class SqlcellWidget(DOMWidget):
     def on_output(self, change):
         self.dfname = str(change["value"]).strip()
         return self.dfname
+
+    @validate('execute')
+    def on_execute(self, change):
+        get_duckdb_connection().register(self.dfname, get_value(self.dfname))
+        sql = change["value"].replace("$$__NAME__$$", self.dfname)
+        df = get_duckdb_connection().execute(sql).df()
+        get_duckdb_connection().unregister(self.dfname)
+        self.send("__RES:" + str(df.to_json(orient="split", date_format='iso')))
