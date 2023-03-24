@@ -26,6 +26,7 @@ def sql(line, cell='', local_ns={}):
     w.reset(cell, line.strip())
     if len(w.sql) > 0:
         w.run_sql()
+        w.index_sort = ('', 0)
     return w
 
 @register_line_magic
@@ -178,9 +179,8 @@ class SqlcellWidget(DOMWidget):
         sort_by = change.new[0]
         sort_ascending = change.new[1]
         df = get_value(self.dfname)
-        if (sort_ascending == 0):
-            df.sort_index(axis=0, inplace=True)
-        else:
+        df.sort_index(axis=0, inplace=True)
+        if (sort_ascending != 0):
             df.sort_values(by=sort_by, ascending=(True if sort_ascending > 0 else False), inplace=True, kind='stable')
         self.send_df()
 
@@ -198,6 +198,6 @@ class SqlcellWidget(DOMWidget):
     def on_execute(self, change):
         get_duckdb_connection().register(self.dfname, get_value(self.dfname))
         sql = change["value"].replace("$$__NAME__$$", self.dfname)
-        df = get_duckdb_connection().execute(sql).df()
+        df = get_duckdb_connection().execute("set threads=1;" + sql + ";reset threads;").df()
         get_duckdb_connection().unregister(self.dfname)
         self.send("__RES:" + str(df.to_json(orient="split", date_format='iso')))
