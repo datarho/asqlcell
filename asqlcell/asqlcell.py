@@ -139,14 +139,14 @@ class SqlcellWidget(DOMWidget):
 
     def reset(self, sql, dfname):
         self.dfname = dfname
-        self.row_start = 0
-        self.row_end = 10
         self.hist = []
         self.sql = sql
 
     def __init__(self, sql='', iscommand=False, dfname='sqlcelldf'):
         super(SqlcellWidget, self).__init__()
         self.iscommand = iscommand
+        self.row_start = 0
+        self.row_end = 10
         self.reset(sql, dfname)
 
     @observe('json_dump')
