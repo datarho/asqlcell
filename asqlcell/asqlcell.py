@@ -118,7 +118,7 @@ class SqlcellWidget(DOMWidget):
     dfs_button = Unicode('').tag(sync=True)
     sql_button = Unicode('').tag(sync=True)
     json_dump = Unicode('').tag(sync=True)
-    execute = Unicode('').tag(sync=True)
+    execute = Tuple(Unicode(), Unicode(), default_value=('', ''))tag(sync=True)
 
     def send_df(self, tail=""):
         df = get_value(self.dfname)
@@ -185,6 +185,15 @@ class SqlcellWidget(DOMWidget):
             df.sort_values(by=sort_by, ascending=(True if sort_ascending > 0 else False), inplace=True, kind='stable')
         self.send_df()
 
+    @observe('execute')
+    def on_execute(self, change):
+        get_duckdb_connection().register(self.dfname, get_value(self.dfname))
+        sql = change.new[1].replace("$$__NAME__$$", self.dfname)
+        #df = get_duckdb_connection().execute("set threads=1;" + sql + ";reset threads;").df()
+        df = get_duckdb_connection().execute(sql).df()
+        get_duckdb_connection().unregister(self.dfname)
+        self.send("__RES:" + str(df.to_json(orient="split", date_format='iso')))
+
     @validate('value')
     def on_value(self, change):
         self.sql = str(change["value"])
@@ -194,13 +203,3 @@ class SqlcellWidget(DOMWidget):
     def on_output(self, change):
         self.dfname = str(change["value"]).strip()
         return self.dfname
-
-    @validate('execute')
-    def on_execute(self, change):
-        get_duckdb_connection().register(self.dfname, get_value(self.dfname))
-        sql = change["value"].replace("$$__NAME__$$", self.dfname)
-        self.send("test:"+sql)
-        #df = get_duckdb_connection().execute("set threads=1;" + sql + ";reset threads;").df()
-        df = get_duckdb_connection().execute(sql).df()
-        get_duckdb_connection().unregister(self.dfname)
-        self.send("__RES:" + str(df.to_json(orient="split", date_format='iso')))
