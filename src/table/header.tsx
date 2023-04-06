@@ -145,7 +145,6 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                 <Button
                                     color="dark"
                                     sx={{
-
                                         height: "27px",
                                         "&.mantine-UnstyledButton-root:hover": {
                                             backgroundColor: "#ebebeb"
@@ -205,12 +204,20 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                     <>
                                         {
                                             headerContent.filter(header => header.columnName === item && (["int32", "int64", "float64"].includes(header.dtype))).length !== 0 ?
-                                                <Stack sx={{ gap: 0 }}>
-                                                    <BarChart data={headerContent.filter(header => header.columnName === item)[0].bins} />
-                                                    <Text size="xs" sx={{ marginTop: "-10px" }}>
-                                                        {globalInterval(item)}
-                                                    </Text>
-                                                </Stack>
+                                                <>
+                                                    <Stack sx={{ gap: 0 }}>
+                                                        <BarChart data={headerContent.filter(header => header.columnName === item)[0].bins} />
+                                                        <Text size="xs" sx={{ marginTop: "-10px" }}>
+                                                            {globalInterval(item)}
+                                                        </Text>
+                                                    </Stack>
+                                                    <Button onClick={() => {
+                                                        setOpenLineChart(true);
+                                                        model?.set("execute", `SELECT ${item} FROM $$__NAME__$$ using SAMPLE reservoir (10) REPEATABLE`);
+                                                        model?.save_changes();
+                                                    }}>
+                                                    </Button>
+                                                </>
                                                 :
                                                 <></>
                                         }

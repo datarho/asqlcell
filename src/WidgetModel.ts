@@ -16,6 +16,7 @@ const defaultModelProperties = {
     error: "",
     exec_time: "",
     hist: "",
+    execute: "",
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -39,6 +40,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             error: undefined,
             exec_time: "",
             hist: undefined,
+            execute: "",
         };
     }
 
@@ -72,6 +74,10 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
 
         if (msg.includes("__DFS:")) {
             this.trigger("dataframe", msg)
+        }
+
+        if (msg.includes("__RES:")) {
+            console.log(msg);
         }
 
         if (msg.includes("__DFM:")) {
