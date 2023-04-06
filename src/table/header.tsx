@@ -213,7 +213,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                     </Stack>
                                                     <Button onClick={() => {
                                                         setOpenLineChart(true);
-                                                        model?.set("execute", `SELECT ${item} FROM $$__NAME__$$ using SAMPLE reservoir (10) REPEATABLE`);
+                                                        model?.set("execute", `SELECT ${item} FROM $$__NAME__$$ using SAMPLE reservoir (10 rows) REPEATABLE(42)`);
                                                         model?.save_changes();
                                                     }}>
                                                     </Button>
