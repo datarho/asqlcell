@@ -1,4 +1,4 @@
-import { Box, Button, Group, Modal, Stack, Text } from "@mantine/core";
+import { Button, Group, Modal, Stack, Text } from "@mantine/core";
 import React, { useState } from "react";
 import { FunctionComponent } from "react";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
@@ -81,9 +81,6 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                             "mark": { "type": "bar", "color": "#eee", "tooltip": true },
                             "transform": [
                                 {
-                                    "calculate": "log(datum.b)/log(10)", "as": "log_x",
-                                },
-                                {
                                     "calculate": "datum.a + ': ' +datum.b", "as": "tooltip",
                                 }
                             ],
@@ -110,7 +107,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                 "x": {
                                     "field": "index",
                                     "type": "nominal",
-                                    "axis": { "labels": false, "title": null },
+                                    "axis": { "labels": false, "title": null, "ticks": false },
                                 },
                                 "y": {
                                     "field": "log_x",
@@ -144,32 +141,8 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                     title="Introduce yourself!"
                                     size="lg"
                                 >
-                                    <Box sx={{ height: "400px" }}>
-                                        {/* <ResponsiveLine
-                                            data={[{
-                                                "id": "japan",
-                                                "color": "hsl(94, 70%, 50%)",
-                                                "data": chartData,
-                                            }]}
-                                            margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
 
-                                        /> */}
-                                    </Box>
                                 </Modal>
-                                {/* <Button onClick={() => {
-                                    setChartData([0, 1, 2, 3, 4].map(subindex =>
-                                        typeof (info.data[subindex][1]) !== "boolean" ?
-                                            info.data[subindex][1]
-                                            :
-                                            info.data[subindex][1] ?
-                                                1
-                                                :
-                                                0
-                                    ));
-                                    setOpenLineChart(true)
-                                }}>
-
-                                </Button> */}
                                 <Button
                                     color="dark"
                                     sx={{
@@ -235,43 +208,6 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                             headerContent.filter(header => header.columnName === item && (["int32", "int64", "float64"].includes(header.dtype))).length !== 0 ?
                                                 <Stack sx={{ gap: 0 }}>
                                                     <BarChart data={headerContent.filter(header => header.columnName === item)[0].bins} />
-                                                    {/* <Bar
-                                                        data={headerContent.filter(header => header.columnName === item)[0].bins}
-                                                        enableGridY={false}
-                                                        padding={0.2}
-                                                        colorBy={"id"}
-                                                        keys={["count"]}
-                                                        indexBy="bin_start"
-                                                        layout={"vertical"}
-                                                        groupMode={"stacked"}
-                                                        reverse={false}
-                                                        height={40} width={60}
-                                                        enableLabel={false}
-                                                        valueScale={{ type: "symlog" }}
-                                                        tooltip={({ value, index }) => {
-                                                            const binRange = headerContent.filter(header => header.columnName === item)[0].bins[index];
-                                                            return (
-                                                                <div
-                                                                    style={{
-                                                                        background: 'white',
-                                                                        padding: '0 2px',
-                                                                        border: '1px solid #ccc',
-                                                                    }}
-                                                                >
-                                                                    <div
-                                                                        style={{
-                                                                            padding: '3px 0',
-                                                                            fontSize: "2px"
-                                                                        }}
-                                                                    >
-                                                                        <div style={{ display: "flex" }}>
-                                                                            [{binRange.bin_start.toFixed(2)},{binRange.bin_end.toFixed(2)}]:{value}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            )
-                                                        }}
-                                                    /> */}
                                                     <Text size="xs">
                                                         {globalInterval(item)}
                                                     </Text>
@@ -282,7 +218,6 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                     </>
                                     :
                                     <></>
-
                             }
                         </th>
                     )

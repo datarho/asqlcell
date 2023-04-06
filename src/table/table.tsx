@@ -42,7 +42,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
             <td key={index}>{info.index[index]}</td>
             {
                 info.data[index].map((item: any, tdIndex: number) => (
-                    <td key={tdIndex} style={{ fontSize: "12px" }}>
+                    <td key={tdIndex} style={{ fontSize: "8px" }}>
                         {
                             typeof (item) === "boolean" ?
                                 item ?
@@ -69,7 +69,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                 width: "100%",
                 marginBottom: "16px",
             }}>
-            <ScrollArea scrollbarSize={3} style={{ width: "100%" }}>
+            <ScrollArea scrollbarSize={5} style={{ width: "100%" }}>
                 <Table
                     withBorder
                     withColumnBorders
@@ -133,7 +133,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 },
                             }}
                             placeholder={rowNumber as unknown as string}
-                            data={["5", "10", "20", "30"]}
+                            data={["10", "30", "50", "100"]}
                             onChange={(number) => {
                                 const num = number as unknown as number;
                                 setPage(1);
