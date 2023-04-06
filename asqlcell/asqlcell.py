@@ -12,6 +12,7 @@ import json
 import __main__
 import datetime
 import IPython
+from .jinjasql import JinjaSql
 
 module_name = "asqlcell"
 module_version = "0.1.0"
@@ -198,6 +199,8 @@ class SqlcellWidget(DOMWidget):
     def on_execute(self, change):
         get_duckdb_connection().register(self.dfname, get_value(self.dfname))
         sql = change["value"].replace("$$__NAME__$$", self.dfname)
-        df = get_duckdb_connection().execute("set threads=1;" + sql + ";reset threads;").df()
+        self.send("test:"+sql)
+        #df = get_duckdb_connection().execute("set threads=1;" + sql + ";reset threads;").df()
+        df = get_duckdb_connection().execute(sql).df()
         get_duckdb_connection().unregister(self.dfname)
         self.send("__RES:" + str(df.to_json(orient="split", date_format='iso')))
