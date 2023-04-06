@@ -118,7 +118,7 @@ class SqlcellWidget(DOMWidget):
     dfs_button = Unicode('').tag(sync=True)
     sql_button = Unicode('').tag(sync=True)
     json_dump = Unicode('').tag(sync=True)
-    execute = Tuple(Unicode(), Unicode(), default_value=('', ''))tag(sync=True)
+    execute = Tuple(Unicode(), Unicode(), default_value=('', '')).tag(sync=True)
 
     def send_df(self, tail=""):
         df = get_value(self.dfname)
