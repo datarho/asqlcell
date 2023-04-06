@@ -60,7 +60,6 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
         }
         return (
             <VegaLite
-
                 data={barData}
                 actions={false}
                 spec={{
@@ -208,7 +207,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                             headerContent.filter(header => header.columnName === item && (["int32", "int64", "float64"].includes(header.dtype))).length !== 0 ?
                                                 <Stack sx={{ gap: 0 }}>
                                                     <BarChart data={headerContent.filter(header => header.columnName === item)[0].bins} />
-                                                    <Text size="xs">
+                                                    <Text size="xs" sx={{ marginTop: "-10px" }}>
                                                         {globalInterval(item)}
                                                     </Text>
                                                 </Stack>

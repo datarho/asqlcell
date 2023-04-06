@@ -69,7 +69,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                 width: "100%",
                 marginBottom: "16px",
             }}>
-            <ScrollArea scrollbarSize={5} style={{ width: "100%" }}>
+            <ScrollArea scrollbarSize={8} style={{ width: "100%" }}>
                 <Table
                     withBorder
                     withColumnBorders
@@ -125,7 +125,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 ".mantine-Select-item": { padding: "0px" },
                                 ".mantine-Select-rightSection": { width: "20px" },
                                 ".mantine-Select-input": {
-                                    paddingLeft: "5px",
+                                    paddingLeft: "1px",
                                     paddingRight: "0px",
                                     height: "22px",
                                     minHeight: "22px",
