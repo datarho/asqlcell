@@ -99,7 +99,7 @@ export const BarChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }>
                     ]
                 }}
             />
-            <Text size="xs" sx={{ marginTop: "-10px" }}>
+            <Text size="xs" sx={{ marginTop: "-20px" }}>
                 {globalInterval(item)}
             </Text>
         </Stack>

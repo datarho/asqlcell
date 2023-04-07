@@ -44,7 +44,7 @@ export const LineChart: FunctionComponent = () => {
                             { calculate: "datum.b", as: colName }
                         ],
                         encoding: {
-                            x: { field: "index", type: "quantitative" },
+                            x: { field: "index", type: "quantitative", axis: { title: null } },
                             y: { field: colName, type: "quantitative" },
                             opacity: {
                                 condition: { param: "industry", value: 1 },
