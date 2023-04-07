@@ -5,8 +5,10 @@ import { useModel } from "../hooks";
 export const LineChart: FunctionComponent = () => {
     const [colData, setColData] = useState<any[] | undefined>(undefined);
     const model = useModel();
+    const [colName, setColName] = useState<string>("b");
     model?.on("quick_view", (msg) => {
         setColData(JSON.parse(msg.slice(6, msg.length) ?? "{}").data);
+        setColName(JSON.parse(msg.slice(6, msg.length) ?? "{}").columns[0])
     });
     const lineData =
         colData ?
@@ -37,9 +39,13 @@ export const LineChart: FunctionComponent = () => {
                 layer: [
                     {
                         mark: 'line',
+                        transform: [
+                            { calculate: "datum.a", as: "index" },
+                            { calculate: "datum.b", as: colName }
+                        ],
                         encoding: {
-                            x: { field: "a", type: "quantitative" },
-                            y: { field: "b", type: "quantitative" },
+                            x: { field: "index", type: "quantitative" },
+                            y: { field: colName, type: "quantitative" },
                             opacity: {
                                 condition: { param: "industry", value: 1 },
                                 value: 10
