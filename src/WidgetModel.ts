@@ -77,7 +77,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         }
 
         if (msg.includes("__RES:")) {
-            console.log(msg);
+            this.trigger("quick_view", msg)
         }
 
         if (msg.includes("__DFM:")) {
