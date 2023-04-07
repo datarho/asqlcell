@@ -99,7 +99,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                     <>
                                         {
                                             headerContent.filter(header => header.columnName === item && (["int32", "int64", "float64"].includes(header.dtype))).length !== 0 ?
-                                                <Group noWrap position="center" sx={{ gap: 0 }}>
+                                                <Group noWrap position="center" sx={{ gap: 0, alignItems: "flex-start" }}>
                                                     <BarChart item={item} headerContent={headerContent} />
                                                     <Popover
                                                         position="right"
@@ -108,8 +108,8 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                             model?.save_changes();
                                                         }}>
                                                         <Popover.Target>
-                                                            <ActionIcon variant="transparent">
-                                                                <IconChartLine size={8} />
+                                                            <ActionIcon variant="transparent" sx={{ alignItems: "flex-end" }}>
+                                                                <IconChartLine size={12} />
                                                             </ActionIcon>
                                                         </Popover.Target>
                                                         <Popover.Dropdown>
