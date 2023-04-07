@@ -104,7 +104,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                     <Popover
                                                         position="right"
                                                         onOpen={() => {
-                                                            model?.set("execute", `SELECT ${item} FROM $$__NAME__$$ using SAMPLE reservoir (1000 rows) REPEATABLE(42)`);
+                                                            model?.set("execute", `SELECT ${item} FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`);
                                                             model?.save_changes();
                                                         }}>
                                                         <Popover.Target>
