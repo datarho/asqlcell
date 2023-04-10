@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from "react";
 import { VegaLite } from "react-vega";
 import { Dfhead } from "../WidgetView";
-import { Stack, Text } from "@mantine/core";
+import { Group, Stack, Text } from "@mantine/core";
 
 export const BarChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }> = ({ item, headerContent }) => {
     const expo = (input: number) => { return input.toExponential(2) };
@@ -99,9 +99,11 @@ export const BarChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }>
                     ]
                 }}
             />
-            <Text size="xs" sx={{ marginTop: "-20px" }}>
-                {globalInterval(item)}
-            </Text>
+            <Group sx={{ width: "max-content" }}>
+                <Text size="xs" sx={{ marginTop: "-20px" }}>
+                    {globalInterval(item)}
+                </Text>
+            </Group>
         </Stack>
     )
 };
