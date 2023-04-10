@@ -112,7 +112,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                                 <IconChartLine size={12} />
                                                             </ActionIcon>
                                                         </Popover.Target>
-                                                        <Popover.Dropdown>
+                                                        <Popover.Dropdown sx={{ position: "fixed" }}>
                                                             <LineChart />
                                                         </Popover.Dropdown>
                                                     </Popover>
