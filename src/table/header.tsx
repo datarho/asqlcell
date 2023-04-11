@@ -98,7 +98,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                 headerContent ?
                                     <>
                                         {
-                                            headerContent.filter(header => header.columnName === item && (["int32", "int64", "float64"].includes(header.dtype))).length !== 0 ?
+                                            headerContent.filter(header => header.columnName === item && (header.dtype.includes("int") || header.dtype.includes("float"))).length !== 0 ?
                                                 <Group noWrap position="center" sx={{ gap: 0, alignItems: "flex-start" }}>
                                                     <BarChart item={item} headerContent={headerContent} />
                                                     <Popover
