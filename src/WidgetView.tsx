@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { WidgetModel } from "@jupyter-widgets/base";
 import { WidgetModelContext } from "./hooks";
-import { Box, Group, Stack, Text } from "@mantine/core";
-
+import { Box, Group, Stack, Tabs, Text } from "@mantine/core";
 import { DataTable } from "./table";
 import { WidgetInputArea } from "./input";
-
+import { Visualization } from "./visualization/visualization";
+import { LineChart } from "./visualization/line";
 
 interface WidgetProps {
     model: WidgetModel;
@@ -24,6 +24,7 @@ const ReactWidget = (props: WidgetProps) => {
     const [error, setError] = useState(props.model.get("error"))
     const [rowNumber, setRowNumber] = useState<number>(props.model.get("data_range")[1] - props.model.get("data_range")[0]);
     const [page, setPage] = useState(Math.floor(props.model.get("data_range")[0] / rowNumber) + 1);
+    const [tableState, setTableState] = useState<boolean>(true);
 
     // Receive event from Model
     props.model?.on("error", (msg) => {
@@ -48,8 +49,13 @@ const ReactWidget = (props: WidgetProps) => {
         props.model?.save_changes();
     })
 
+    props.model?.on("setTableView", (msg) => {
+        setTableState(msg === 1 ? true : false);
+        console.log(msg)
+    })
+
     return (
-        <div className="Widget">
+        <div className="Widget" >
             <Stack
                 spacing={0}
                 align="center">
@@ -73,12 +79,27 @@ const ReactWidget = (props: WidgetProps) => {
                     position="center">
                     {
                         data ?
-                            <DataTable
-                                page={page}
-                                setPage={setPage}
-                                rowNumber={rowNumber}
-                                setRowNumber={setRowNumber}
-                            />
+                            tableState ?
+                                <Tabs defaultValue="table" sx={{ width: "100%" }}>
+                                    <Tabs.List>
+                                        <Tabs.Tab value="table" >Table Result</Tabs.Tab>
+                                        <Tabs.Tab value="visualization" >Visualization</Tabs.Tab>
+                                    </Tabs.List>
+                                    <Tabs.Panel value="table" >
+                                        <DataTable
+                                            page={page}
+                                            setPage={setPage}
+                                            rowNumber={rowNumber}
+                                            setRowNumber={setRowNumber}
+                                        />
+                                    </Tabs.Panel>
+
+                                    <Tabs.Panel value="visualization" >
+                                        <Visualization />
+                                    </Tabs.Panel>
+                                </Tabs>
+                                :
+                                <LineChart />
                             :
                             <Box sx={{ height: "60px" }} />
                     }

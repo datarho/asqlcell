@@ -3,8 +3,8 @@ import { VegaLite } from "react-vega";
 import { useModel } from "../hooks";
 
 export const LineChart: FunctionComponent = () => {
-    const [colData, setColData] = useState<any[] | undefined>(undefined);
     const model = useModel();
+    const [colData, setColData] = useState<any[] | undefined>(undefined);
     const [colName, setColName] = useState<string>("b");
     model?.on("quick_view", (msg) => {
         setColData(JSON.parse(msg.slice(6, msg.length) ?? "{}").data);
