@@ -12,6 +12,7 @@ import json
 import __main__
 import datetime
 import IPython
+import sqlparse
 from .jinjasql import JinjaSql
 
 module_name = "asqlcell"
@@ -42,10 +43,10 @@ def get_duckdb_connection():
         __DUCKDB = duckdb.connect(database=":memory:", read_only=False)
     return __DUCKDB
 
-def get_duckdb_result(sql):
+def get_duckdb_result(sql, vlist=[]):
     for v in get_dfs():
         get_duckdb_connection().register(v[0], v[1])
-    df = get_duckdb_connection().execute(sql).df()
+    df = get_duckdb_connection().execute(sql, vlist).df()
     for v in get_dfs():
         get_duckdb_connection().unregister(v[0])
     return df
@@ -131,7 +132,10 @@ class SqlcellWidget(DOMWidget):
             if len(self.dfname) == 0:
                 self.dfname = "__" + get_cell_id()
             time1 = datetime.datetime.now()
-            setattr(__main__, self.dfname, get_duckdb_result(self.sql))
+            res = sqlparse.format(self.sql, strip_comments=True, reindent=True)
+            jsql = JinjaSql(param_style="qmark")
+            res, vlist = jsql.prepare_query(res, get_vars())
+            setattr(__main__, self.dfname, get_duckdb_result(res, vlist))
             self.hist = get_histogram(get_value(self.dfname))
             time2 = datetime.datetime.now()
             self.send_df(str(json.dumps(self.hist)) + "\nExecTime:" + str(time1) + "," + str(time2))
