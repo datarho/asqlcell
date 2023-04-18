@@ -119,6 +119,6 @@ class SqlcellWidget(DOMWidget, HasTraits):
     @observe('vis_sql')
     def on_vis_sql(self, change):
         get_duckdb().register(self.data_name, get_value(self.data_name))
-        df = get_duckdb().execute(change.new[1].replace("$$__NAME__$$", self.data_name)).df()
+        df = get_duckdb().execute(change.new.replace("$$__NAME__$$", self.data_name)).df()
         get_duckdb().unregister(self.data_name)
         self.vis_data = str(df.to_json(orient="split", date_format='iso'))
