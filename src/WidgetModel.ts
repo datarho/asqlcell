@@ -69,7 +69,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         }
         else if (msg.includes("__ERT:")) {
             this.set("error", msg);
-            this.set("data", undefined);
+            this.set("data", null);
         }
 
         if (msg.includes("__DFS:")) {
@@ -95,7 +95,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         else if (msg.includes("__DFT:")) {
             // store data before into widgetview
             this.set("data", msg.slice(6, msg.length));
-            this.set("error", undefined);
+            this.set("error", null);
 
             // set data into widget 
             this.trigger("data", msg.slice(6, msg.length));

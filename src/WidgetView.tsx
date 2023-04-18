@@ -20,7 +20,7 @@ export interface Dfhead {
 
 const ReactWidget = (props: WidgetProps) => {
     const [show, setShow] = useState<boolean>(props.model.get("show"));
-    const [data, setData] = useState(props.model.get("data") ? true : false)
+    const [data, setData] = useState(props.model.get("data"))
     const [error, setError] = useState(props.model.get("error"))
     const [rowNumber, setRowNumber] = useState<number>(props.model.get("data_range")[1] - props.model.get("data_range")[0]);
     const [page, setPage] = useState(Math.floor(props.model.get("data_range")[0] / rowNumber) + 1);
@@ -29,7 +29,7 @@ const ReactWidget = (props: WidgetProps) => {
     // Receive event from Model
     props.model?.on("error", (msg) => {
         setError(msg);
-        setData(false);
+        setData(undefined);
     })
     props.model?.on("show", (msg) => {
         setShow(msg);
