@@ -4,7 +4,7 @@ from IPython.core.magic import (
     needs_local_scope
 )
 from ipywidgets import DOMWidget
-from traitlets import Unicode, Tuple, Int, observe, validate
+from traitlets import Unicode, Tuple, Int, observe, validate, HasTraits
 import duckdb
 import pandas as pd
 import numpy as np
@@ -104,7 +104,7 @@ def get_histogram(df):
                 hist.append({"columnName" : column, "dtype" : df.dtypes[column].name})
     return hist
 
-class SqlcellWidget(DOMWidget):
+class SqlcellWidget(DOMWidget, HasTraits):
     _model_name = Unicode('SqlCellModel').tag(sync=True)
     _model_module = Unicode(module_name).tag(sync=True)
     _model_module_version = Unicode(module_version).tag(sync=True)
@@ -117,6 +117,7 @@ class SqlcellWidget(DOMWidget):
     data_range = Tuple(Int(), Int(), Unicode(), default_value=(0, 10, '')).tag(sync=True)
     index_sort = Tuple(Unicode(), Int(), default_value=('', 0)).tag(sync=True)
     dfs_button = Unicode('').tag(sync=True)
+    dfs_result = Unicode('').tag(sync=True)
     sql_button = Unicode('').tag(sync=True)
     json_dump = Unicode('').tag(sync=True)
     execute = Tuple(Unicode(), Unicode(), default_value=('', '')).tag(sync=True)
@@ -167,6 +168,7 @@ class SqlcellWidget(DOMWidget):
         result = ""
         for v in get_dfs():
             result += v[0] + "\t" + str(v[1].shape) + "\n"
+        self.dfs_result = "__DFS:" + result
         self.send("__DFS:" + result)
 
     @observe('sql_button')
