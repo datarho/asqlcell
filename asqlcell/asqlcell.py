@@ -94,7 +94,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     @observe('dfs_button')
     def on_dfs_button(self, change):
         result = ""
-        for k, v in get_var(is_df=True).items():
+        for k, v in get_vars(is_df=True).items():
             result += k + "\t" + str(v.shape) + "\n"
         self.dfs_result = result
 
