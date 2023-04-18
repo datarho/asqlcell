@@ -82,7 +82,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
             self.row_range = (0, self.row_range[1] - self.row_range[0])
             self.column_sort = ('', 0)
             self.title_hist = str(json.dumps(get_histogram(get_value(self.data_name))))
-            exec_time = str(time) + "," + str(datetime.datetime.now())
+            self.exec_time = str(time) + "," + str(datetime.datetime.now())
             self.set_data_grid()
         except Exception as r:
             self.error = str(r)
@@ -100,17 +100,18 @@ class SqlcellWidget(DOMWidget, HasTraits):
 
     @observe('sql_button')
     def on_sql_button(self, change):
+        self.data_name = self.output_var
         self.run_sql()
 
     @observe('row_range')
-    def on_data_range(self, change):
+    def on_row_range(self, change):
         self.set_data_grid()
 
     @observe('column_sort')
-    def on_index_sort(self, change):
+    def on_column_sort(self, change):
         sort_by = change.new[0]
         sort_ascending = change.new[1]
-        df = get_value(self.dfname)
+        df = get_value(self.data_name)
         df.sort_index(axis=0, inplace=True)
         if (sort_ascending != 0):
             df.sort_values(by=sort_by, ascending=(True if sort_ascending > 0 else False), inplace=True, kind='stable')
