@@ -51,7 +51,6 @@ const ReactWidget = (props: WidgetProps) => {
 
     props.model?.on("setTableView", (msg) => {
         setTableState(msg === 1 ? true : false);
-        console.log(msg)
     })
 
     return (

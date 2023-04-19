@@ -10,6 +10,7 @@ export const LineChart: FunctionComponent = () => {
         setColData(JSON.parse(msg.slice(6, msg.length) ?? "{}").data);
         setColName(JSON.parse(msg.slice(6, msg.length) ?? "{}").columns[0])
     });
+
     const lineData =
         colData ?
             {
@@ -24,6 +25,8 @@ export const LineChart: FunctionComponent = () => {
                     { 'a': 0, 'b': 0 }
                 ]
             };
+    const dataLength = lineData.values.length;
+
     return <VegaLite
         data={lineData}
         actions={false}
@@ -44,7 +47,7 @@ export const LineChart: FunctionComponent = () => {
                             { calculate: "datum.b", as: colName }
                         ],
                         encoding: {
-                            x: { field: "index", type: "quantitative", axis: { title: null } },
+                            x: { field: "index", type: dataLength >= 10 ? "quantitative" : "ordinal", axis: { title: null } },
                             y: { field: colName, type: "quantitative" },
                             opacity: {
                                 condition: { param: "industry", value: 1 },
