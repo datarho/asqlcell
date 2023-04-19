@@ -20,9 +20,9 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
         Descending: -1,
         None: 0,
     }
-    const [order, setOrder] = useState(model?.get("index_sort")[1]);
+    const [order, setOrder] = useState(model?.get("column_sort")[1]);
     let currentOrder = Order.None;
-    const [col, setColName] = useState<string>(model?.get("index_sort")[0]);
+    const [col, setColName] = useState<string>(model?.get("column_sort")[0]);
 
     return (
         <thead>
@@ -104,7 +104,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                     <Popover
                                                         position="right"
                                                         onOpen={() => {
-                                                            model?.set("execute", [new Date().toISOString(), `SELECT "${item}" FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`]);
+                                                            model?.set("vis_sql", `SELECT "${item}" FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`);
                                                             model?.save_changes();
                                                         }}>
                                                         <Popover.Target>

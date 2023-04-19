@@ -4,11 +4,11 @@ import { useModel } from "../hooks";
 
 export const LineChart: FunctionComponent = () => {
     const model = useModel();
-    const [colData, setColData] = useState<any[] | undefined>(undefined);
-    const [colName, setColName] = useState<string>("b");
-    model?.on("quick_view", (msg) => {
-        setColData(JSON.parse(msg.slice(6, msg.length) ?? "{}").data);
-        setColName(JSON.parse(msg.slice(6, msg.length) ?? "{}").columns[0])
+    const [colData, setColData] = useState<any[] | undefined>(JSON.parse(model?.get("vis_data")).data);
+    const [colName, setColName] = useState<string>(JSON.parse(model?.get("vis_data")).columns[0]);
+    model?.on("change:vis_data", (msg) => {
+        setColData(JSON.parse(model.get("vis_data")).data);
+        setColName(JSON.parse(model.get("vis_data")).columns[0])
     });
 
     const lineData =

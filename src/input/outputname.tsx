@@ -1,12 +1,11 @@
 import { Group, Text, TextInput } from "@mantine/core";
 import React, { useState } from "react";
 import { FunctionComponent } from "react";
-import { useModel, useModelState } from "../hooks";
+import { useModel } from "../hooks";
 
 export const NameOutput: FunctionComponent = () => {
     const model = useModel();
-    const [output, setOutput] = useModelState("output");
-    const [outputName, setOutputName] = useState(output);
+    const [outputName, setOutputName] = useState(model?.get("data_name"));
 
     model?.on("update_outputName", (msg) => {
         setOutputName(msg.changed.output)
@@ -15,11 +14,12 @@ export const NameOutput: FunctionComponent = () => {
     const escape = () => {
         if (document.activeElement instanceof HTMLElement) {
             if (outputName.trim().length > 0) {
-                setOutput(outputName);
+                model?.set("data_name", outputName);
+                model?.save_changes();
                 document.activeElement.blur();
             }
             else {
-                setOutputName(output);
+                setOutputName(model?.get("data_name"));
             }
         }
     }

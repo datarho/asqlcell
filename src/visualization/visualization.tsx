@@ -1,12 +1,13 @@
 import { ActionIcon, Box, Container, Divider, Group, Select, Stack, Tabs } from "@mantine/core";
 import { useResizeObserver } from "@mantine/hooks";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { IconChartBar, IconChartLine, IconChevronLeft, IconChevronRight, IconSortAscendingLetters } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { FunctionComponent } from "react";
 import { VegaLite } from "react-vega";
 import { useModel } from "../hooks";
 
 interface menuProps {
+    chartType: number;
     setChartType: React.Dispatch<React.SetStateAction<number>>;
     setXAxis: React.Dispatch<React.SetStateAction<string>>;
     setColName: React.Dispatch<React.SetStateAction<string>>;
@@ -22,7 +23,7 @@ interface previewChartProp {
     colName: string;
 }
 
-const VisualMenu: FunctionComponent<menuProps> = ({ setChartType, setXAxis, setColName, colName, header }) => {
+const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, setXAxis, setColName, colName, header }) => {
     const model = useModel();
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
@@ -36,6 +37,7 @@ const VisualMenu: FunctionComponent<menuProps> = ({ setChartType, setXAxis, setC
                 <Tabs.Panel value="data" >
                     <Stack sx={{ marginTop: "1rem" }}>
                         <Select
+                            icon={chartType === 1 ? <IconChartLine /> : <IconChartBar />}
                             label="Chart Type"
                             defaultValue={"1"}
                             data={[
@@ -44,11 +46,15 @@ const VisualMenu: FunctionComponent<menuProps> = ({ setChartType, setXAxis, setC
                             ]}
                             onChange={(value) => { setChartType(parseInt(value!)) }}
                         />
-                        <Select
-                            label="X-axis"
-                            defaultValue={"Index"}
-                            data={["Index", "Date"]}
-                            onChange={(value) => { setXAxis(value!) }} />
+                        <Group noWrap>
+                            <Select
+                                label="X-axis"
+                                defaultValue={"Index"}
+                                data={["Index", "Date"]}
+                                onChange={(value) => { setXAxis(value!) }}
+                            />
+                            <ActionIcon>{<IconSortAscendingLetters />}</ActionIcon>
+                        </Group>
                         <Select
                             label="Y-axis 1"
                             value={colName}
@@ -57,7 +63,7 @@ const VisualMenu: FunctionComponent<menuProps> = ({ setChartType, setXAxis, setC
                             }))}
                             onChange={(value) => {
                                 setColName(value!);
-                                model?.set("execute", [new Date().toISOString(), `SELECT "${value}" FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`]);
+                                model?.set("vis_sql", `SELECT "${value}" FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`);
                                 model?.save_changes();
                             }}
                         />
@@ -76,7 +82,7 @@ const VisualMenu: FunctionComponent<menuProps> = ({ setChartType, setXAxis, setC
 
 const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, chartType, XAxis, colName }) => {
     const model = useModel();
-    const [colData, setColData] = useState<string>("");
+    const [colData, setColData] = useState<string>(model?.get("vis_data"));
     model?.on("quick_view", (msg) => {
         setColData(msg.slice(6, msg.length) ?? "{}");
     });
@@ -130,7 +136,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, 
 
 export const Visualization: FunctionComponent = () => {
     const model = useModel();
-    const [data, setData] = useState(model?.get("data") ?? "");
+    const [data, setData] = useState(model?.get("data_grid") ?? "");
     model?.on("data", (msg) => setData(msg));
     const header: string[] = JSON.parse(data.split("\n")[0]).columns;
 
@@ -147,7 +153,7 @@ export const Visualization: FunctionComponent = () => {
     const [open, setOpen] = useState<boolean>(true);
     const [chartType, setChartType] = useState(1);
     useEffect(() => {
-        model?.set("execute", [new Date().toISOString(), `SELECT "${colName}" FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`]);
+        model?.set("vis_sql", `SELECT "${colName}" FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`);
         model?.save_changes();
     }, [])
 
@@ -159,6 +165,7 @@ export const Visualization: FunctionComponent = () => {
                         {
                             open ?
                                 <VisualMenu
+                                    chartType={chartType}
                                     setChartType={setChartType}
                                     setXAxis={setXAxis}
                                     setColName={setColName}

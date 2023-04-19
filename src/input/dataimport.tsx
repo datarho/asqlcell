@@ -6,7 +6,10 @@ import { useModel } from "../hooks";
 export const DataImport: FunctionComponent = () => {
     const model = useModel();
     const [opened, setOpened] = useState<boolean>(false);
-    const [dataframe, setDataFrame] = useState("");
+    const [dataframe, setDataFrame] = useState<string>(model?.get("dfs_result"));
+    model?.on("change:dfs_result", (msg) => {
+        setDataFrame(model.get("dfs_result"))
+    })
     const DropdownHeight = dataframe.trim().split(/\r?\n/).length >= 5 ? "125px" : `${dataframe.trim().split(/\r?\n/).length * 25}px`;
     const items = dataframe.split("\n").map((name, index) => (
         name === "" ?
@@ -25,9 +28,6 @@ export const DataImport: FunctionComponent = () => {
             />
     ));
 
-    model?.on("dataframe", (msg) => {
-        setDataFrame(msg.slice(6, msg.length))
-    })
     return (
         <>
             <Popover

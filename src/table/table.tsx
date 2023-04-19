@@ -16,10 +16,12 @@ interface prop {
 export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, setRowNumber }) => {
     const model = useModel();
 
-    const [data, setData] = useState(model?.get("data") ?? "");
-    model?.on("data", (msg) => setData(msg));
-    const [hist, setHist] = useState<string>(model?.get("hist") ?? "");
-    model?.on("hist", (msg) => setHist(msg));
+    const [data, setData] = useState(model?.get("data_grid") ?? "{}");
+    model?.on("change:data_grid", () => { setData(model.get("data_grid")) });
+
+    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
+    model?.on("change:title_hist", () => setHist(model?.get("title_hist")));
+
     const [execTime, setExecTime] = useState<string>(model?.get("exec_time") ?? "");
     model?.on("execTime", (msg: string) => setExecTime(msg.slice(9, msg.length)));
 
@@ -138,7 +140,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 const num = number as unknown as number;
                                 setPage(1);
                                 setRowNumber(num);
-                                model?.trigger("setRange", [(0 * num), 1 * num, new Date().toISOString()]);
+                                model?.trigger("setRange", [(0 * num), 1 * num]);
                             }}
                         />
                         <Text color="#8d8d8d">/page</Text>
@@ -151,7 +153,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 total={Math.ceil(dataLength / rowNumber)}
                                 onChange={(index) => {
                                     setPage(index);
-                                    model?.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber, new Date().toISOString()]);
+                                    model?.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber]);
                                 }}
                                 styles={(theme) => ({
                                     item: {
@@ -179,7 +181,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                     setPage(tempoIndex);
                                     setOutOfRange(false);
-                                    model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
+                                    model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber]);
                                 } else {
                                     setOutOfRange(true)
                                 }
@@ -190,7 +192,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                     if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                         setPage(tempoIndex);
                                         setOutOfRange(false);
-                                        model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
+                                        model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber]);
                                     } else {
                                         setOutOfRange(true)
                                     }

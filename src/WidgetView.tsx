@@ -19,33 +19,31 @@ export interface Dfhead {
 }
 
 const ReactWidget = (props: WidgetProps) => {
-    const [show, setShow] = useState<boolean>(props.model.get("show"));
-    const [data, setData] = useState(props.model.get("data"))
+    const [show, setShow] = useState<string>(props.model.get("mode"));
+    const [data, setData] = useState(props.model.get("data_grid"))
     const [error, setError] = useState(props.model.get("error"))
-    const [rowNumber, setRowNumber] = useState<number>(props.model.get("data_range")[1] - props.model.get("data_range")[0]);
-    const [page, setPage] = useState(Math.floor(props.model.get("data_range")[0] / rowNumber) + 1);
+    const [rowNumber, setRowNumber] = useState<number>(props.model.get("row_range")[1] - props.model.get("row_range")[0]);
+    const [page, setPage] = useState(Math.floor(props.model.get("row_range")[0] / rowNumber) + 1);
     const [tableState, setTableState] = useState<boolean>(true);
 
     // Receive event from Model
-    props.model?.on("error", (msg) => {
-        setError(msg);
-        setData(undefined);
+    props.model?.on("change:error", () => {
+        setError(props.model.get("error"));
+        setData("")
+    })
+    props.model?.on("change:data_grid", () => {
+        setData(props.model.get("data_grid"));
+        setError("");
     })
     props.model?.on("show", (msg) => {
         setShow(msg);
     })
-    props.model?.on("data", (msg) => {
-        if (msg.slice(6, msg.length) !== data) {
-            setData(msg.slice(6, msg.length));
-        }
-        setError(undefined);
-    })
     props.model?.on("sort", (msg) => {
-        props.model?.set("index_sort", msg, "");
+        props.model?.set("column_sort", msg, "");
         props.model?.save_changes();
     })
     props.model?.on("setRange", (msg) => {
-        props.model?.set("data_range", msg, "");
+        props.model?.set("row_range", msg, "");
         props.model?.save_changes();
     })
 
@@ -59,50 +57,52 @@ const ReactWidget = (props: WidgetProps) => {
                 spacing={0}
                 align="center">
                 {
-                    show ?
+                    show === "UI" ?
                         <WidgetInputArea setPage={setPage} />
                         :
                         <></>
                 }
                 {
-                    error ?
+                    error !== "" && data === "" ?
                         <Group position="left">
-                            <Text color="red">{error.slice(0, 6)}</Text>
-                            <Text>{error.slice(6, error.length)}</Text>
+                            <Text color="red">Error:</Text>
+                            <Text>{error}</Text>
                         </Group>
                         :
                         <></>
                 }
-                <Group
-                    sx={{ width: "95%" }}
-                    position="center">
-                    {
-                        data ?
-                            tableState ?
-                                <Tabs defaultValue="table" sx={{ width: "100%" }}>
-                                    <Tabs.List>
-                                        <Tabs.Tab value="table" >Table Result</Tabs.Tab>
-                                        <Tabs.Tab value="visualization" >Visualization</Tabs.Tab>
-                                    </Tabs.List>
-                                    <Tabs.Panel value="table" >
-                                        <DataTable
-                                            page={page}
-                                            setPage={setPage}
-                                            rowNumber={rowNumber}
-                                            setRowNumber={setRowNumber}
-                                        />
-                                    </Tabs.Panel>
+                {
+                    data !== "" ?
+                        <Group
+                            sx={{ width: "95%" }}
+                            position="center">
+                            {
+                                tableState ?
+                                    <Tabs defaultValue="table" sx={{ width: "100%" }}>
+                                        <Tabs.List>
+                                            <Tabs.Tab value="table" >Table Result</Tabs.Tab>
+                                            <Tabs.Tab value="visualization" >Visualization</Tabs.Tab>
+                                        </Tabs.List>
+                                        <Tabs.Panel value="table" >
+                                            <DataTable
+                                                page={page}
+                                                setPage={setPage}
+                                                rowNumber={rowNumber}
+                                                setRowNumber={setRowNumber}
+                                            />
+                                        </Tabs.Panel>
 
-                                    <Tabs.Panel value="visualization" >
-                                        <Visualization />
-                                    </Tabs.Panel>
-                                </Tabs>
-                                :
-                                <LineChart />
-                            :
-                            <Box sx={{ height: "60px" }} />
-                    }
-                </Group>
+                                        <Tabs.Panel value="visualization" >
+                                            <Visualization />
+                                        </Tabs.Panel>
+                                    </Tabs>
+                                    :
+                                    <LineChart />
+                            }
+                        </Group>
+                        :
+                        <Box sx={{ height: "60px" }} />
+                }
             </Stack>
         </div>
     );

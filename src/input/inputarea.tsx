@@ -1,5 +1,5 @@
-import { ActionIcon, Box, Group, Text, Textarea } from "@mantine/core";
-import { FunctionComponent, useEffect, useRef, useState } from "react";
+import { ActionIcon, Box, Group, Textarea } from "@mantine/core";
+import { FunctionComponent, useEffect, useState } from "react";
 import { DataImport } from "./dataimport";
 import { NameOutput } from "./outputname";
 import { VscDebugStart } from "react-icons/vsc";
@@ -12,36 +12,14 @@ interface prop {
 
 export const WidgetInputArea: FunctionComponent<prop> = ({ setPage }) => {
     const model = useModel();
-    const [timeStamp, setTimeStamp] = useState<number>(0);
-    const [time, setTime] = useState<number>(0);
-    const [openTimer, setOpenTimer] = useState<boolean>(false);
-    const [timerId, setTimerId] = useState<number>();
-    const latestCallback = useRef<any | null>(null);
-    const [sqlContent, setSqlContent] = useState(model?.get("value") ?? "");
+    const [sqlContent, setSqlContent] = useState(model?.get("data_sql"));
 
     model?.on("importData", (msg) => {
         setSqlContent("select * from " + msg);
     })
-    model?.on("error", () => {
-        setOpenTimer(false);
-    })
-    model?.on("hist", () => {
-        setOpenTimer(false);
-    })
 
     useEffect(() => {
-        latestCallback.current = () => { setTime(Date.now() - timeStamp); };
-    });
-
-    useEffect(() => {
-        if (!openTimer) {
-            window.clearInterval(Number(timerId));
-        } else {
-            setTimerId(window.setInterval(() => latestCallback.current(), 10));
-        }
-    }, [openTimer]);
-    useEffect(() => {
-        model?.set("value", sqlContent);
+        model?.set("data_sql", sqlContent);
         model?.save_changes();
     }, [sqlContent])
 
@@ -86,24 +64,15 @@ export const WidgetInputArea: FunctionComponent<prop> = ({ setPage }) => {
                 <ActionIcon
                     onClick={() => {
                         model?.set("sql_button", new Date().toISOString());
+                        model?.set("data_sql", sqlContent);
+                        model?.set("error", "");
                         model?.save_changes();
                         setPage(1);
-                        setTime(0)
-                        setTimeStamp(Date.now());
-                        setOpenTimer(true)
                     }}
                     sx={{ height: "100%" }}
                 >
                     <VscDebugStart size={18} />
                 </ActionIcon>
-            </Group>
-            <Group sx={{ width: "95%" }}>
-                {
-                    time === 0 ?
-                        <></>
-                        :
-                        <Text>{time / 1000}s</Text>
-                }
             </Group>
         </>
     )
