@@ -5,7 +5,7 @@ import { useModel } from "../hooks";
 
 export const NameOutput: FunctionComponent = () => {
     const model = useModel();
-    const [outputName, setOutputName] = useState(model?.get("data_name"));
+    const [outputName, setOutputName] = useState(model?.get("output_var"));
 
     model?.on("update_outputName", (msg) => {
         setOutputName(msg.changed.output)
@@ -14,12 +14,12 @@ export const NameOutput: FunctionComponent = () => {
     const escape = () => {
         if (document.activeElement instanceof HTMLElement) {
             if (outputName.trim().length > 0) {
-                model?.set("data_name", outputName);
+                model?.set("output_var", outputName);
                 model?.save_changes();
                 document.activeElement.blur();
             }
             else {
-                setOutputName(model?.get("data_name"));
+                setOutputName(model?.get("output_var"));
             }
         }
     }
