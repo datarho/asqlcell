@@ -63,7 +63,9 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, set
                             }))}
                             onChange={(value) => {
                                 setColName(value!);
-                                model?.set("vis_sql", `SELECT "${value}" FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`);
+                                model?.set("vis_sql", [
+                                    `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${value}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (100 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+                                    new Date().toISOString()]);
                                 model?.save_changes();
                             }}
                         />
@@ -151,7 +153,9 @@ export const Visualization: FunctionComponent = () => {
     const [open, setOpen] = useState<boolean>(true);
     const [chartType, setChartType] = useState(1);
     useEffect(() => {
-        model?.set("vis_sql", `SELECT "${colName}" FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`);
+        model?.set("vis_sql", [
+            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${colName}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (100 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+            new Date().toISOString()]);
         model?.save_changes();
     }, [])
 

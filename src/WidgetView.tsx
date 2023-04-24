@@ -13,7 +13,7 @@ interface WidgetProps {
 export interface Dfhead {
     columnName: string,
     dtype: string,
-    bins: { bin_start: number, bin_end: number, count: number }[],
+    bins: object[],
     time1?: string;
     time2?: string;
 }

@@ -20,8 +20,8 @@ export const BarChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }>
     };
 
     const globalInterval = (item: string) => {
-        const left = headerContent.filter(header => header.columnName === item)[0].bins[0].bin_start;
-        const right = headerContent.filter(header => header.columnName === item)[0].bins[9].bin_end;
+        const left = (headerContent.filter(header => header.columnName === item)[0].bins[0] as any).bin_start;
+        const right = (headerContent.filter(header => header.columnName === item)[0].bins[9] as any).bin_end;
         return (
             `[${getIntervalSide(left)}, ${getIntervalSide(right)}]`
         )

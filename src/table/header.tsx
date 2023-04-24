@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Group, Popover, Text } from "@mantine/core";
+import { ActionIcon, Box, Button, Group, Popover, Stack, Text } from "@mantine/core";
 import { IconChartLine } from "@tabler/icons-react";
 import React, { useState } from "react";
 import { FunctionComponent } from "react";
@@ -106,14 +106,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                         onOpen={() => {
                                                             model?.set("vis_sql",
                                                                 [
-                                                                    `select * EXCLUDE (index_rn1qaz2wsx)
-from 
-(
-SELECT "${item}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx
-FROM $$__NAME__$$
-)
-using SAMPLE reservoir (100 rows) REPEATABLE(42)
-order by index_rn1qaz2wsx`,
+                                                                    `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${item}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (100 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
                                                                     new Date().toISOString()]);
                                                             model?.save_changes();
                                                         }}>
@@ -128,7 +121,30 @@ order by index_rn1qaz2wsx`,
                                                     </Popover>
                                                 </Group>
                                                 :
-                                                <></>
+                                                <Stack sx={{ gap: 0, alignItems: "center" }}>
+                                                    {
+                                                        headerContent.filter(header => header.columnName === item).length > 0 ?
+                                                            headerContent.filter(header => header.columnName === item)[0].bins.map(bin => {
+                                                                return (
+                                                                    <Group position="apart" sx={{ gap: 0, width: "6rem" }}>
+                                                                        {
+                                                                            (bin as any).count !== 0 ?
+                                                                                <>
+                                                                                    <Box sx={{ maxWidth: "4rem" }}>
+                                                                                        <Text truncate fz="xs">{(bin as any).bin}: </Text>
+                                                                                    </Box>
+                                                                                    <Text c={"blue"} fz="xs">{(bin as any).count}</Text>
+                                                                                </>
+                                                                                :
+                                                                                <></>
+                                                                        }
+                                                                    </Group>
+                                                                )
+                                                            })
+                                                            :
+                                                            <></>
+                                                    }
+                                                </Stack>
                                         }
                                     </>
                                     :
