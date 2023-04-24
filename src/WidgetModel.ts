@@ -19,8 +19,8 @@ const defaultModelProperties = {
     mode: "",
     data_grid: "",
     data_sql: "",
-    vis_sql: "",
-    vis_data: "",
+    vis_sql: ["", ""],
+    vis_data: undefined,
     title_hist: "",
 }
 

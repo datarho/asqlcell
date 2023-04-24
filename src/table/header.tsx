@@ -104,7 +104,17 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                                                     <Popover
                                                         position="right"
                                                         onOpen={() => {
-                                                            model?.set("vis_sql", `SELECT "${item}" FROM $$__NAME__$$ using SAMPLE reservoir (100 rows) REPEATABLE(42)`);
+                                                            model?.set("vis_sql",
+                                                                [
+                                                                    `select * EXCLUDE (index_rn1qaz2wsx)
+from 
+(
+SELECT "${item}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx
+FROM $$__NAME__$$
+)
+using SAMPLE reservoir (100 rows) REPEATABLE(42)
+order by index_rn1qaz2wsx`,
+                                                                    new Date().toISOString()]);
                                                             model?.save_changes();
                                                         }}>
                                                         <Popover.Target>

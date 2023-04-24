@@ -84,7 +84,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, 
     const model = useModel();
     const [colData, setColData] = useState<string>(model?.get("vis_data"));
     model?.on("quick_view", (msg) => {
-        setColData(msg.slice(6, msg.length) ?? "{}");
+        setColData(msg ?? "{}");
     });
     const lineData =
         colData ?
@@ -141,10 +141,8 @@ export const Visualization: FunctionComponent = () => {
     const header: string[] = JSON.parse(data.split("\n")[0]).columns;
 
     const [colName, setColName] = useState<string>(header[0]);
-    // Visualization and quick view use the same listener,
-    // talk more about it later
     model?.on("quick_view", (msg) => {
-        setColName(JSON.parse(msg.slice(6, msg.length) ?? "{}").columns[0])
+        setColName(JSON.parse(msg ?? "{}").columns[0])
     });
 
     const [XAxis, setXAxis] = useState("index");
