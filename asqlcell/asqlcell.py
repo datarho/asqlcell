@@ -62,7 +62,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     exec_time = Unicode('').tag(sync=True)
     data_sql = Unicode('').tag(sync=True)
     data_name = Unicode('').tag(sync=True)
-    vis_sql = Tuple(Unicode(''), Unicode(''), efault_value=('', '')).tag(sync=True)
+    vis_sql = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
     vis_data = Unicode('').tag(sync=True)
     error = Unicode('').tag(sync=True)
 
