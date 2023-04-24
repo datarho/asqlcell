@@ -42,13 +42,23 @@ def get_histogram(df):
     if isinstance(df, pd.DataFrame):
         for column in df:
             col = df[column]
-            if (is_type_numeric(col.dtypes)):
+            if is_type_numeric(col.dtypes):
                 np_array= np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
                 y, bins = np.histogram(np_array, bins=10)
                 hist.append({"columnName" : column, "dtype" : df.dtypes[column].name,
                     "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
             else:
-                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name})
+                unique_values, value_counts = np.unique(col, return_counts=True)
+                sorted_indexes = np.flip(np.argsort(value_counts))
+                bins = []
+                sum = 0
+                for i, si in enumerate(sorted_indexes):
+                    if i < 5:
+                        bins.append({"bin" : str(unique_values[si]), "count" : value_counts[si].item()})
+                    else:
+                        sum += value_counts[si].item()
+                bins.append({"bin" : "other", "count" : sum})
+                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name, "bins" : bins})
     return hist
 
 def get_random_data(number = 10):
