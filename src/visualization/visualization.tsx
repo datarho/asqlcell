@@ -30,7 +30,7 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, set
                 <Tabs.List grow>
                     <Group noWrap>
                         <Tabs.Tab value="data" >Data</Tabs.Tab>
-                        <Tabs.Tab value="style" >Style</Tabs.Tab>
+                        {/* <Tabs.Tab value="style" >Style</Tabs.Tab> */}
                     </Group>
                 </Tabs.List>
                 <Tabs.Panel value="data" >
@@ -52,7 +52,7 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, set
                             <Select
                                 label="X-axis"
                                 defaultValue={"Index"}
-                                data={["Index", "Date"]}
+                                data={["Index"]}
                                 onChange={(value) => { setXAxis(value!) }}
                             />
                         </Grid.Col>
@@ -168,7 +168,7 @@ export const Visualization: FunctionComponent = () => {
 
     return (
         <>
-            <Container ref={ref} fluid sx={{ maxWidth: "100vh", paddingBottom: "2rem", paddingTop: "1rem" }}>
+            <Container ref={ref} fluid sx={{ maxWidth: "100vh", paddingBottom: "2rem", paddingTop: "1rem", paddingLeft: "1rem" }}>
                 <Group noWrap sx={{ gap: "0" }}>
                     <Group ref={ref2} noWrap sx={{ height: 264, alignItems: "flex-start", gap: "0", paddingRight: "1rem" }}>
                         {

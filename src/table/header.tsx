@@ -184,6 +184,7 @@ export const DataframeHeader: FunctionComponent<props> = ({ headerContent, heade
                             key={index}
                             style={{
                                 padding: 0,
+                                verticalAlign: "baseline",
                             }}>
                             <Box sx={{
                                 display: "flex",
