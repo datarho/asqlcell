@@ -19,8 +19,7 @@ export const WidgetInputArea: FunctionComponent<prop> = ({ setPage }) => {
     })
 
     useEffect(() => {
-        model?.set("data_sql", sqlContent);
-        model?.save_changes();
+        model?.trigger("data_sql", sqlContent)
     }, [sqlContent])
 
     return (

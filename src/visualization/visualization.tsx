@@ -1,6 +1,6 @@
-import { ActionIcon, Box, Container, Divider, Group, Select, Stack, Tabs } from "@mantine/core";
+import { ActionIcon, Box, Container, Divider, Grid, Group, Select, Stack, Tabs } from "@mantine/core";
 import { useResizeObserver } from "@mantine/hooks";
-import { IconChartBar, IconChartLine, IconChevronLeft, IconChevronRight, IconSortAscendingLetters } from "@tabler/icons-react";
+import { IconChartBar, IconChartLine, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { FunctionComponent } from "react";
 import { VegaLite } from "react-vega";
@@ -13,7 +13,6 @@ interface menuProps {
     setColName: React.Dispatch<React.SetStateAction<string>>;
     colName: string;
     header: string[];
-
 }
 interface previewChartProp {
     rect: any;
@@ -35,41 +34,54 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, set
                     </Group>
                 </Tabs.List>
                 <Tabs.Panel value="data" >
-                    <Stack sx={{ marginTop: "1rem" }}>
-                        <Select
-                            icon={chartType === 1 ? <IconChartLine /> : <IconChartBar />}
-                            label="Chart Type"
-                            defaultValue={"1"}
-                            data={[
-                                { value: "1", label: "Line" },
-                                { value: "2", label: "Bar" }
-                            ]}
-                            onChange={(value) => { setChartType(parseInt(value!)) }}
-                        />
-                        <Group noWrap>
+                    <Grid sx={{ marginTop: "1rem" }}>
+                        <Grid.Col span={10}>
+                            <Select
+                                icon={chartType === 1 ? <IconChartLine /> : <IconChartBar />}
+                                label="Chart Type"
+                                defaultValue={"1"}
+                                data={[
+                                    { value: "1", label: "Line" },
+                                    { value: "2", label: "Bar" }
+                                ]}
+                                onChange={(value) => { setChartType(parseInt(value!)) }}
+                            />
+                        </Grid.Col>
+                        <Grid.Col span={2}></Grid.Col>
+                        <Grid.Col span={10}>
                             <Select
                                 label="X-axis"
                                 defaultValue={"Index"}
                                 data={["Index", "Date"]}
                                 onChange={(value) => { setXAxis(value!) }}
                             />
-                            <ActionIcon>{<IconSortAscendingLetters />}</ActionIcon>
-                        </Group>
-                        <Select
-                            label="Y-axis 1"
-                            value={colName}
-                            data={header.map((item) => ({
-                                value: item.toLowerCase(), label: item
-                            }))}
-                            onChange={(value) => {
-                                setColName(value!);
-                                model?.set("vis_sql", [
-                                    `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${value}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (100 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
-                                    new Date().toISOString()]);
-                                model?.save_changes();
-                            }}
-                        />
-                    </Stack>
+                        </Grid.Col>
+                        <Grid.Col span={2} sx={{ display: "flex", alignItems: "end" }}>
+                            {/* <ActionIcon onClick={() => {
+
+                            }} >
+                                {
+                                    true ?
+                                        <IconSortAscendingLetters size={16} />
+                                        :
+                                        <IconSortDescendingLetters size={16} />
+                                }
+                            </ActionIcon> */}
+                        </Grid.Col>
+                        <Grid.Col span={10}>
+                            <Select
+                                label="Y-axis 1"
+                                value={colName}
+                                data={header.map((item) => ({
+                                    value: item.toLowerCase(), label: item
+                                }))}
+                                onChange={(value) => {
+                                    setColName(value!);
+                                    model?.trigger("vis_sql", value)
+                                }}
+                            />
+                        </Grid.Col>
+                    </Grid>
                 </Tabs.Panel>
                 <Tabs.Panel value="label" >
                     <Box h="100%"></Box>
@@ -85,9 +97,9 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, set
 const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, chartType, XAxis, colName }) => {
     const model = useModel();
     const [colData, setColData] = useState<string>(model?.get("vis_data"));
-    model?.on("quick_view", (msg) => {
-        setColData(msg ?? "{}");
-    });
+    model?.on("change:vis_data", () => {
+        setColData(model.get("vis_data"))
+    })
     const lineData =
         colData ?
             JSON.parse(colData).data.map((item: number, index: number) => {
@@ -138,25 +150,20 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, 
 
 export const Visualization: FunctionComponent = () => {
     const model = useModel();
-    const [data, setData] = useState(model?.get("data_grid") ?? "");
-    model?.on("data", (msg) => setData(msg));
-    const header: string[] = JSON.parse(data.split("\n")[0]).columns;
 
-    const [colName, setColName] = useState<string>(header[0]);
-    model?.on("quick_view", (msg) => {
-        setColName(JSON.parse(msg ?? "{}").columns[0])
-    });
+    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
+    model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
+    const headerData: string[] = JSON.parse(hist ?? "{dtype:''}").filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
 
+    const sorted = model?.get("column_sort")[0] !== "";
+    const [colName, setColName] = useState<string>(sorted ? model?.get("column_sort")[0] : headerData[0]);
     const [XAxis, setXAxis] = useState("index");
     const [ref, rect] = useResizeObserver();
     const [ref2, rect2] = useResizeObserver();
     const [open, setOpen] = useState<boolean>(true);
     const [chartType, setChartType] = useState(1);
     useEffect(() => {
-        model?.set("vis_sql", [
-            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${colName}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (100 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
-            new Date().toISOString()]);
-        model?.save_changes();
+        model?.trigger("vis_sql", colName)
     }, [])
 
     return (
@@ -172,7 +179,8 @@ export const Visualization: FunctionComponent = () => {
                                     setXAxis={setXAxis}
                                     setColName={setColName}
                                     colName={colName}
-                                    header={header} />
+                                    header={headerData}
+                                />
                                 :
                                 <></>
                         }

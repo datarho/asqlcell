@@ -19,7 +19,7 @@ export interface Dfhead {
 }
 
 const ReactWidget = (props: WidgetProps) => {
-    const [show, setShow] = useState<string>(props.model.get("mode"));
+    const show = props.model.get("mode");
     const [data, setData] = useState(props.model.get("data_grid"))
     const [error, setError] = useState(props.model.get("error"))
     const [rowNumber, setRowNumber] = useState<number>(props.model.get("row_range")[1] - props.model.get("row_range")[0]);
@@ -35,9 +35,6 @@ const ReactWidget = (props: WidgetProps) => {
         setData(props.model.get("data_grid"));
         setError("");
     })
-    props.model?.on("show", (msg) => {
-        setShow(msg);
-    })
     props.model?.on("sort", (msg) => {
         props.model?.set("column_sort", msg, "");
         props.model?.save_changes();
@@ -49,6 +46,29 @@ const ReactWidget = (props: WidgetProps) => {
 
     props.model?.on("setTableView", (msg) => {
         setTableState(msg === 1 ? true : false);
+    })
+
+    props.model?.on("vis_sql", (col_name) => {
+        props.model?.set("vis_sql", [
+            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${col_name}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (100 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+            new Date().toISOString()
+        ]);
+        props.model?.save_changes();
+    })
+
+    props.model?.on("output_var", (outputName) => {
+        props.model?.set("output_var", outputName);
+        props.model?.save_changes();
+    })
+
+    props.model?.on("dfs_button", () => {
+        props.model?.set("dfs_button", new Date().toISOString());
+        props.model?.save_changes();
+    })
+
+    props.model?.on("data_sql", (sqlContent) => {
+        props.model?.set("data_sql", sqlContent);
+        props.model?.save_changes();
     })
 
     return (

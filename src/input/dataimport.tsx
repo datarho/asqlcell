@@ -47,9 +47,8 @@ export const DataImport: FunctionComponent = () => {
                             },
                         }}
                         onClick={() => {
-                            setOpened((o) => !o)
-                            model?.set("dfs_button", new Date().toISOString());
-                            model?.save_changes();
+                            setOpened((open) => !open)
+                            model?.trigger("dfs_button")
                         }}
                     >
                         <Text

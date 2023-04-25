@@ -14,8 +14,7 @@ export const NameOutput: FunctionComponent = () => {
     const escape = () => {
         if (document.activeElement instanceof HTMLElement) {
             if (outputName.trim().length > 0) {
-                model?.set("output_var", outputName);
-                model?.save_changes();
+                model?.trigger("output_var", outputName);
                 document.activeElement.blur();
             }
             else {
