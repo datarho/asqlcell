@@ -53,7 +53,7 @@ def get_histogram(df):
                 bins = []
                 sum = 0
                 for i, si in enumerate(sorted_indexes):
-                    if i < 5:
+                    if i < 4:
                         bins.append({"bin" : str(unique_values[si]), "count" : value_counts[si].item()})
                     else:
                         sum += value_counts[si].item()
