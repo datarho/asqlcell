@@ -100,7 +100,7 @@ export const BarChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }>
                 }}
             />
             <Group sx={{ width: "max-content" }}>
-                <Text size="xs" sx={{ marginTop: "-20px" }}>
+                <Text size="xs" c={"#696969"} sx={{ marginTop: "-20px" }}>
                     {globalInterval(item)}
                 </Text>
             </Group>

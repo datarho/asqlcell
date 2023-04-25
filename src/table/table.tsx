@@ -99,7 +99,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                         },
                     }}>
 
-                    <DataframeHeader headerContent={headerContent} header={header} />
+                    <DataframeHeader headerContent={headerContent} header={header} dataLength={dataLength} />
 
                     <tbody>
                         {rows}
