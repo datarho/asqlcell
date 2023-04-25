@@ -1,6 +1,6 @@
 from IPython.core.magic import register_cell_magic, register_line_magic, needs_local_scope
 from ipywidgets import DOMWidget
-from traitlets import Unicode, Tuple, Int, observe, validate, HasTraits
+from traitlets import Unicode, Tuple, Int, observe, HasTraits
 import json
 import datetime
 import IPython
