@@ -7,15 +7,21 @@ import { MODULE_NAME, MODULE_VERSION } from "./version";
 import { DOMWidgetView } from "@jupyter-widgets/base";
 
 const defaultModelProperties = {
-    value: "",
-    output: "sqlcelldf",
-    event: "",
-    data_range: [0, 0, ""],
+    data_name: "",
     dfs_button: "",
-    data: "",
     error: "",
     exec_time: "",
-    hist: "",
+    output_var: "sqlcelldf",
+    row_range: [0, 10],
+    column_sort: ["", 0], // default value: ("",0), orientation:(-1,0,1)
+    dfs_result: "",
+    sql_button: "",
+    mode: "",
+    data_grid: "",
+    data_sql: "",
+    vis_sql: ["", ""],
+    vis_data: undefined,
+    title_hist: "",
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -30,15 +36,21 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             _view_name: SqlCellModel.view_name,
             _view_module: SqlCellModel.view_module,
             _view_module_version: SqlCellModel.view_module_version,
-            value: "",
-            output: "sqlcelldf",
-            event: undefined,
-            data_range: undefined,
+            output_var: "sqlcelldf",
+            row_range: undefined,
+            column_sort: undefined,
             dfs_button: undefined,
-            data: undefined,
-            error: undefined,
+            dfs_result: undefined,
+            sql_button: undefined,
+            mode: undefined,
             exec_time: "",
-            hist: undefined,
+            data_grid: undefined,
+            data_name: undefined,
+            data_sql: undefined,
+            error: undefined,
+            vis_sql: undefined,
+            vis_data: undefined,
+            title_hist: undefined,
         };
     }
 
@@ -46,67 +58,11 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         super.initialize(attributes, options);
         this.set("json_dump", new Date().toISOString());
         this.save_changes();
-        this.on("msg:custom", this.handle_custom_messages, this);
+        // this.on("all", (msg) => { console.log(msg) })
+        // this.on("change", (msg) => { console.log(msg) })
         this.on("change:output", this.handle_update_messages, this);
     }
 
-    handle_custom_messages(msg: any) {
-        if (msg.includes("\"iscommand\": true")) {
-            this.trigger("show", false);
-            this.update_json_dump([...this.get("data_range").slice(0, 2), new Date().toISOString()]);
-        }
-        else if (msg.includes("\"iscommand\": false")) {
-            this.trigger("show", true);
-            if (this.get("value")) {
-                this.update_json_dump([...this.get("data_range").slice(0, 2), new Date().toISOString()]);
-            }
-        }
-
-        if (msg.includes("__ERR:")) {
-            this.trigger("error", msg)
-        }
-        else if (msg.includes("__ERT:")) {
-            this.set("error", msg);
-            this.set("data", undefined);
-        }
-
-        if (msg.includes("__DFS:")) {
-            this.trigger("dataframe", msg)
-        }
-
-        if (msg.includes("__DFM:")) {
-            // set data into widget 
-            this.set("data", msg.slice(6, msg.length));
-            // update data 
-            this.trigger("data", msg.slice(6, msg.length));
-            if (msg.includes("columnName")) {
-                this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
-            }
-            if (msg.includes("ExecTime")) {
-                this.trigger("execTime", (msg.slice(6, msg.length)).split("\n")[3]);
-            }
-        }
-        else if (msg.includes("__DFT:")) {
-            // store data before into widgetview
-            this.set("data", msg.slice(6, msg.length));
-            this.set("error", undefined);
-
-            // set data into widget 
-            this.trigger("data", msg.slice(6, msg.length));
-            if (msg.includes("columnName")) {
-                this.trigger("hist", (msg.slice(6, msg.length)).split("\n")[2]);
-                this.set("hist", (msg.slice(6, msg.length)).split("\n")[2]);
-            }
-            if (msg.includes("ExecTime")) {
-                this.set("exec_time", (msg.slice(6, msg.length)).split("\n")[3]);
-            }
-
-        }
-    }
-    update_json_dump<T extends keyof WidgetModelState>(data: WidgetModelState[T]) {
-        this.set("data_range", data);
-        this.save_changes();
-    }
     handle_update_messages(msg: any) {
         this.trigger("update_outputName", msg);
     }

@@ -16,10 +16,12 @@ interface prop {
 export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, setRowNumber }) => {
     const model = useModel();
 
-    const [data, setData] = useState(model?.get("data") ?? "");
-    model?.on("data", (msg) => setData(msg));
-    const [hist, setHist] = useState<string>(model?.get("hist") ?? "");
-    model?.on("hist", (msg) => setHist(msg));
+    const [data, setData] = useState(model?.get("data_grid") ?? "{}");
+    model?.on("change:data_grid", () => { setData(model.get("data_grid")) });
+
+    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
+    model?.on("change:title_hist", () => setHist(model?.get("title_hist")));
+
     const [execTime, setExecTime] = useState<string>(model?.get("exec_time") ?? "");
     model?.on("execTime", (msg: string) => setExecTime(msg.slice(9, msg.length)));
 
@@ -42,7 +44,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
             <td key={index}>{info.index[index]}</td>
             {
                 info.data[index].map((item: any, tdIndex: number) => (
-                    <td key={tdIndex} style={{ fontSize: "12px" }}>
+                    <td key={tdIndex} style={{ fontSize: "8px" }}>
                         {
                             typeof (item) === "boolean" ?
                                 item ?
@@ -69,7 +71,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                 width: "100%",
                 marginBottom: "16px",
             }}>
-            <ScrollArea scrollbarSize={3} style={{ width: "100%" }}>
+            <ScrollArea scrollbarSize={8} style={{ width: "100%" }}>
                 <Table
                     withBorder
                     withColumnBorders
@@ -97,7 +99,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                         },
                     }}>
 
-                    <DataframeHeader headerContent={headerContent} header={header} />
+                    <DataframeHeader headerContent={headerContent} header={header} dataLength={dataLength} />
 
                     <tbody>
                         {rows}
@@ -125,7 +127,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 ".mantine-Select-item": { padding: "0px" },
                                 ".mantine-Select-rightSection": { width: "20px" },
                                 ".mantine-Select-input": {
-                                    paddingLeft: "5px",
+                                    paddingLeft: "1px",
                                     paddingRight: "0px",
                                     height: "22px",
                                     minHeight: "22px",
@@ -133,12 +135,12 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 },
                             }}
                             placeholder={rowNumber as unknown as string}
-                            data={["5", "10", "20", "30"]}
+                            data={["10", "30", "50", "100"]}
                             onChange={(number) => {
                                 const num = number as unknown as number;
                                 setPage(1);
                                 setRowNumber(num);
-                                model?.trigger("setRange", [(0 * num), 1 * num, new Date().toISOString()]);
+                                model?.trigger("setRange", [(0 * num), 1 * num]);
                             }}
                         />
                         <Text color="#8d8d8d">/page</Text>
@@ -151,7 +153,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 total={Math.ceil(dataLength / rowNumber)}
                                 onChange={(index) => {
                                     setPage(index);
-                                    model?.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber, new Date().toISOString()]);
+                                    model?.trigger("setRange", [((index - 1) * rowNumber), index * rowNumber]);
                                 }}
                                 styles={(theme) => ({
                                     item: {
@@ -179,7 +181,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                     setPage(tempoIndex);
                                     setOutOfRange(false);
-                                    model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
+                                    model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber]);
                                 } else {
                                     setOutOfRange(true)
                                 }
@@ -190,7 +192,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                     if (tempoIndex > 0 && tempoIndex <= Math.ceil(dataLength / rowNumber)) {
                                         setPage(tempoIndex);
                                         setOutOfRange(false);
-                                        model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber, new Date().toISOString()]);
+                                        model?.trigger("setRange", [((tempoIndex - 1) * rowNumber), tempoIndex * rowNumber]);
                                     } else {
                                         setOutOfRange(true)
                                     }

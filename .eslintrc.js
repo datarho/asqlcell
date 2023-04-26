@@ -18,11 +18,11 @@ module.exports = {
         "@typescript-eslint/no-use-before-define": "off",
         "@typescript-eslint/no-non-null-assertion": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
-        "@typescript-eslint/quotes": [
-            "error",
-            "double",
-            { avoidEscape: true, allowTemplateLiterals: false }
-        ],
+        // "@typescript-eslint/quotes": [
+        //     "error",
+        //     "double",
+        //     { avoidEscape: true, allowTemplateLiterals: false }
+        // ],
         "react/display-name": "off",
         curly: ["error", "all"],
         eqeqeq: "error",

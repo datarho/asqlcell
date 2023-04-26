@@ -2,17 +2,23 @@ import { ActionIcon, Group, Popover, Text, Textarea } from "@mantine/core";
 import React from "react";
 import { FunctionComponent } from "react";
 import { VscEllipsis } from "react-icons/vsc";
+import { useElementSize } from "@mantine/hooks";
 
 export const TableElement: FunctionComponent<{ item: string }> = ({ item }) => {
-
+    const { ref, width } = useElementSize();
     return (
         <Popover position="top" withArrow shadow="md">
-            <Group noWrap sx={{ gap: 0, width: "200px", alignItems: "flex-end" }}>
-                <Text>{item.substring(0, 30)}</Text>
+            <Group ref={ref} noWrap sx={{ gap: 0 }}>
+                <Text sx={{ overflow: "hidden" }} fz="8px">{item}</Text>
                 <Popover.Target>
-                    <ActionIcon variant="light" color="blue" sx={{ height: "10px", minHeight: "10px", width: "10px", minWidth: "10px" }}>
-                        <VscEllipsis size={8} />
-                    </ActionIcon>
+                    {
+                        width < (8 * item.length - 40) ?
+                            <ActionIcon variant="light" color="blue" sx={{ height: "10px", minHeight: "10px", width: "10px", minWidth: "10px" }}>
+                                <VscEllipsis size={8} />
+                            </ActionIcon>
+                            :
+                            <div></div>
+                    }
                 </Popover.Target>
             </Group>
             <Popover.Dropdown sx={{ padding: 0 }}>
