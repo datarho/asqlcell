@@ -64,7 +64,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     data_name = Unicode('').tag(sync=True)
     vis_sql = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
     vis_data = Unicode('').tag(sync=True)
-    error = Unicode('').tag(sync=True)
+    error = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
 
     def __init__(self, sql='', mode="UI"):
         super(SqlcellWidget, self).__init__()
@@ -85,7 +85,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
             self.exec_time = str(time) + "," + str(datetime.datetime.now())
             self.set_data_grid()
         except Exception as r:
-            self.error = str(r)
+            self.error = (str(r), str(datetime.datetime.now()))
 
     def set_data_grid(self):
         df = get_value(self.data_name)
