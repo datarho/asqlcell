@@ -48,6 +48,7 @@ def get_histogram(df):
                 hist.append({"columnName" : column, "dtype" : df.dtypes[column].name,
                     "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
             else:
+                col = col.astype(str)
                 unique_values, value_counts = np.unique(col, return_counts=True)
                 sorted_indexes = np.flip(np.argsort(value_counts))
                 bins = []
