@@ -24,6 +24,7 @@ interface previewChartProp {
 
 const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, setXAxis, setColName, colName, header }) => {
     const model = useModel();
+    model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns[0] ?? "") })
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
             <Tabs variant="pills" defaultValue="data">
@@ -160,8 +161,8 @@ export const Visualization: FunctionComponent = () => {
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
     const headerData: string[] = JSON.parse(hist ?? "{dtype:''}").filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
 
-    const sorted = model?.get("column_sort")[0] !== "";
-    const [colName, setColName] = useState<string>(sorted ? model?.get("column_sort")[0] : headerData[0]);
+    const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : "{\"columns\":[]}").columns[0]
+    const [colName, setColName] = useState<string>(quickName === '' ? quickName : headerData[0]);
     const [XAxis, setXAxis] = useState("index");
     const [ref, rect] = useResizeObserver();
     const [ref2, rect2] = useResizeObserver();
