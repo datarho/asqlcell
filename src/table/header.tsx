@@ -59,9 +59,10 @@ const HeaderInfo: FunctionComponent<InfoProps> = ({ headerContent, item, dataLen
                 <Stack align="left" sx={{ gap: 0 }}>
                     {
                         headerContent.filter(header => header.columnName === item).length > 0 ?
-                            headerContent.filter(header => header.columnName === item)[0].bins.map(bin => {
+                            headerContent.filter(header => header.columnName === item)[0].bins.map((bin, index) => {
                                 return (
                                     <Group
+                                        key={index}
                                         noWrap
                                         position="apart"
                                         onMouseEnter={() => { setOpen(item) }}
