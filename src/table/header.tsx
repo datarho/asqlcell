@@ -34,16 +34,22 @@ const HeaderInfo: FunctionComponent<InfoProps> = ({ headerContent, item, dataLen
                     <BarChart item={item} headerContent={headerContent} />
 
                     <Popover
-                        position="right"
                         onOpen={() => {
                             model?.trigger("vis_sql", item)
-                        }}>
+                        }}
+                    >
                         <Popover.Target>
                             <ActionIcon variant="transparent" sx={{ alignItems: "flex-end" }}>
                                 <IconChartLine size={12} />
                             </ActionIcon>
                         </Popover.Target>
-                        <Popover.Dropdown sx={{ position: "fixed" }}>
+                        <Popover.Dropdown
+                            sx={{
+                                position: "fixed",
+                                top: "calc(50vh - 75px) !important",
+                                left: "calc(50vw - 240px) !important",
+                            }}
+                        >
                             <LineChart />
                         </Popover.Dropdown>
                     </Popover>
@@ -66,7 +72,7 @@ const HeaderInfo: FunctionComponent<InfoProps> = ({ headerContent, item, dataLen
                                             (bin as any).count !== 0 ?
                                                 <>
                                                     <Box sx={{ maxWidth: "6rem" }}>
-                                                        <Text weight={600} fs="italic" c={"#696969"} truncate fz="xs">{(bin as any).bin}: </Text>
+                                                        <Text weight={600} fs="italic" c={"#696969"} truncate fz="xs">{(bin as any).bin}</Text>
                                                     </Box>
                                                     {
                                                         open ?
@@ -126,8 +132,14 @@ const HeaderTitle: FunctionComponent<TitleProps> = ({ headerContent, item }) => 
                         {
                             headerContent ?
                                 headerContent.filter(header => header.columnName === item).length !== 0 ?
-                                    <Text size={"xs"} fs="italic" color={"gray"}>{headerContent.filter(header => header.columnName === item)[0].dtype}</Text>
-                                    : <></>
+                                    <Text size={"xs"} fs="italic" color={"gray"}>{
+                                        headerContent.filter(header => header.columnName === item)[0].dtype.includes("datetime") ?
+                                            "datetime"
+                                            :
+                                            headerContent.filter(header => header.columnName === item)[0].dtype
+                                    }</Text>
+                                    :
+                                    <></>
                                 :
                                 <></>
                         }

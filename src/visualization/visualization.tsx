@@ -77,7 +77,12 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, set
                                 }))}
                                 onChange={(value) => {
                                     setColName(value!);
-                                    model?.trigger("vis_sql", value)
+                                    // model?.trigger("vis_sql", value)
+                                    model?.set("vis_sql", [
+                                        `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${value}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+                                        new Date().toISOString()
+                                    ]);
+                                    model?.save_changes();
                                 }}
                             />
                         </Grid.Col>
@@ -116,7 +121,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, 
             spec={
                 {
                     width: rect.width - rect2.width,
-                    height: 200,
+                    height: rect2.height,
                     params: [{
                         name: "industry",
                         select: { type: "point", fields: ["series"] },
@@ -168,7 +173,7 @@ export const Visualization: FunctionComponent = () => {
 
     return (
         <>
-            <Container ref={ref} fluid sx={{ maxWidth: "100vh", paddingBottom: "2rem", paddingTop: "1rem", paddingLeft: "1rem" }}>
+            <Container ref={ref} fluid sx={{ padding: "1rem auto 2rem 1rem", margin: "auto 1rem auto 0rem", }}>
                 <Group noWrap sx={{ gap: "0" }}>
                     <Group ref={ref2} noWrap sx={{ height: 264, alignItems: "flex-start", gap: "0", paddingRight: "1rem" }}>
                         {
