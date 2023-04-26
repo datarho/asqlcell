@@ -4,7 +4,7 @@ import { useModel } from "../hooks";
 
 export const LineChart: FunctionComponent = () => {
     const model = useModel();
-    const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{\"columns\":[],\"index\":[],\"data\":[]}`);
+    const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[],"index":[],"data":[]}`);
     const colData = JSON.parse(data).data;
     const colName = JSON.parse(data).columns[0];
     model?.on("change:vis_data", (msg) => {
@@ -22,7 +22,7 @@ export const LineChart: FunctionComponent = () => {
             :
             {
                 values: [
-                    { 'a': 0, 'b': 0 }
+                    { a: 0, b: 0 }
                 ]
             };
     const dataLength = lineData.values.length;
@@ -41,7 +41,7 @@ export const LineChart: FunctionComponent = () => {
                 }],
                 layer: [
                     {
-                        mark: 'line',
+                        mark: "line",
                         transform: [
                             { calculate: "datum.a", as: "index" },
                             { calculate: "datum.b", as: colName }
@@ -54,7 +54,7 @@ export const LineChart: FunctionComponent = () => {
                                 value: 10
                             }
                         },
-                        data: { name: 'values' }
+                        data: { name: "values" }
                     }
                 ]
             }} />;

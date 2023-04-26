@@ -147,7 +147,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, 
                                     value: 10
                                 }
                             },
-                            data: { name: 'values' } // note: vega-lite data attribute is a plain object instead of an array
+                            data: { name: "values" } // note: vega-lite data attribute is a plain object instead of an array
                         }
                     ]
                 }} />
@@ -159,10 +159,10 @@ export const Visualization: FunctionComponent = () => {
 
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
-    const headerData: string[] = JSON.parse(hist ?? "{dtype:''}").filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
+    const headerData: string[] = JSON.parse(hist ?? `{dtype:""}`).filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
 
-    const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : "{\"columns\":[]}").columns[0]
-    const [colName, setColName] = useState<string>(quickName === '' ? quickName : headerData[0]);
+    const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[]}`).columns[0]
+    const [colName, setColName] = useState<string>(quickName === "" ? quickName : headerData[0]);
     const [XAxis, setXAxis] = useState("index");
     const [ref, rect] = useResizeObserver();
     const [ref2, rect2] = useResizeObserver();
