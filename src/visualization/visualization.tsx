@@ -121,7 +121,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, 
             actions={false}
             spec={
                 {
-                    width: rect.width - rect2.width,
+                    width: rect.width - rect2.width - 32,
                     height: rect2.height,
                     params: [{
                         name: "industry",
