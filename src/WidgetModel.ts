@@ -9,7 +9,7 @@ import { DOMWidgetView } from "@jupyter-widgets/base";
 const defaultModelProperties = {
     data_name: "",
     dfs_button: "",
-    error: "",
+    error: ["", ""],
     exec_time: "",
     output_var: "sqlcelldf",
     row_range: [0, 10],

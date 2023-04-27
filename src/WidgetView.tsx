@@ -21,14 +21,14 @@ export interface Dfhead {
 const ReactWidget = (props: WidgetProps) => {
     const show = props.model.get("mode");
     const [data, setData] = useState(props.model.get("data_grid"))
-    const [error, setError] = useState(props.model.get("error"))
+    const [error, setError] = useState(props.model.get("error") ? props.model.get("error")[0] : "")
     const [rowNumber, setRowNumber] = useState<number>(props.model.get("row_range")[1] - props.model.get("row_range")[0]);
     const [page, setPage] = useState(Math.floor(props.model.get("row_range")[0] / rowNumber) + 1);
     const [tableState, setTableState] = useState<boolean>(true);
 
     // Receive event from Model
     props.model?.on("change:error", () => {
-        setError(props.model.get("error"));
+        setError(props.model.get("error") ? props.model.get("error")[0] : "");
         setData("")
     })
     props.model?.on("change:data_grid", () => {
