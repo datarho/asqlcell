@@ -71,3 +71,9 @@ def get_random_data(number = 10):
         },
         index = np.arange(number)
     )
+
+class NoTracebackException(Exception):
+    def _render_traceback_(self):
+        red_text = "\033[0;31m"
+        black_text = "\033[0m"
+        return [f"{red_text}Exception{black_text}: {str(self)}"]
