@@ -44,6 +44,7 @@ export const BarChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }>
             <VegaLite
                 data={barData}
                 actions={false}
+                renderer={'svg'}
                 spec={{
                     "background": "transparent",
                     "data": { "name": "table" },

@@ -83,7 +83,7 @@ const ReactWidget = (props: WidgetProps) => {
                         <></>
                 }
                 {
-                    error !== "" && data === "" ?
+                    error !== "" ?
                         <Group position="left">
                             <Text color="red">Error:</Text>
                             <Text>{error}</Text>
@@ -94,8 +94,9 @@ const ReactWidget = (props: WidgetProps) => {
                 {
                     data !== "" ?
                         <Group
-                            sx={{ width: "95%" }}
-                            position="center">
+                            sx={{ marginBottom: "1rem", width: "95%" }}
+                            position="center"
+                        >
                             {
                                 tableState ?
                                     <Tabs defaultValue="table" sx={{ width: "100%" }}>

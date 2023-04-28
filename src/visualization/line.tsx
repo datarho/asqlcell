@@ -6,8 +6,8 @@ export const LineChart: FunctionComponent = () => {
     const model = useModel();
     const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[],"index":[],"data":[]}`);
     const colData = JSON.parse(data).data;
-    const colName = JSON.parse(data).columns[0];
-    model?.on("change:vis_data", (msg) => {
+    const colName = JSON.parse(data).columns;
+    model?.on("change:vis_data", () => {
         setData(model.get("vis_data"))
     });
 
@@ -15,8 +15,12 @@ export const LineChart: FunctionComponent = () => {
         colData ?
             {
                 values:
-                    colData.map((item: number, index: number) => {
-                        return ({ a: index, b: item })
+                    colData.map((item: number[], index: number) => {
+                        return (
+                            colName.map((type: number, colIndex: number) => {
+                                return ({ a: index, b: item[colIndex], c: type })
+                            })
+                        )[0]
                     })
             }
             :
@@ -30,6 +34,7 @@ export const LineChart: FunctionComponent = () => {
     return <VegaLite
         data={lineData}
         actions={false}
+        renderer={'svg'}
         spec={
             {
                 width: 400,

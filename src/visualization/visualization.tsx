@@ -1,6 +1,6 @@
-import { ActionIcon, Box, Container, Divider, Grid, Group, Select, Stack, Tabs } from "@mantine/core";
+import { ActionIcon, Container, Divider, Grid, Group, ScrollArea, Select, Stack, Tabs } from "@mantine/core";
 import { useResizeObserver } from "@mantine/hooks";
-import { IconChartBar, IconChartLine, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { IconChartBar, IconChartLine, IconChevronLeft, IconChevronRight, IconMinus, IconPlus } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { FunctionComponent } from "react";
 import { VegaLite } from "react-vega";
@@ -8,6 +8,7 @@ import { useModel } from "../hooks";
 
 interface menuProps {
     chartType: number;
+    rect: any;
     setChartType: React.Dispatch<React.SetStateAction<number>>;
     setXAxis: React.Dispatch<React.SetStateAction<string>>;
     setColName: React.Dispatch<React.SetStateAction<string>>;
@@ -19,48 +20,129 @@ interface previewChartProp {
     rect2: any;
     chartType: number;
     XAxis: string;
-    colName: string;
+}
+interface SelectProps {
+    index: number,
+    name: string,
+    header: string[],
+    colArray: string[],
+    setColArray: any
 }
 
-const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, setXAxis, setColName, colName, header }) => {
+const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, colArray, setColArray }) => {
+    const model = useModel();
+    return (
+        <>
+            <Grid.Col span={10}>
+                <Select
+                    label={`Y-axis ${index}`}
+                    value={name}
+                    maxDropdownHeight={5 * 16}
+                    data={header.map((item: string) => ({
+                        value: item, label: item
+                    }))}
+                    onChange={(value) => {
+                        var array = [...colArray]
+                        if (!array.includes(value!)) {
+                            array.splice(index, 1, value!)
+                        }
+                        setColArray([...array])
+                        array.forEach((item, index) => {
+                            if (item === "") {
+                                array.splice(index, 1)
+                            }
+
+                        })
+                        model?.set("vis_sql", [
+                            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+                            new Date().toISOString()
+                        ]);
+                        model?.save_changes();
+                    }}
+                />
+            </Grid.Col>
+            <Grid.Col span={2} sx={{ display: "flex", alignItems: "end" }}>
+
+                <Stack sx={{ gap: 0 }}>
+                    {
+                        index === colArray.length - 1 ?
+                            <>
+                                <ActionIcon size="xs" onClick={() => { setColArray([...colArray, ""]) }}>
+                                    <IconPlus size="0.75rem" />
+                                </ActionIcon>
+                            </>
+                            :
+                            <>
+                                <ActionIcon
+                                    size="xs"
+                                    onClick={() => {
+                                        colArray.splice(index, 1)
+                                        setColArray([...colArray])
+                                        model?.set("vis_sql", [
+                                            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${(colArray).join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+                                            new Date().toISOString()
+                                        ]);
+                                        model?.save_changes();
+                                    }}>
+                                    <IconMinus size="0.75rem" />
+                                </ActionIcon>
+                                <ActionIcon
+                                    size="xs"
+                                    onClick={() => {
+                                        colArray.splice(index + 1, 0, "")
+                                        setColArray([...colArray])
+                                    }}
+                                >
+                                    <IconPlus size="0.75rem" />
+                                </ActionIcon>
+                            </>
+                    }
+                </Stack>
+
+            </Grid.Col>
+        </>
+    )
+}
+
+const VisualMenu: FunctionComponent<menuProps> = ({ chartType, rect, setChartType, setXAxis, setColName, colName, header }) => {
     const model = useModel();
     model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns[0] ?? "") })
+    const [colArray, setColArray] = useState<string[]>([colName]);
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
             <Tabs variant="pills" defaultValue="data">
                 <Tabs.List grow>
-                    <Group noWrap>
+                    <Group noWrap sx={{ marginBottom: "1rem" }}>
                         <Tabs.Tab value="data" >Data</Tabs.Tab>
                         {/* <Tabs.Tab value="style" >Style</Tabs.Tab> */}
                     </Group>
                 </Tabs.List>
                 <Tabs.Panel value="data" >
-                    <Grid sx={{ marginTop: "1rem" }}>
-                        <Grid.Col span={10}>
-                            <Select
-                                icon={chartType === 1 ? <IconChartLine /> : <IconChartBar />}
-                                label="Chart Type"
-                                defaultValue={"1"}
-                                data={[
-                                    { value: "1", label: "Line" },
-                                    { value: "2", label: "Bar" }
-                                ]}
-                                onChange={(value) => { setChartType(parseInt(value!)) }}
-                            />
-                        </Grid.Col>
-                        <Grid.Col span={2}></Grid.Col>
-                        <Grid.Col span={10}>
-                            <Select
-                                label="X-axis"
-                                defaultValue={"Index"}
-                                data={["Index"]}
-                                onChange={(value) => { setXAxis(value!) }}
-                            />
-                        </Grid.Col>
-                        <Grid.Col span={2} sx={{ display: "flex", alignItems: "end" }}>
-                            {/* <ActionIcon onClick={() => {
-
-                            }} >
+                    <ScrollArea h={rect.height}>
+                        <Grid sx={{ marginBottom: "1.5rem" }}>
+                            <Grid.Col span={10}>
+                                <Select
+                                    icon={chartType === 1 ? <IconChartLine /> : <IconChartBar />}
+                                    label="Chart Type"
+                                    defaultValue={"1"}
+                                    data={[
+                                        { value: "1", label: "Line" },
+                                        { value: "2", label: "Bar" }
+                                    ]}
+                                    onChange={(value) => { setChartType(parseInt(value!)) }}
+                                />
+                            </Grid.Col>
+                            <Grid.Col span={2}></Grid.Col>
+                            <Grid.Col span={10}>
+                                <Select
+                                    label="X-axis"
+                                    defaultValue={"Index"}
+                                    data={["Index"]}
+                                    onChange={(value) => { setXAxis(value!) }}
+                                />
+                            </Grid.Col>
+                            <Grid.Col span={2} sx={{ display: "flex", alignItems: "end" }}>
+                                {/* <ActionIcon onClick={() => {}} >
                                 {
                                     true ?
                                         <IconSortAscendingLetters size={16} />
@@ -68,56 +150,61 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, set
                                         <IconSortDescendingLetters size={16} />
                                 }
                             </ActionIcon> */}
-                        </Grid.Col>
-                        <Grid.Col span={10}>
-                            <Select
-                                label="Y-axis 1"
-                                value={colName}
-                                data={header.map((item) => ({
-                                    value: item.toLowerCase(), label: item
-                                }))}
-                                onChange={(value) => {
-                                    setColName(value!);
-                                    // model?.trigger("vis_sql", value)
-                                    model?.set("vis_sql", [
-                                        `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${value}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
-                                        new Date().toISOString()
-                                    ]);
-                                    model?.save_changes();
-                                }}
-                            />
-                        </Grid.Col>
-                    </Grid>
-                </Tabs.Panel>
-                <Tabs.Panel value="label" >
-                    <Box h="100%"></Box>
-                </Tabs.Panel>
-                <Tabs.Panel value="secondary" >
-                    <Box h="100%"></Box>
+                            </Grid.Col>
+
+                            {
+                                colArray.map((name, index) => {
+                                    return (
+                                        <SelectDropDown
+                                            index={index}
+                                            name={name}
+                                            header={header}
+                                            colArray={colArray}
+                                            setColArray={setColArray}
+                                        />
+                                    )
+                                })
+                            }
+                        </Grid>
+                    </ScrollArea>
                 </Tabs.Panel>
             </Tabs>
         </Stack>
     )
 }
 
-const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, chartType, XAxis, colName }) => {
+const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, chartType, XAxis }) => {
     const model = useModel();
-    const [colData, setColData] = useState<string>(model?.get("vis_data"));
+    const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{\"columns\":[],\"index\":[],\"data\":[]}`);
+    const colData = JSON.parse(data).data;
+    const colName = JSON.parse(data).columns;
     model?.on("change:vis_data", () => {
-        setColData(model.get("vis_data"))
+        setData(model.get("vis_data"))
     })
     const lineData =
         colData ?
-            JSON.parse(colData).data.map((item: number, index: number) => {
-                return ({ a: index, b: item })
-            })
+            {
+                values:
+                    colData.map((item: number[], index: number) => {
+                        return (
+                            colName.map((type: string, colIndex: number) => (
+                                { a: index, b: item[colIndex], c: type }
+                            )
+                            )
+                        )
+                    }).flat()
+            }
             :
-            [{ a: 0, b: 0 }]
-        ;
+            {
+                values: [
+                    { 'a': 0, 'b': 0, 'c': "" }
+                ]
+            };
 
     return (
         <VegaLite
-            data={{ values: lineData }}
+            data={lineData}
+            renderer={'svg'}
             actions={false}
             spec={
                 {
@@ -142,6 +229,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, 
                             encoding: {
                                 x: { field: XAxis, type: "quantitative", axis: { tickMinStep: 30 } },
                                 y: { field: colName, type: "quantitative" },
+                                color: { field: "c", type: "nominal" },
                                 opacity: {
                                     condition: { param: "industry", value: 1 },
                                     value: 10
@@ -181,6 +269,7 @@ export const Visualization: FunctionComponent = () => {
                             open ?
                                 <VisualMenu
                                     chartType={chartType}
+                                    rect={rect2}
                                     setChartType={setChartType}
                                     setXAxis={setXAxis}
                                     setColName={setColName}
@@ -201,7 +290,7 @@ export const Visualization: FunctionComponent = () => {
                         <Divider orientation="vertical" />
                     </Group>
                     <Stack>
-                        <VisualPreviewChart rect={rect} rect2={rect2} chartType={chartType} XAxis={XAxis} colName={colName} />
+                        <VisualPreviewChart rect={rect} rect2={rect2} chartType={chartType} XAxis={XAxis} />
                     </Stack>
                 </Group>
             </Container>
