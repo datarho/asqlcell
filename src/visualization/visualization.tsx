@@ -47,12 +47,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                             array.splice(index, 1, value!)
                         }
                         setColArray([...array])
-                        array.forEach((item, index) => {
-                            if (item === "") {
-                                array.splice(index, 1)
-                            }
-
-                        })
+                        array = array.filter(item => item !== "")
                         model?.set("vis_sql", [
                             `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
                             new Date().toISOString()
@@ -78,8 +73,9 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                                     onClick={() => {
                                         colArray.splice(index, 1)
                                         setColArray([...colArray])
+                                        var array = colArray.filter(item => item !== "")
                                         model?.set("vis_sql", [
-                                            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${(colArray).join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+                                            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
                                             new Date().toISOString()
                                         ]);
                                         model?.save_changes();
@@ -189,8 +185,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, 
                         return (
                             colName.map((type: string, colIndex: number) => (
                                 { a: index, b: item[colIndex], c: type }
-                            )
-                            )
+                            ))
                         )
                     }).flat()
             }
