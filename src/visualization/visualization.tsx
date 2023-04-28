@@ -1,4 +1,4 @@
-import { ActionIcon, Container, Divider, Grid, Group, ScrollArea, Select, Stack, Tabs } from "@mantine/core";
+import { ActionIcon, Divider, Grid, Group, ScrollArea, Select, Stack, Tabs } from "@mantine/core";
 import { useResizeObserver } from "@mantine/hooks";
 import { IconChartBar, IconChartLine, IconChevronLeft, IconChevronRight, IconMinus, IconPlus } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
@@ -8,7 +8,6 @@ import { useModel } from "../hooks";
 
 interface menuProps {
     chartType: number;
-    rect: any;
     setChartType: React.Dispatch<React.SetStateAction<number>>;
     setXAxis: React.Dispatch<React.SetStateAction<string>>;
     setColName: React.Dispatch<React.SetStateAction<string>>;
@@ -17,9 +16,9 @@ interface menuProps {
 }
 interface previewChartProp {
     rect: any;
-    rect2: any;
     chartType: number;
     XAxis: string;
+    open: boolean;
 }
 interface SelectProps {
     index: number,
@@ -28,6 +27,9 @@ interface SelectProps {
     colArray: string[],
     setColArray: any
 }
+const ViewHeight = 264;
+const MenuWidth = 285;
+const LabelWidth = 128;
 
 const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, colArray, setColArray }) => {
     const model = useModel();
@@ -100,7 +102,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
     )
 }
 
-const VisualMenu: FunctionComponent<menuProps> = ({ chartType, rect, setChartType, setXAxis, setColName, colName, header }) => {
+const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, setXAxis, setColName, colName, header }) => {
     const model = useModel();
     model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns[0] ?? "") })
     const [colArray, setColArray] = useState<string[]>([colName]);
@@ -114,7 +116,7 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, rect, setChartTyp
                     </Group>
                 </Tabs.List>
                 <Tabs.Panel value="data" >
-                    <ScrollArea h={rect.height}>
+                    <ScrollArea h={ViewHeight}>
                         <Grid sx={{ marginBottom: "1.5rem" }}>
                             <Grid.Col span={10}>
                                 <Select
@@ -169,11 +171,12 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, rect, setChartTyp
     )
 }
 
-const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, chartType, XAxis }) => {
+const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open }) => {
     const model = useModel();
     const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{\"columns\":[],\"index\":[],\"data\":[]}`);
     const colData = JSON.parse(data).data;
     const colName = JSON.parse(data).columns;
+    console.log(rect.width)
     model?.on("change:vis_data", () => {
         setData(model.get("vis_data"))
     })
@@ -203,8 +206,8 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, 
             actions={false}
             spec={
                 {
-                    width: rect.width - rect2.width - 32,
-                    height: rect2.height,
+                    width: open ? rect.width - MenuWidth - LabelWidth : rect.width - 4 - LabelWidth,
+                    height: ViewHeight,
                     params: [{
                         name: "industry",
                         select: { type: "point", fields: ["series"] },
@@ -248,7 +251,6 @@ export const Visualization: FunctionComponent = () => {
     const [colName, setColName] = useState<string>(quickName === "" ? quickName : headerData[0]);
     const [XAxis, setXAxis] = useState("index");
     const [ref, rect] = useResizeObserver();
-    const [ref2, rect2] = useResizeObserver();
     const [open, setOpen] = useState<boolean>(true);
     const [chartType, setChartType] = useState(1);
     useEffect(() => {
@@ -256,39 +258,36 @@ export const Visualization: FunctionComponent = () => {
     }, [])
 
     return (
-        <>
-            <Container ref={ref} fluid sx={{ padding: "1rem auto 2rem 1rem", margin: "auto 1rem auto 0rem", }}>
-                <Group noWrap sx={{ gap: "0" }}>
-                    <Group ref={ref2} noWrap sx={{ height: 264, alignItems: "flex-start", gap: "0", paddingRight: "1rem" }}>
+        <Group grow ref={ref} sx={{ margin: "auto 1rem auto 0rem", }}>
+            <Group noWrap sx={{ gap: "0" }}>
+                <Group noWrap sx={{ height: ViewHeight, alignItems: "flex-start", gap: "0", paddingRight: "1rem" }}>
+                    {
+                        open ?
+                            <VisualMenu
+                                chartType={chartType}
+                                setChartType={setChartType}
+                                setXAxis={setXAxis}
+                                setColName={setColName}
+                                colName={colName}
+                                header={headerData}
+                            />
+                            :
+                            <></>
+                    }
+                    <ActionIcon onClick={() => { setOpen(!open) }}>
                         {
                             open ?
-                                <VisualMenu
-                                    chartType={chartType}
-                                    rect={rect2}
-                                    setChartType={setChartType}
-                                    setXAxis={setXAxis}
-                                    setColName={setColName}
-                                    colName={colName}
-                                    header={headerData}
-                                />
+                                <IconChevronLeft />
                                 :
-                                <></>
+                                <IconChevronRight />
                         }
-                        <ActionIcon onClick={() => { setOpen(!open) }}>
-                            {
-                                open ?
-                                    <IconChevronLeft />
-                                    :
-                                    <IconChevronRight />
-                            }
-                        </ActionIcon>
-                        <Divider orientation="vertical" />
-                    </Group>
-                    <Stack>
-                        <VisualPreviewChart rect={rect} rect2={rect2} chartType={chartType} XAxis={XAxis} />
-                    </Stack>
+                    </ActionIcon>
+                    <Divider orientation="vertical" />
                 </Group>
-            </Container>
-        </>
+                <Stack>
+                    <VisualPreviewChart rect={rect} chartType={chartType} XAxis={XAxis} open={open} />
+                </Stack>
+            </Group>
+        </Group>
     )
 }
