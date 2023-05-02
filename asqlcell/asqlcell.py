@@ -63,7 +63,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     data_name = Unicode('').tag(sync=True)
     vis_sql = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
     vis_data = Unicode('').tag(sync=True)
-    quickv_sql = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
+    quickv_var = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
     quickv_data = Unicode('').tag(sync=True)
 
     def __init__(self, sql='', mode="UI"):
@@ -124,10 +124,10 @@ class SqlcellWidget(DOMWidget, HasTraits):
         get_duckdb().unregister(self.data_name)
         self.vis_data = str(df.to_json(orient="split", date_format='iso'))
 
-    @observe('quickv_sql')
-    def on_vis_sql(self, change):
+    @observe('quickv_var')
+    def on_quickv_var(self, change):
         get_duckdb().register(self.data_name, get_value(self.data_name))
-        tmp = """select '$$__C__$$' from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM '$$__NAME__$$"')
+        tmp = """select '$$__C__$$' from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM '$$__NAME__$$')
                 using SAMPLE reservoir (100 rows) REPEATABLE(42)
                 order by index_rn1qaz2wsx"""
         tmp = tmp.replace("$$__NAME__$$", self.data_name).replace("$$__C__$$", change.new[0])
