@@ -127,7 +127,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     @observe('quickv_var')
     def on_quickv_var(self, change):
         get_duckdb().register(self.data_name, get_value(self.data_name))
-        tmp = """select '$$__C__$$' from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM '$$__NAME__$$')
+        tmp = """select "$$__C__$$" from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM $$__NAME__$$)
                 using SAMPLE reservoir (100 rows) REPEATABLE(42)
                 order by index_rn1qaz2wsx"""
         tmp = tmp.replace("$$__NAME__$$", self.data_name).replace("$$__C__$$", change.new[0])
