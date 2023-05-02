@@ -53,7 +53,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     dfs_button = Unicode('').tag(sync=True)
     dfs_result = Unicode('').tag(sync=True)
     sql_button = Unicode('').tag(sync=True)
-    
+
     row_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
     column_sort = Tuple(Unicode(), Int(), default_value=('', 0)).tag(sync=True)
     title_hist = Unicode('').tag(sync=True)
@@ -63,6 +63,8 @@ class SqlcellWidget(DOMWidget, HasTraits):
     data_name = Unicode('').tag(sync=True)
     vis_sql = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
     vis_data = Unicode('').tag(sync=True)
+    quickv_sql = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
+    quickv_data = Unicode('').tag(sync=True)
 
     def __init__(self, sql='', mode="UI"):
         super(SqlcellWidget, self).__init__()
@@ -121,3 +123,14 @@ class SqlcellWidget(DOMWidget, HasTraits):
         df = get_duckdb().execute(change.new[0].replace("$$__NAME__$$", self.data_name)).df()
         get_duckdb().unregister(self.data_name)
         self.vis_data = str(df.to_json(orient="split", date_format='iso'))
+
+    @observe('quickv_sql')
+    def on_vis_sql(self, change):
+        get_duckdb().register(self.data_name, get_value(self.data_name))
+        tmp = """select '$$__C__$$' from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM '$$__NAME__$$"')
+                using SAMPLE reservoir (100 rows) REPEATABLE(42)
+                order by index_rn1qaz2wsx"""
+        tmp = tmp.replace("$$__NAME__$$", self.data_name).replace("$$__C__$$", change.new[0])
+        df = get_duckdb().execute(tmp).df()
+        get_duckdb().unregister(self.data_name)
+        self.quickv_data = str(df.to_json(orient="split", date_format='iso'))
