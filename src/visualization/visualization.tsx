@@ -104,7 +104,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
 
 const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, setXAxis, setColName, colName, header }) => {
     const model = useModel();
-    model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns[0] ?? "") })
+    model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns[0] ?? "") });
     const [colArray, setColArray] = useState<string[]>([colName]);
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
@@ -116,8 +116,14 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, set
                     </Group>
                 </Tabs.List>
                 <Tabs.Panel value="data" >
-                    <ScrollArea h={ViewHeight}>
-                        <Grid sx={{ marginBottom: "1.5rem" }}>
+                    <ScrollArea h={ViewHeight} w={"100%"} sx={{
+                        paddingLeft: "1rem",
+                    }}>
+                        <Grid sx={{
+                            marginBottom: "1.5rem",
+                            maxWidth: "100%",
+                            overflowX: "hidden",
+                        }}>
                             <Grid.Col span={10}>
                                 <Select
                                     icon={chartType === 1 ? <IconChartLine /> : <IconChartBar />}
@@ -167,16 +173,15 @@ const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, set
                     </ScrollArea>
                 </Tabs.Panel>
             </Tabs>
-        </Stack>
+        </Stack >
     )
 }
 
 const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open }) => {
     const model = useModel();
-    const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{\"columns\":[],\"index\":[],\"data\":[]}`);
+    const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[],"index":[],"data":[]}`);
     const colData = JSON.parse(data).data;
     const colName = JSON.parse(data).columns;
-    console.log(rect.width)
     model?.on("change:vis_data", () => {
         setData(model.get("vis_data"))
     })
@@ -247,7 +252,7 @@ export const Visualization: FunctionComponent = () => {
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
     const headerData: string[] = JSON.parse(hist ?? `{dtype:""}`).filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
 
-    const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[]}`).columns[0]
+    const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[]}`).columns[0];
     const [colName, setColName] = useState<string>(quickName === "" ? quickName : headerData[0]);
     const [XAxis, setXAxis] = useState("index");
     const [ref, rect] = useResizeObserver();
@@ -259,8 +264,8 @@ export const Visualization: FunctionComponent = () => {
 
     return (
         <Group grow ref={ref} sx={{ margin: "auto 1rem auto 0rem", }}>
-            <Group noWrap sx={{ gap: "0" }}>
-                <Group noWrap sx={{ height: ViewHeight, alignItems: "flex-start", gap: "0", paddingRight: "1rem" }}>
+            <Group noWrap sx={{ height: "100%", marginTop: "1rem", gap: "0", alignItems: "flex-start" }}>
+                <Group noWrap sx={{ gap: "0", width: "90%" }}>
                     {
                         open ?
                             <VisualMenu
@@ -274,16 +279,16 @@ export const Visualization: FunctionComponent = () => {
                             :
                             <></>
                     }
-                    <ActionIcon onClick={() => { setOpen(!open) }}>
-                        {
-                            open ?
-                                <IconChevronLeft />
-                                :
-                                <IconChevronRight />
-                        }
-                    </ActionIcon>
-                    <Divider orientation="vertical" />
                 </Group>
+                <ActionIcon onClick={() => { setOpen(!open) }}>
+                    {
+                        open ?
+                            <IconChevronLeft />
+                            :
+                            <IconChevronRight />
+                    }
+                </ActionIcon>
+                <Divider orientation="vertical" />
                 <Stack>
                     <VisualPreviewChart rect={rect} chartType={chartType} XAxis={XAxis} open={open} />
                 </Stack>

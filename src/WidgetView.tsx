@@ -3,7 +3,6 @@ import { WidgetModel } from "@jupyter-widgets/base";
 import { WidgetModelContext } from "./hooks";
 import { Box, Group, Stack, Tabs, Text } from "@mantine/core";
 import { DataTable } from "./table";
-import { WidgetInputArea } from "./input";
 import { Visualization } from "./visualization/visualization";
 import { LineChart } from "./visualization/line";
 
@@ -19,7 +18,6 @@ export interface Dfhead {
 }
 
 const ReactWidget = (props: WidgetProps) => {
-    const show = props.model.get("mode");
     const [data, setData] = useState(props.model.get("data_grid"))
     const [error, setError] = useState(props.model.get("error") ? props.model.get("error")[0] : "")
     const [rowNumber, setRowNumber] = useState<number>(props.model.get("row_range")[1] - props.model.get("row_range")[0]);
@@ -76,12 +74,6 @@ const ReactWidget = (props: WidgetProps) => {
             <Stack
                 spacing={0}
                 align="center">
-                {
-                    show === "UI" ?
-                        <WidgetInputArea setPage={setPage} />
-                        :
-                        <></>
-                }
                 {
                     error !== "" ?
                         <Group position="left">
