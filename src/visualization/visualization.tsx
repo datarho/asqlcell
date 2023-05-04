@@ -1,7 +1,7 @@
 import { ActionIcon, Divider, Group, Stack } from "@mantine/core";
 import { useResizeObserver } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FunctionComponent } from "react";
 import { VegaLite } from "react-vega";
 import { useModel } from "../hooks";
@@ -51,54 +51,67 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                 {
                     width: open ? rect.width - MenuWidth - LabelWidth : rect.width - 4 - LabelWidth,
                     height: ViewHeight,
-                    params: [{
-                        name: "industry",
-                        select: { type: "point", fields: ["series"] },
-                        bind: "legend"
-                    }],
+                    transform: [
+                        {
+                            calculate: "datum.a", "as": XAxis,
+                        },
+                        {
+                            calculate: "datum.b", "as": colName,
+                        },
+                        {
+                            calculate: "datum.c", "as": "Label",
+                        }
+                    ],
+                    data: { name: "values" },
+                    encoding: {
+                        x: { field: XAxis, type: "quantitative", axis: { tickMinStep: 30 } },
+                        y: { field: colName, type: "quantitative" },
+                        color: {
+                            condition: {
+                                param: "hover",
+                                field: "Label",
+                                type: "nominal",
+                            },
+                            value: "grey"
+                        },
+                        opacity: {
+                            condition: {
+                                param: "hover",
+                                value: 1
+                            },
+                            value: 0.2
+                        }
+                    },
                     layer: [
                         {
                             mark: chartType === 1 ? "line" : "bar",
-                            transform: [
-                                {
-                                    calculate: "datum.a", "as": XAxis,
-                                },
-                                {
-                                    calculate: "datum.b", "as": colName,
+                        },
+                        {
+                            params: [{
+                                name: "hover",
+                                select: {
+                                    type: "point",
+                                    fields: ["Label"],
+                                    on: "mouseover"
                                 }
-                            ],
-                            encoding: {
-                                x: { field: XAxis, type: "quantitative", axis: { tickMinStep: 30 } },
-                                y: { field: colName, type: "quantitative" },
-                                color: { field: "c", type: "nominal" },
-                                opacity: {
-                                    condition: { param: "industry", value: 1 },
-                                    value: 10
-                                }
-                            },
-                            data: { name: "values" } // note: vega-lite data attribute is a plain object instead of an array
-                        }
-                    ]
+                            }],
+                            mark: { "type": "line", "strokeWidth": 8, "stroke": "transparent" }
+                        },
+                    ],
+                    config: { "view": { "stroke": null } },
                 }} />
     )
 }
 
 export const Visualization: FunctionComponent = () => {
     const model = useModel();
-
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
     const headerData: string[] = JSON.parse(hist ?? `{dtype:""}`).filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
-
-    const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[]}`).columns[0];
-    const [colName, setColName] = useState<string>(quickName);
     const [XAxis, setXAxis] = useState("index");
     const [ref, rect] = useResizeObserver();
     const [open, setOpen] = useState<boolean>(true);
     const [chartType, setChartType] = useState(1);
-    useEffect(() => {
-        model?.trigger("vis_sql", colName)
-    }, [])
 
     return (
         <Group grow ref={ref} sx={{ margin: "auto 1rem auto 0rem" }}>
@@ -110,8 +123,6 @@ export const Visualization: FunctionComponent = () => {
                                 chartType={chartType}
                                 setChartType={setChartType}
                                 setXAxis={setXAxis}
-                                setColName={setColName}
-                                colName={colName}
                                 header={headerData}
                             />
                             :

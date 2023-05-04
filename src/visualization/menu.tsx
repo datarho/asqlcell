@@ -8,8 +8,6 @@ interface menuProps {
     chartType: number;
     setChartType: React.Dispatch<React.SetStateAction<number>>;
     setXAxis: React.Dispatch<React.SetStateAction<string>>;
-    setColName: React.Dispatch<React.SetStateAction<string>>;
-    colName: string;
     header: string[];
 }
 interface SelectProps {
@@ -90,10 +88,11 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
     )
 }
 
-export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, setXAxis, setColName, colName, header }) => {
+export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, setXAxis, header }) => {
     const model = useModel();
-    model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns[0] ?? "") });
-    const [colArray, setColArray] = useState<string[]>([colName]);
+    const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[""]}`).columns;
+    const [colName, setColName] = useState<string[]>(quickName);
+    model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns ?? "") });
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
             <Tabs variant="pills" defaultValue="data">
@@ -145,14 +144,14 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                             </Grid.Col>
 
                             {
-                                colArray.map((name, index) => {
+                                colName.map((name, index) => {
                                     return (
                                         <SelectDropDown
                                             index={index}
                                             name={name}
                                             header={header}
-                                            colArray={colArray}
-                                            setColArray={setColArray}
+                                            colArray={colName}
+                                            setColArray={setColName}
                                         />
                                     )
                                 })
