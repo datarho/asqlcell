@@ -2,13 +2,13 @@ import React, { FunctionComponent, useState } from "react";
 import { VegaLite } from "react-vega";
 import { useModel } from "../hooks";
 
-export const LineChart: FunctionComponent = () => {
+export const QuickViewChart: FunctionComponent = () => {
     const model = useModel();
-    const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[],"index":[],"data":[]}`);
+    const [data, setData] = useState(model?.get("quickv_data") !== "" ? model?.get("quickv_data") : `{"columns":[],"index":[],"data":[]}`);
     const colData = JSON.parse(data).data;
     const colName = JSON.parse(data).columns;
-    model?.on("change:vis_data", () => {
-        setData(model.get("vis_data"))
+    model?.on("change:quickv_data", () => {
+        setData(model.get("quickv_data"))
     });
 
     const lineData =

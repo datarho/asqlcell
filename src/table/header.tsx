@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import { FunctionComponent } from "react";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 import { useModel } from "../hooks";
-import { BarChart } from "../visualization/bar";
-import { LineChart } from "../visualization/line";
+import { HistChart, QuickViewChart } from "../visualization";
 import { Dfhead } from "../WidgetView";
 
 interface props {
@@ -31,11 +30,11 @@ const HeaderInfo: FunctionComponent<InfoProps> = ({ headerContent, item, dataLen
             {headerContent.filter(header => header.columnName === item && (header.dtype.includes("int") || header.dtype.includes("float"))).length !== 0 ?
                 <Group noWrap position="center" sx={{ gap: 0, alignItems: "flex-start" }}>
 
-                    <BarChart item={item} headerContent={headerContent} />
+                    <HistChart item={item} headerContent={headerContent} />
 
                     <Popover
                         onOpen={() => {
-                            model?.trigger("vis_sql", item)
+                            model?.trigger("quick_view", item)
                         }}
                     >
                         <Popover.Target>
@@ -50,7 +49,7 @@ const HeaderInfo: FunctionComponent<InfoProps> = ({ headerContent, item, dataLen
                                 left: "calc(50vw - 240px) !important",
                             }}
                         >
-                            <LineChart />
+                            <QuickViewChart />
                         </Popover.Dropdown>
                     </Popover>
 

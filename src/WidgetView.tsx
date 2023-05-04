@@ -3,8 +3,7 @@ import { WidgetModel } from "@jupyter-widgets/base";
 import { WidgetModelContext } from "./hooks";
 import { Box, Group, Stack, Tabs, Text } from "@mantine/core";
 import { DataTable } from "./table";
-import { Visualization } from "./visualization/visualization";
-import { LineChart } from "./visualization/line";
+import { QuickViewChart, Visualization } from "./visualization";
 
 interface WidgetProps {
     model: WidgetModel;
@@ -46,9 +45,9 @@ const ReactWidget = (props: WidgetProps) => {
         setTableState(msg === 1 ? true : false);
     })
 
-    props.model?.on("vis_sql", (col_name) => {
-        props.model?.set("vis_sql", [
-            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${col_name}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (100 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+    props.model?.on("quick_view", (col_name) => {
+        props.model?.set("quickv_var", [
+            col_name,
             new Date().toISOString()
         ]);
         props.model?.save_changes();
@@ -110,7 +109,7 @@ const ReactWidget = (props: WidgetProps) => {
                                         </Tabs.Panel>
                                     </Tabs>
                                     :
-                                    <LineChart />
+                                    <QuickViewChart />
                             }
                         </Group>
                         :
