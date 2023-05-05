@@ -49,7 +49,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
 
                 <Stack sx={{ gap: 0 }}>
                     {
-                        index === colArray.length - 1 ?
+                        index === 0 ?
                             <>
                                 <ActionIcon size="xs" onClick={() => { setColArray([...colArray, ""]) }}>
                                     <IconPlus size="0.75rem" />
