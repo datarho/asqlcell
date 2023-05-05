@@ -16,6 +16,7 @@ interface previewChartProp {
 }
 
 const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open }) => {
+    // Index x-axis
     const model = useModel();
     const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[],"index":[],"data":[]}`);
     const colData = JSON.parse(data).data;
@@ -23,18 +24,43 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
     model?.on("change:vis_data", () => {
         setData(model.get("vis_data"))
     })
+
+    // Date x-axis
+    const [tableData, setTableData] = useState(model?.get("data_grid") ?? "{}");
+    const info = JSON.parse(tableData.split("\n")[0]);
+    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
+    model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
+    const header = JSON.parse(hist ?? `{dtype:""}`);
+    const dateColIndex: number = header.indexOf(header.filter((header: any) => header.dtype.includes("datetime"))[0]);
+    const dateCol = info["data"].map((item: string[]) => Date.parse(item[dateColIndex]))
+    model?.on("change:data_grid", () => {
+        setTableData(model.get("data_grid"))
+    })
+
     const lineData =
         colData ?
-            {
-                values:
-                    colData.map((item: number[], index: number) => {
-                        return (
-                            colName.map((type: string, colIndex: number) => (
-                                { a: index, b: item[colIndex], c: type }
-                            ))
-                        )
-                    }).flat()
-            }
+            XAxis === "Index" ?
+                {
+                    values:
+                        colData.map((item: number[], index: number) => {
+                            return (
+                                colName.map((type: string, colIndex: number) => (
+                                    { a: index, b: item[colIndex], c: type }
+                                ))
+                            )
+                        }).flat()
+                }
+                :
+                {
+                    values:
+                        colData.map((item: number[], index: number) => {
+                            return (
+                                colName.map((type: string, colIndex: number) => (
+                                    { a: dateCol[index], b: item[colIndex], c: type }
+                                ))
+                            )
+                        }).flat()
+                }
             :
             {
                 values: [
@@ -64,7 +90,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                     ],
                     data: { name: "values" },
                     encoding: {
-                        x: { field: XAxis, type: "quantitative", axis: { tickMinStep: 30 } },
+                        x: { field: XAxis, type: XAxis === "Index" ? "quantitative" : "temporal", axis: { tickMinStep: 30 } },
                         y: { field: colName, type: "quantitative" },
                         color: {
                             condition: {
@@ -108,7 +134,7 @@ export const Visualization: FunctionComponent = () => {
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
     const headerData: string[] = JSON.parse(hist ?? `{dtype:""}`).filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
-    const [XAxis, setXAxis] = useState("index");
+    const [XAxis, setXAxis] = useState("Index");
     const [ref, rect] = useResizeObserver();
     const [open, setOpen] = useState<boolean>(true);
     const [chartType, setChartType] = useState(1);

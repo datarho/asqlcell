@@ -128,7 +128,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                 <Select
                                     label="X-axis"
                                     defaultValue={"Index"}
-                                    data={["Index"]}
+                                    data={["Index", "Date"]}
                                     onChange={(value) => { setXAxis(value!) }}
                                 />
                             </Grid.Col>
