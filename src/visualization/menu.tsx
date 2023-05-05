@@ -93,6 +93,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
     const model = useModel();
     const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[""]}`).columns;
     const [colName, setColName] = useState<string[]>(quickName);
+    const cache = model?.get("cache");
     model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns ?? "") });
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
@@ -132,7 +133,12 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                     data={["Index", "Date"]}
                                     onChange={(value) => {
                                         setXAxis(value!);
-                                        model?.set("cache", `{"xAxisState":"${value}"}`);
+                                        if (cache.includes("xAxisState")) {
+                                            model?.set("cache", cache.replace(/{"xAxisState":"[a-zA-Z]+"}/, `{"xAxisState":"${value}"}`))
+                                        }
+                                        else {
+                                            model?.set("cache", `{"xAxisState":"${value}"}`);
+                                        }
                                         model?.save_changes()
                                     }}
                                 />
