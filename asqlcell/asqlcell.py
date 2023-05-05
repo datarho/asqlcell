@@ -7,7 +7,7 @@ import IPython
 import sqlparse
 import __main__
 from .jinjasql import JinjaSql
-from .utils import get_duckdb, get_duckdb_result, get_value, get_vars, get_histogram, NoTracebackException, transform_dataframe
+from .utils import get_duckdb, get_duckdb_result, get_value, get_vars, get_histogram, NoTracebackException, vega_spec
 
 module_name = "asqlcell"
 module_version = "0.1.0"
@@ -61,7 +61,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     data_grid = Unicode('').tag(sync=True)
     exec_time = Unicode('').tag(sync=True)
     data_name = Unicode('').tag(sync=True)
-    vis_sql = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
+    vis_sql = Tuple(Unicode(''), Unicode(''), Unicode(''), default_value=('', '', '')).tag(sync=True)
     vis_data = Unicode('').tag(sync=True)
     quickv_var = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
     quickv_data = Unicode('').tag(sync=True)
@@ -90,7 +90,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
 
     def set_data_grid(self):
         df = get_value(self.data_name)
-        self.data_grid = transform_dataframe(df[self.row_range[0] : self.row_range[1]]) + "\n" + str(len(df))
+        self.data_grid = str(df.to_json(orient="split", date_format='iso')) + "\n" + str(len(df))
 
     @observe('dfs_button')
     def on_dfs_button(self, change):
@@ -123,7 +123,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
         get_duckdb().register(self.data_name, get_value(self.data_name))
         df = get_duckdb().execute(change.new[0].replace("$$__NAME__$$", self.data_name)).df()
         get_duckdb().unregister(self.data_name)
-        self.vis_data = transform_dataframe(df)
+        self.vis_data = vega_spec(df, change.new[1])
 
     @observe('quickv_var')
     def on_quickv_var(self, change):
@@ -134,4 +134,4 @@ class SqlcellWidget(DOMWidget, HasTraits):
         tmp = tmp.replace("$$__NAME__$$", self.data_name).replace("$$__C__$$", change.new[0])
         df = get_duckdb().execute(tmp).df()
         get_duckdb().unregister(self.data_name)
-        self.quickv_data = transform_dataframe(df)
+        self.quickv_data = vega_spec(df, change.new[1])
