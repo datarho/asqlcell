@@ -65,6 +65,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     vis_data = Unicode('').tag(sync=True)
     quickv_var = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
     quickv_data = Unicode('').tag(sync=True)
+    cache = Unicode('').tag(sync=True)
 
     def __init__(self, sql='', mode="UI"):
         super(SqlcellWidget, self).__init__()
