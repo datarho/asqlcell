@@ -7,7 +7,7 @@ import IPython
 import sqlparse
 import __main__
 from .jinjasql import JinjaSql
-from .utils import get_duckdb, get_duckdb_result, get_value, get_vars, get_histogram, NoTracebackException
+from .utils import get_duckdb, get_duckdb_result, get_value, get_vars, get_histogram, NoTracebackException, transform_dataframe
 
 module_name = "asqlcell"
 module_version = "0.1.0"
@@ -123,7 +123,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
         get_duckdb().register(self.data_name, get_value(self.data_name))
         df = get_duckdb().execute(change.new[0].replace("$$__NAME__$$", self.data_name)).df()
         get_duckdb().unregister(self.data_name)
-        self.vis_data = str(df.to_json(orient="split", date_format='iso'))
+        self.vis_data = transform_dataframe(df)
 
     @observe('quickv_var')
     def on_quickv_var(self, change):
@@ -134,4 +134,4 @@ class SqlcellWidget(DOMWidget, HasTraits):
         tmp = tmp.replace("$$__NAME__$$", self.data_name).replace("$$__C__$$", change.new[0])
         df = get_duckdb().execute(tmp).df()
         get_duckdb().unregister(self.data_name)
-        self.quickv_data = str(df.to_json(orient="split", date_format='iso'))
+        self.quickv_data = transform_dataframe(df)

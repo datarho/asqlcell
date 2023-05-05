@@ -37,6 +37,18 @@ def is_type_numeric(dtype):
     except TypeError:
         return False
 
+def dtype_str(kind):
+    if kind == "b":
+        return"bool"
+    elif kind in ("i", "u"):
+        return "int"
+    elif kind in ("f", "c"):
+        return "float"
+    elif kind == "M":
+        return "datetime"
+    else:
+        return "string"
+
 def get_histogram(df):
     hist = []
     if isinstance(df, pd.DataFrame):
@@ -45,7 +57,7 @@ def get_histogram(df):
             if is_type_numeric(col.dtypes):
                 np_array= np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
                 y, bins = np.histogram(np_array, bins=10)
-                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name,
+                hist.append({"columnName" : column, "dtype" : dtype_str(df.dtypes[column].kind),
                     "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
             else:
                 col = col.astype(str)
@@ -59,8 +71,11 @@ def get_histogram(df):
                     else:
                         sum += value_counts[si].item()
                 bins.append({"bin" : "other", "count" : sum})
-                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name, "bins" : bins})
+                hist.append({"columnName" : column, "dtype" : dtype_str(df.dtypes[column].kind), "bins" : bins})
     return hist
+
+def transform_dataframe(df):
+    return str(df.apply(lambda x:'{'+','.join([f'{col}:{val}' for col, val in zip(df.columns, x.astype(str))])+'}', axis=1))
 
 def get_random_data(number = 10):
     return pd.DataFrame(
