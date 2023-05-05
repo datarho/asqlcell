@@ -2,6 +2,7 @@ import duckdb
 import pandas as pd
 import numpy as np
 import __main__
+import json
 
 __DUCKDB = None
 
@@ -58,7 +59,8 @@ def get_histogram(df):
                 np_array= np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
                 y, bins = np.histogram(np_array, bins=10)
                 hist.append({"columnName" : column, "dtype" : dtype_str(df.dtypes[column].kind),
-                    "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
+                    "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} 
+                                for i, count in enumerate(y)]})
             else:
                 col = col.astype(str)
                 unique_values, value_counts = np.unique(col, return_counts=True)
@@ -71,11 +73,16 @@ def get_histogram(df):
                     else:
                         sum += value_counts[si].item()
                 bins.append({"bin" : "other", "count" : sum})
-                hist.append({"columnName" : column, "dtype" : dtype_str(df.dtypes[column].kind), "bins" : bins})
+                hist.append({"columnName" : column, "dtype" : dtype_str(df.dtypes[column].kind), 
+                                "bins" : bins})
     return hist
 
+def escape_json(val):
+    return json.dumps(val)
+
 def transform_dataframe(df):
-    return str(df.apply(lambda x:'{'+','.join([f'{col}:{val}' for col, val in zip(df.columns, x.astype(str))])+'}', axis=1))
+    return str(df.apply(lambda x:'{'+','.join([escape_json(col)+':'+escape_json(val)  for col, val in 
+                zip(df.columns, x.astype(str))])+'}', axis=1).to_json(orient="split"))
 
 def get_random_data(number = 10):
     return pd.DataFrame(
