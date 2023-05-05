@@ -134,4 +134,4 @@ class SqlcellWidget(DOMWidget, HasTraits):
         tmp = tmp.replace("$$__NAME__$$", self.data_name).replace("$$__C__$$", change.new[0])
         df = get_duckdb().execute(tmp).df()
         get_duckdb().unregister(self.data_name)
-        self.quickv_data = vega_spec(df, change.new[1])
+        self.quickv_data = vega_spec(df, "index_rn1qaz2wsx")
