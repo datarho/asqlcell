@@ -90,7 +90,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
 
     def set_data_grid(self):
         df = get_value(self.data_name)
-        self.data_grid = str(df.to_json(orient="split", date_format='iso')) + "\n" + str(len(df))
+        self.data_grid = str(df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format='iso')) + "\n" + str(len(df))
 
     @observe('dfs_button')
     def on_dfs_button(self, change):
