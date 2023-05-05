@@ -16,10 +16,11 @@ interface SelectProps {
     name: string,
     header: string[],
     colArray: string[],
-    setColArray: any
+    setColArray: any,
+    XAxis: string,
 }
 
-const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, colArray, setColArray }) => {
+const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, colArray, setColArray, XAxis }) => {
     const model = useModel();
     return (
         <>
@@ -38,6 +39,9 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                         }
                         setColArray([...array])
                         array = array.filter(item => item !== "")
+                        if (XAxis === "Date") {
+                            array.push("Date")
+                        }
                         model?.set("vis_sql", [
                             `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
                             new Date().toISOString()
@@ -94,7 +98,12 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
     const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[""]}`).columns;
     const [colName, setColName] = useState<string[]>(quickName);
     const cache = model?.get("cache");
-    model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns ?? "") });
+    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
+    model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
+    const headers = JSON.parse(hist ?? `{"dtype":""}`);
+    const dateColName = headers.filter((header: any) => header.dtype.includes("datetime"))[0].columnName;
+
+    model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns.filter((name: string) => name !== dateColName) ?? "") });
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
             <Tabs variant="pills" defaultValue="data">
@@ -133,6 +142,20 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                     data={["Index", "Date"]}
                                     onChange={(value) => {
                                         setXAxis(value!);
+                                        if (value === "Date") {
+                                            var array = [...colName]
+                                            if (!array.includes(dateColName)) {
+                                                array.push(dateColName)
+                                                setColName(array)
+                                                array = array.filter(item => item !== "")
+                                                model?.set("vis_sql", [
+                                                    `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+                                                    new Date().toISOString()
+                                                ]);
+                                                model?.save_changes();
+                                            }
+                                        }
+
                                         if (cache.includes("xAxisState")) {
                                             model?.set("cache", cache.replace(/{"xAxisState":"[a-zA-Z]+"}/, `{"xAxisState":"${value}"}`))
                                         }
@@ -163,6 +186,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                             header={header}
                                             colArray={colName}
                                             setColArray={setColName}
+                                            XAxis={XAxis}
                                         />
                                     )
                                 })

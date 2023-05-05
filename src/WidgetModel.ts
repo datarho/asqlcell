@@ -22,6 +22,7 @@ const defaultModelProperties = {
     vis_sql: ["", ""],
     vis_data: undefined,
     title_hist: "",
+    cache: "",
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -51,6 +52,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             vis_sql: undefined,
             vis_data: undefined,
             title_hist: undefined,
+            cache: undefined,
         };
     }
 

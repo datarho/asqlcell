@@ -20,23 +20,20 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
     const model = useModel();
     const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[],"index":[],"data":[]}`);
     const colData = JSON.parse(data).data;
-    const colName = JSON.parse(data).columns;
-    model?.on("change:vis_data", () => {
-        setData(model.get("vis_data"))
-    })
 
     // Date x-axis
-    const [tableData, setTableData] = useState(model?.get("data_grid") ?? "{}");
-    const info = JSON.parse(tableData.split("\n")[0]);
+    const info = JSON.parse(data.split("\n")[0]);
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
-    const header = JSON.parse(hist ?? `{"dtype":""}`);
-    const dateColIndex: number = header.indexOf(header.filter((header: any) => header.dtype.includes("datetime"))[0]);
+    const headers = JSON.parse(hist ?? `{"dtype":""}`);
+    const headerData: string[] = headers.filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
+    const dateColName = headers.filter((header: any) => header.dtype.includes("datetime"))[0].columnName;
+    const dateColIndex = info["data"][0] ? info["data"][0].length - 1 : -1;
     const dateCol = info["data"].map((item: string[]) => Date.parse(item[dateColIndex]))
-    model?.on("change:data_grid", () => {
-        setTableData(model.get("data_grid"))
+    const colName = JSON.parse(data).columns.filter((name: string) => name !== dateColName);
+    model?.on("change:vis_data", () => {
+        setData(model.get("vis_data"));
     })
-
     const lineData =
         colData ?
             XAxis === "Index" ?
@@ -44,9 +41,13 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                     values:
                         colData.map((item: number[], index: number) => {
                             return (
-                                colName.map((type: string, colIndex: number) => (
-                                    { a: index, b: item[colIndex], c: type }
-                                ))
+                                colName.map((type: string, colIndex: number) => {
+                                    if (headerData.includes(type)) {
+                                        return (
+                                            { a: index, b: item[colIndex], c: type }
+                                        )
+                                    }
+                                })
                             )
                         }).flat()
                 }
@@ -55,9 +56,13 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                     values:
                         colData.map((item: number[], index: number) => {
                             return (
-                                colName.map((type: string, colIndex: number) => (
-                                    { a: dateCol[index], b: item[colIndex], c: type }
-                                ))
+                                colName.map((type: string, colIndex: number) => {
+                                    if (headerData.includes(type)) {
+                                        return (
+                                            { a: dateCol[index], b: item[colIndex], c: type }
+                                        )
+                                    }
+                                })
                             )
                         }).flat()
                 }
@@ -133,6 +138,7 @@ export const Visualization: FunctionComponent = () => {
     const model = useModel();
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
+
     const headerData: string[] = JSON.parse(hist ?? `{"dtype":""}`).filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
     const cache = model?.get("cache");
     const [XAxis, setXAxis] = useState(JSON.parse(cache.includes("xAxisState") && !cache.includes(`{"xAxisState":""}`) ? cache : `{"xAxisState":"Index"}`)["xAxisState"]);
