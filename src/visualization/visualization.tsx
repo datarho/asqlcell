@@ -30,7 +30,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
     const info = JSON.parse(tableData.split("\n")[0]);
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
-    const header = JSON.parse(hist ?? `{dtype:""}`);
+    const header = JSON.parse(hist ?? `{"dtype":""}`);
     const dateColIndex: number = header.indexOf(header.filter((header: any) => header.dtype.includes("datetime"))[0]);
     const dateCol = info["data"].map((item: string[]) => Date.parse(item[dateColIndex]))
     model?.on("change:data_grid", () => {
@@ -133,8 +133,9 @@ export const Visualization: FunctionComponent = () => {
     const model = useModel();
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
-    const headerData: string[] = JSON.parse(hist ?? `{dtype:""}`).filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
-    const [XAxis, setXAxis] = useState("Index");
+    const headerData: string[] = JSON.parse(hist ?? `{"dtype":""}`).filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
+    const cache = model?.get("cache");
+    const [XAxis, setXAxis] = useState(JSON.parse(cache.includes("xAxisState") && !cache.includes(`{"xAxisState":""}`) ? cache : `{"xAxisState":"Index"}`)["xAxisState"]);
     const [ref, rect] = useResizeObserver();
     const [open, setOpen] = useState<boolean>(true);
     const [chartType, setChartType] = useState(1);
@@ -148,6 +149,7 @@ export const Visualization: FunctionComponent = () => {
                             <VisualMenu
                                 chartType={chartType}
                                 setChartType={setChartType}
+                                XAxis={XAxis}
                                 setXAxis={setXAxis}
                                 header={headerData}
                             />

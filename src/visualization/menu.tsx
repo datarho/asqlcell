@@ -7,6 +7,7 @@ import { ViewHeight } from "./const";
 interface menuProps {
     chartType: number;
     setChartType: React.Dispatch<React.SetStateAction<number>>;
+    XAxis: string;
     setXAxis: React.Dispatch<React.SetStateAction<string>>;
     header: string[];
 }
@@ -88,7 +89,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
     )
 }
 
-export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, setXAxis, header }) => {
+export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, XAxis, setXAxis, header }) => {
     const model = useModel();
     const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[""]}`).columns;
     const [colName, setColName] = useState<string[]>(quickName);
@@ -127,9 +128,13 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                             <Grid.Col span={10}>
                                 <Select
                                     label="X-axis"
-                                    defaultValue={"Index"}
+                                    defaultValue={XAxis}
                                     data={["Index", "Date"]}
-                                    onChange={(value) => { setXAxis(value!) }}
+                                    onChange={(value) => {
+                                        setXAxis(value!);
+                                        model?.set("cache", `{"xAxisState":"${value}"}`);
+                                        model?.save_changes()
+                                    }}
                                 />
                             </Grid.Col>
                             <Grid.Col span={2} sx={{ display: "flex", alignItems: "end" }}>
