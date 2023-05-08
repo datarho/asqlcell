@@ -5,11 +5,12 @@ import { useModel, useModelState } from "../hooks";
 import { ViewHeight } from "./const";
 
 interface menuProps {
-    chartType: number;
-    setChartType: React.Dispatch<React.SetStateAction<number>>;
-    XAxis: string;
-    setXAxis: React.Dispatch<React.SetStateAction<string>>;
-    header: string[];
+    chartType: number,
+    setChartType: React.Dispatch<React.SetStateAction<number>>,
+    XAxis: string,
+    setXAxis: React.Dispatch<React.SetStateAction<string>>,
+    numericCols: string[],
+    categoricCols: string[],
 }
 interface SelectProps {
     index: number,
@@ -18,11 +19,10 @@ interface SelectProps {
     colArray: string[],
     setColArray: any,
     XAxis: string,
-    dateColName: string,
     sendVisSql: any,
 }
 
-const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, colArray, setColArray, XAxis, dateColName, sendVisSql }) => {
+const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, colArray, setColArray, XAxis, sendVisSql }) => {
     return (
         <>
             <Grid.Col span={10}>
@@ -40,7 +40,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                         }
                         setColArray([...array])
                         array = array.filter(item => item !== "")
-                        sendVisSql(dateColName, XAxis, array)
+                        sendVisSql(XAxis, array)
                     }}
                 />
             </Grid.Col>
@@ -67,7 +67,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                                         colArray.splice(index, 1)
                                         setColArray([...colArray])
                                         var array = colArray.filter(item => item !== "")
-                                        sendVisSql(dateColName, XAxis, array)
+                                        sendVisSql(XAxis, array)
                                     }}>
                                     <IconMinus size="0.75rem" />
                                 </ActionIcon>
@@ -88,24 +88,29 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
     )
 }
 
-export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, XAxis, setXAxis, header }) => {
+export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, XAxis, setXAxis, numericCols, categoricCols }) => {
     const model = useModel();
-    const sendVisSql = (dateColName: string, mode: string, array: string[]) => {
-        const isDate = mode === "Date";
+    const [cache, setCache] = useModelState("cache");
+    const [colName, setColName] = useState<string[]>(JSON.parse(cache.includes("selectedCol") ? cache : `{"selectedCol":[""]}`).selectedCol);
+    const cacheObject = JSON.parse(cache === "" ? "{}" : cache);
+
+    const categoricData = () => {
+        const array = [...categoricCols];
+        if (!array.includes("index")) {
+            array.splice(0, 0, "Index")
+        }
+        return (array)
+    }
+
+    const sendVisSql = (ColName: string, array: string[]) => {
+        const isIndex = ColName === "Index";
         model?.set("vis_sql", [
-            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}${isDate ? "," + dateColName : ""}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
-            isDate ? dateColName : "index_rn1qaz2wsx",
+            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}${!isIndex ? "," + ColName : ""}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+            isIndex ? "index_rn1qaz2wsx" : ColName,
             new Date().toISOString()
         ]);
         model?.save_changes();
     }
-    const [cache, setCache] = useModelState("cache");
-    const [colName, setColName] = useState<string[]>(JSON.parse(cache.includes("selectedCol") ? cache : `{"selectedCol":[""]}`).selectedCol);
-    const [hist] = useModelState("title_hist");
-    const cacheObject = JSON.parse(cache === "" ? "{}" : cache);
-    const headers = JSON.parse(hist ?? `{"dtype":""}`);
-    const dateCols = headers.filter((header: any) => header.dtype.includes("datetime"))
-    const dateColName = dateCols.length >= 1 ? dateCols[0].columnName : "";
     useEffect(() => {
         cacheObject["selectedCol"] = colName;
         setCache(JSON.stringify(cacheObject))
@@ -144,17 +149,16 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                             <Grid.Col span={10}>
                                 <Select
                                     label="X-axis"
+                                    defaultValue={"Index"}
                                     value={XAxis}
-                                    data={dateCols.length >= 1 ? ["Index", "Date"] : ["Index"]}
+                                    data={categoricData()}
                                     onChange={(value) => {
                                         cacheObject["xAxisState"] = value;
                                         setCache(JSON.stringify(cacheObject));
                                         setXAxis(value!);
                                         let array = [...colName]
                                         array = array.filter(item => item !== "")
-                                        sendVisSql(dateColName, value!, array)
-
-
+                                        sendVisSql(value!, array)
                                         model?.save_changes()
                                     }}
                                 />
@@ -176,11 +180,10 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                         <SelectDropDown
                                             index={index}
                                             name={name}
-                                            header={header}
+                                            header={numericCols}
                                             colArray={colName}
                                             setColArray={setColName}
                                             XAxis={XAxis}
-                                            dateColName={dateColName}
                                             sendVisSql={sendVisSql}
                                         />
                                     )
