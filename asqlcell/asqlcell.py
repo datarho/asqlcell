@@ -120,10 +120,14 @@ class SqlcellWidget(DOMWidget, HasTraits):
 
     @observe('vis_sql')
     def on_vis_sql(self, change):
-        get_duckdb().register(self.data_name, get_value(self.data_name))
-        df = get_duckdb().execute(change.new[0].replace("$$__NAME__$$", self.data_name)).df()
-        get_duckdb().unregister(self.data_name)
-        self.vis_data = vega_spec(df, change.new[1])
+        try:
+            get_duckdb().register(self.data_name, get_value(self.data_name))
+            df = get_duckdb().execute(change.new[0].replace("$$__NAME__$$", self.data_name)).df()
+            get_duckdb().unregister(self.data_name)
+            self.vis_data = vega_spec(df, change.new[1])
+        except Exception as r:
+            self.cache = ''
+            self.vis_data = ''
 
     @observe('quickv_var')
     def on_quickv_var(self, change):
