@@ -104,7 +104,8 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
     const [hist] = useModelState("title_hist");
     const cacheObject = JSON.parse(cache === "" ? "{}" : cache);
     const headers = JSON.parse(hist ?? `{"dtype":""}`);
-    const dateColName = headers.filter((header: any) => header.dtype.includes("datetime"))[0].columnName;
+    const dateCols = headers.filter((header: any) => header.dtype.includes("datetime"))
+    const dateColName = dateCols.length >= 1 ? dateCols[0].columnName : "";
     useEffect(() => {
         cacheObject["selectedCol"] = colName;
         setCache(JSON.stringify(cacheObject))
@@ -144,7 +145,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                 <Select
                                     label="X-axis"
                                     value={XAxis}
-                                    data={["Index", "Date"]}
+                                    data={dateCols.length >= 1 ? ["Index", "Date"] : ["Index"]}
                                     onChange={(value) => {
                                         cacheObject["xAxisState"] = value;
                                         setCache(JSON.stringify(cacheObject));
