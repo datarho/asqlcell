@@ -1,7 +1,7 @@
 import { ActionIcon, Grid, Group, ScrollArea, Select, Stack, Tabs } from "@mantine/core";
 import { IconChartBar, IconChartLine, IconMinus, IconPlus } from "@tabler/icons-react";
-import React, { FunctionComponent, useState } from "react";
-import { useModel } from "../hooks";
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { useModel, useModelState } from "../hooks";
 import { ViewHeight } from "./const";
 
 interface menuProps {
@@ -18,10 +18,11 @@ interface SelectProps {
     colArray: string[],
     setColArray: any,
     XAxis: string,
+    dateColName: string,
+    sendVisSql: any,
 }
 
-const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, colArray, setColArray, XAxis }) => {
-    const model = useModel();
+const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, colArray, setColArray, XAxis, dateColName, sendVisSql }) => {
     return (
         <>
             <Grid.Col span={10}>
@@ -39,24 +40,22 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                         }
                         setColArray([...array])
                         array = array.filter(item => item !== "")
-                        if (XAxis === "Date") {
-                            array.push("Date")
-                        }
-                        model?.set("vis_sql", [
-                            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
-                            new Date().toISOString()
-                        ]);
-                        model?.save_changes();
+                        sendVisSql(dateColName, XAxis, array)
                     }}
                 />
             </Grid.Col>
             <Grid.Col span={2} sx={{ display: "flex", alignItems: "end" }}>
-
                 <Stack sx={{ gap: 0 }}>
                     {
                         index === 0 ?
                             <>
-                                <ActionIcon size="xs" onClick={() => { setColArray([...colArray, ""]) }}>
+                                <ActionIcon
+                                    size="xs"
+                                    onClick={() => {
+                                        colArray.splice(index + 1, 0, "")
+                                        setColArray([...colArray])
+                                    }}
+                                >
                                     <IconPlus size="0.75rem" />
                                 </ActionIcon>
                             </>
@@ -68,11 +67,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                                         colArray.splice(index, 1)
                                         setColArray([...colArray])
                                         var array = colArray.filter(item => item !== "")
-                                        model?.set("vis_sql", [
-                                            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
-                                            new Date().toISOString()
-                                        ]);
-                                        model?.save_changes();
+                                        sendVisSql(dateColName, XAxis, array)
                                     }}>
                                     <IconMinus size="0.75rem" />
                                 </ActionIcon>
@@ -95,15 +90,25 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
 
 export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, XAxis, setXAxis, header }) => {
     const model = useModel();
-    const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[""]}`).columns;
-    const [colName, setColName] = useState<string[]>(quickName);
-    const cache = model?.get("cache");
-    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
-    model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
+    const sendVisSql = (dateColName: string, mode: string, array: string[]) => {
+        const isDate = mode === "Date";
+        model?.set("vis_sql", [
+            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}${isDate ? "," + dateColName : ""}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+            isDate ? dateColName : "index_rn1qaz2wsx",
+            new Date().toISOString()
+        ]);
+        model?.save_changes();
+    }
+    const [cache, setCache] = useModelState("cache");
+    const [colName, setColName] = useState<string[]>(JSON.parse(cache.includes("selectedCol") ? cache : `{"selectedCol":[""]}`).selectedCol);
+    const [hist] = useModelState("title_hist");
+    const cacheObject = JSON.parse(cache === "" ? "{}" : cache);
     const headers = JSON.parse(hist ?? `{"dtype":""}`);
     const dateColName = headers.filter((header: any) => header.dtype.includes("datetime"))[0].columnName;
-
-    model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns.filter((name: string) => name !== dateColName) ?? "") });
+    useEffect(() => {
+        cacheObject["selectedCol"] = colName;
+        setCache(JSON.stringify(cacheObject))
+    }, [[...colName]])
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
             <Tabs variant="pills" defaultValue="data">
@@ -138,30 +143,17 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                             <Grid.Col span={10}>
                                 <Select
                                     label="X-axis"
-                                    defaultValue={XAxis}
+                                    value={XAxis}
                                     data={["Index", "Date"]}
                                     onChange={(value) => {
+                                        cacheObject["xAxisState"] = value;
+                                        setCache(JSON.stringify(cacheObject));
                                         setXAxis(value!);
-                                        if (value === "Date") {
-                                            var array = [...colName]
-                                            if (!array.includes(dateColName)) {
-                                                array.push(dateColName)
-                                                setColName(array)
-                                                array = array.filter(item => item !== "")
-                                                model?.set("vis_sql", [
-                                                    `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
-                                                    new Date().toISOString()
-                                                ]);
-                                                model?.save_changes();
-                                            }
-                                        }
+                                        let array = [...colName]
+                                        array = array.filter(item => item !== "")
+                                        sendVisSql(dateColName, value!, array)
 
-                                        if (cache.includes("xAxisState")) {
-                                            model?.set("cache", cache.replace(/{"xAxisState":"[a-zA-Z]+"}/, `{"xAxisState":"${value}"}`))
-                                        }
-                                        else {
-                                            model?.set("cache", `{"xAxisState":"${value}"}`);
-                                        }
+
                                         model?.save_changes()
                                     }}
                                 />
@@ -187,6 +179,8 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                             colArray={colName}
                                             setColArray={setColName}
                                             XAxis={XAxis}
+                                            dateColName={dateColName}
+                                            sendVisSql={sendVisSql}
                                         />
                                     )
                                 })

@@ -4,7 +4,7 @@ import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import React, { useState } from "react";
 import { FunctionComponent } from "react";
 import { VegaLite } from "react-vega";
-import { useModel } from "../hooks";
+import { useModel, useModelState } from "../hooks";
 import { LabelWidth, MenuWidth, ViewHeight } from "./const";
 import { VisualMenu } from "./menu";
 
@@ -16,63 +16,8 @@ interface previewChartProp {
 }
 
 const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open }) => {
-    // Index x-axis
-    const model = useModel();
-    const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[],"index":[],"data":[]}`);
-    const colData = JSON.parse(data).data;
-
-    // Date x-axis
-    const info = JSON.parse(data.split("\n")[0]);
-    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
-    model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
-    const headers = JSON.parse(hist ?? `{"dtype":""}`);
-    const headerData: string[] = headers.filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
-    const dateColName = headers.filter((header: any) => header.dtype.includes("datetime"))[0].columnName;
-    const dateColIndex = info["data"][0] ? info["data"][0].length - 1 : -1;
-    const dateCol = info["data"].map((item: string[]) => Date.parse(item[dateColIndex]))
-    const colName = JSON.parse(data).columns.filter((name: string) => name !== dateColName);
-    model?.on("change:vis_data", () => {
-        setData(model.get("vis_data"));
-    })
-    const lineData =
-        colData ?
-            XAxis === "Index" ?
-                {
-                    values:
-                        colData.map((item: number[], index: number) => {
-                            return (
-                                colName.map((type: string, colIndex: number) => {
-                                    if (headerData.includes(type)) {
-                                        return (
-                                            { a: index, b: item[colIndex], c: type }
-                                        )
-                                    }
-                                })
-                            )
-                        }).flat()
-                }
-                :
-                {
-                    values:
-                        colData.map((item: number[], index: number) => {
-                            return (
-                                colName.map((type: string, colIndex: number) => {
-                                    if (headerData.includes(type)) {
-                                        return (
-                                            { a: dateCol[index], b: item[colIndex], c: type }
-                                        )
-                                    }
-                                })
-                            )
-                        }).flat()
-                }
-            :
-            {
-                values: [
-                    { 'a': 0, 'b': 0, 'c': "" }
-                ]
-            };
-
+    const [visData] = useModelState("vis_data");
+    const lineData = { values: JSON.parse(visData === "" ? `[{ "x": 0, "y": 0, "type": 0 }]` : visData) };
     return (
         <VegaLite
             data={lineData}
@@ -84,19 +29,19 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                     height: ViewHeight,
                     transform: [
                         {
-                            calculate: "datum.a", "as": XAxis,
+                            calculate: XAxis === "Index" ? "toNumber(datum.x)" : "datetime(datum.x)", "as": XAxis,
                         },
                         {
-                            calculate: "datum.b", "as": colName,
+                            calculate: "datum.y", "as": "col",
                         },
                         {
-                            calculate: "datum.c", "as": "Label",
+                            calculate: "datum.type", "as": "Label",
                         }
                     ],
                     data: { name: "values" },
                     encoding: {
-                        x: { field: XAxis, type: XAxis === "Index" ? "quantitative" : "temporal", axis: { tickMinStep: 30 } },
-                        y: { field: colName, type: "quantitative" },
+                        x: { field: XAxis, type: XAxis === "Index" ? "quantitative" : "temporal" },
+                        y: { field: "y", type: "quantitative" },
                         color: {
                             condition: {
                                 param: "hover",

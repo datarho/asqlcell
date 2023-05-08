@@ -3,7 +3,7 @@ import { WidgetModel } from "@jupyter-widgets/base";
 import { WidgetModelContext } from "./hooks";
 import { Box, Group, Stack, Tabs, Text } from "@mantine/core";
 import { DataTable } from "./table";
-import { QuickViewChart, Visualization } from "./visualization";
+import { Visualization } from "./visualization";
 
 interface WidgetProps {
     model: WidgetModel;
@@ -21,7 +21,6 @@ const ReactWidget = (props: WidgetProps) => {
     const [error, setError] = useState(props.model.get("error") ? props.model.get("error")[0] : "")
     const [rowNumber, setRowNumber] = useState<number>(props.model.get("row_range")[1] - props.model.get("row_range")[0]);
     const [page, setPage] = useState(Math.floor(props.model.get("row_range")[0] / rowNumber) + 1);
-    const [tableState, setTableState] = useState<boolean>(true);
 
     // Receive event from Model
     props.model?.on("change:error", () => {
@@ -39,10 +38,6 @@ const ReactWidget = (props: WidgetProps) => {
     props.model?.on("setRange", (msg) => {
         props.model?.set("row_range", msg, "");
         props.model?.save_changes();
-    })
-
-    props.model?.on("setTableView", (msg) => {
-        setTableState(msg === 1 ? true : false);
     })
 
     props.model?.on("quick_view", (col_name) => {
@@ -88,29 +83,24 @@ const ReactWidget = (props: WidgetProps) => {
                             sx={{ marginBottom: "1rem", width: "95%" }}
                             position="center"
                         >
-                            {
-                                tableState ?
-                                    <Tabs defaultValue="table" sx={{ width: "100%" }}>
-                                        <Tabs.List>
-                                            <Tabs.Tab value="table" >Table Result</Tabs.Tab>
-                                            <Tabs.Tab value="visualization" >Visualization</Tabs.Tab>
-                                        </Tabs.List>
-                                        <Tabs.Panel value="table" >
-                                            <DataTable
-                                                page={page}
-                                                setPage={setPage}
-                                                rowNumber={rowNumber}
-                                                setRowNumber={setRowNumber}
-                                            />
-                                        </Tabs.Panel>
+                            <Tabs defaultValue="table" sx={{ width: "100%" }}>
+                                <Tabs.List>
+                                    <Tabs.Tab value="table" >Table Result</Tabs.Tab>
+                                    <Tabs.Tab value="visualization" >Visualization</Tabs.Tab>
+                                </Tabs.List>
+                                <Tabs.Panel value="table" >
+                                    <DataTable
+                                        page={page}
+                                        setPage={setPage}
+                                        rowNumber={rowNumber}
+                                        setRowNumber={setRowNumber}
+                                    />
+                                </Tabs.Panel>
 
-                                        <Tabs.Panel value="visualization" >
-                                            <Visualization />
-                                        </Tabs.Panel>
-                                    </Tabs>
-                                    :
-                                    <QuickViewChart />
-                            }
+                                <Tabs.Panel value="visualization" >
+                                    <Visualization />
+                                </Tabs.Panel>
+                            </Tabs>
                         </Group>
                         :
                         <Box sx={{ height: "60px" }} />

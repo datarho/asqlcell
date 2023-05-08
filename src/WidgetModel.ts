@@ -19,10 +19,12 @@ const defaultModelProperties = {
     mode: "",
     data_grid: "",
     data_sql: "",
+    quickv_sql: "",
+    quickv_data: "",
     vis_sql: ["", ""],
-    vis_data: undefined,
+    vis_data: "",
     title_hist: "",
-    cache: "",
+    cache: "{}",
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -49,6 +51,8 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             data_name: undefined,
             data_sql: undefined,
             error: undefined,
+            quickv_sql: undefined,
+            quickv_data: undefined,
             vis_sql: undefined,
             vis_data: undefined,
             title_hist: undefined,
