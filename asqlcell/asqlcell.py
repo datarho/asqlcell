@@ -84,6 +84,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
             self.title_hist = str(json.dumps(get_histogram(get_value(self.data_name))))
             self.exec_time = str(time) + "," + str(datetime.datetime.now())
             self.set_data_grid()
+            self.run_vis_sql()
         except Exception as r:
             self.data_grid = ''
             raise NoTracebackException(r)
@@ -118,8 +119,19 @@ class SqlcellWidget(DOMWidget, HasTraits):
             df.sort_values(by=sort_by, ascending=(True if sort_ascending > 0 else False), inplace=True, kind='stable')
         self.set_data_grid()
 
+    def run_vis_sql(self):
+        try:
+            get_duckdb().register(self.data_name, get_value(self.data_name))
+            df = get_duckdb().execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name)).df()
+            get_duckdb().unregister(self.data_name)
+            self.vis_data = vega_spec(df, self.vis_sql[1])
+        except Exception as r:
+            self.cache = ''
+            self.vis_data = ''
+
     @observe('vis_sql')
     def on_vis_sql(self, change):
+        """
         try:
             get_duckdb().register(self.data_name, get_value(self.data_name))
             df = get_duckdb().execute(change.new[0].replace("$$__NAME__$$", self.data_name)).df()
@@ -128,6 +140,8 @@ class SqlcellWidget(DOMWidget, HasTraits):
         except Exception as r:
             self.cache = ''
             self.vis_data = ''
+        """
+        self.run_vis_sql()
 
     @observe('quickv_var')
     def on_quickv_var(self, change):
