@@ -19,6 +19,9 @@ interface previewChartProp {
 const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open, dateColName }) => {
     const [visData] = useModelState("vis_data");
     const lineData = { values: JSON.parse(visData === "" ? `[{ "x": 0, "y": 0, "type": 0 }]` : visData) };
+    const [sortAsce, setSortAsce] = useState(true);
+    const model = useModel();
+    model?.on("sort-X", () => setSortAsce(!sortAsce));
     return (
         <VegaLite
             data={lineData}
@@ -53,6 +56,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                         x: {
                             field: XAxis,
                             axis: { labelAngle: 0 },
+                            sort: sortAsce ? "ascending" : "descending",
                             type: XAxis === "Index" ?
                                 "quantitative"
                                 :
@@ -113,7 +117,7 @@ export const Visualization: FunctionComponent = () => {
     const [chartType, setChartType] = useState(1);
     const headers = JSON.parse(hist ?? `{"dtype":""}`);
     const dateCols = headers.filter((header: any) => header.dtype.includes("datetime"))
-    const dateColName = dateCols.length >= 1 ? dateCols[0].columnName : "";
+    const dateColName = dateCols.length >= 1 ? dateCols.map((item: { columnName: string }) => item.columnName) : [""];
 
     return (
         <Group grow ref={ref} sx={{ margin: "auto 1rem auto 0rem" }}>
@@ -143,7 +147,13 @@ export const Visualization: FunctionComponent = () => {
                 </ActionIcon>
                 <Divider orientation="vertical" />
                 <Stack>
-                    <VisualPreviewChart rect={rect} chartType={chartType} XAxis={XAxis} open={open} dateColName={dateColName} />
+                    <VisualPreviewChart
+                        rect={rect}
+                        chartType={chartType}
+                        XAxis={XAxis}
+                        open={open}
+                        dateColName={dateColName}
+                    />
                 </Stack>
             </Group>
         </Group>

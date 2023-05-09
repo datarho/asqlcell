@@ -85,7 +85,7 @@ const ReactWidget = (props: WidgetProps) => {
                         >
                             <Tabs defaultValue="table" sx={{ width: "100%" }}>
                                 <Tabs.List>
-                                    <Tabs.Tab value="table" >Table Result</Tabs.Tab>
+                                    <Tabs.Tab value="table" >Table</Tabs.Tab>
                                     <Tabs.Tab value="visualization" >Visualization</Tabs.Tab>
                                 </Tabs.List>
                                 <Tabs.Panel value="table" >
