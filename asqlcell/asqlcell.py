@@ -111,12 +111,11 @@ class SqlcellWidget(DOMWidget, HasTraits):
 
     @observe('column_sort')
     def on_column_sort(self, change):
-        sort_by = change.new[0]
-        sort_ascending = change.new[1]
         df = get_value(self.data_name)
         df.sort_index(axis=0, inplace=True)
-        if (sort_ascending != 0):
-            df.sort_values(by=sort_by, ascending=(True if sort_ascending > 0 else False), inplace=True, kind='stable')
+        if (self.column_sort[1] != 0):
+            df.sort_values(by=self.column_sort[0], ascending=(True if self.column_sort[1] > 0 else False),
+                                inplace=True, kind='stable')
         self.set_data_grid()
 
     def run_vis_sql(self):
@@ -128,19 +127,10 @@ class SqlcellWidget(DOMWidget, HasTraits):
         except Exception as r:
             self.cache = ''
             self.vis_data = ''
+            self.vis_sql = ''
 
     @observe('vis_sql')
     def on_vis_sql(self, change):
-        """
-        try:
-            get_duckdb().register(self.data_name, get_value(self.data_name))
-            df = get_duckdb().execute(change.new[0].replace("$$__NAME__$$", self.data_name)).df()
-            get_duckdb().unregister(self.data_name)
-            self.vis_data = vega_spec(df, change.new[1])
-        except Exception as r:
-            self.cache = ''
-            self.vis_data = ''
-        """
         self.run_vis_sql()
 
     @observe('quickv_var')
