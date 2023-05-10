@@ -255,7 +255,11 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
     }, [[...colName]])
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
-            <Tabs variant="pills" defaultValue="data">
+            <Tabs variant="pills" defaultValue="data" sx={{
+                ".mantine-Tabs-tabsList": {
+                    height: 0
+                }
+            }}>
                 <Tabs.List grow>
                     <Group noWrap sx={{ marginBottom: "1rem" }}>
                         {/* <Tabs.Tab value="data" >Data</Tabs.Tab> */}
@@ -279,7 +283,6 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                 <Select
                                     size="xs"
                                     icon={chartType === 1 ? <IconChartLine /> : <IconChartBar />}
-                                    label="Chart Type"
                                     defaultValue={"1"}
                                     data={[
                                         { value: "1", label: "Line" },
