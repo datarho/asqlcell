@@ -19,7 +19,7 @@ prune docs/gh-pages
 prune docs/dist
 
 # Examples
-graft examples
+# graft examples
 
 # Tests
 graft tests
