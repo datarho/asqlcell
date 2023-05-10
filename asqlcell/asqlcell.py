@@ -127,7 +127,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
         except Exception as r:
             self.cache = ''
             self.vis_data = ''
-            self.vis_sql = ''
+            self.vis_sql = ('', '', '')
 
     @observe('vis_sql')
     def on_vis_sql(self, change):
