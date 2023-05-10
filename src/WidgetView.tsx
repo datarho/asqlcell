@@ -85,8 +85,12 @@ const ReactWidget = (props: WidgetProps) => {
                         >
                             <Tabs defaultValue="table" sx={{ width: "100%" }}>
                                 <Tabs.List>
-                                    <Tabs.Tab value="table" >Table</Tabs.Tab>
-                                    <Tabs.Tab value="visualization" >Visualization</Tabs.Tab>
+                                    <Tabs.Tab value="table" >
+                                        <Text size={"md"}>Table</Text>
+                                    </Tabs.Tab>
+                                    <Tabs.Tab value="visualization" >
+                                        <Text size={"md"}>Visualization</Text>
+                                    </Tabs.Tab>
                                 </Tabs.List>
                                 <Tabs.Panel value="table" >
                                     <DataTable

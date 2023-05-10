@@ -4,13 +4,14 @@ import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import React, { useState } from "react";
 import { FunctionComponent } from "react";
 import { VegaLite } from "react-vega";
+import { AnyMark } from "vega-lite/build/src/mark";
 import { useModel, useModelState } from "../hooks";
 import { LabelWidth, MenuWidth, ViewHeight } from "./const";
 import { VisualMenu } from "./menu";
 
 interface previewChartProp {
     rect: any,
-    chartType: number,
+    chartType: string,
     XAxis: string,
     open: boolean,
     dateColName: string[],
@@ -65,7 +66,10 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                                     :
                                     "nominal"
                         },
-                        y: { field: "y", type: "quantitative" },
+                        y: {
+                            field: "y",
+                            type: "quantitative"
+                        },
                         color: {
                             condition: {
                                 param: "hover",
@@ -77,14 +81,14 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                         opacity: {
                             condition: {
                                 param: "hover",
-                                value: 1
+                                value: 0.5
                             },
                             value: 0.2
                         }
                     },
                     layer: [
                         {
-                            mark: chartType === 1 ? "line" : "bar",
+                            mark: chartType as AnyMark,
                         },
                         {
                             params: [{
@@ -114,7 +118,7 @@ export const Visualization: FunctionComponent = () => {
     const [XAxis, setXAxis] = useState(JSON.parse(cache.includes("xAxisState") && !cache.includes(`{"xAxisState":""}`) ? cache : `{"xAxisState":"Index"}`)["xAxisState"]);
     const [ref, rect] = useResizeObserver();
     const [open, setOpen] = useState<boolean>(true);
-    const [chartType, setChartType] = useState(1);
+    const [chartType, setChartType] = useState<string>("line");
     const headers = JSON.parse(hist ?? `{"dtype":""}`);
     const dateCols = headers.filter((header: any) => header.dtype.includes("datetime"))
     const dateColName = dateCols.length >= 1 ? dateCols.map((item: { columnName: string }) => item.columnName) : [""];

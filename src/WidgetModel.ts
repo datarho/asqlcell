@@ -24,7 +24,7 @@ const defaultModelProperties = {
     vis_sql: ["", ""],
     vis_data: "",
     title_hist: "",
-    cache: "{}",
+    cache: "[{}]",
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -64,13 +64,6 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         super.initialize(attributes, options);
         this.set("json_dump", new Date().toISOString());
         this.save_changes();
-        // this.on("all", (msg) => { console.log(msg) })
-        // this.on("change", (msg) => { console.log(msg) })
-        this.on("change:output", this.handle_update_messages, this);
-    }
-
-    handle_update_messages(msg: any) {
-        this.trigger("update_outputName", msg);
     }
     static serializers: widgets.ISerializers = {
         ...widgets.DOMWidgetModel.serializers,

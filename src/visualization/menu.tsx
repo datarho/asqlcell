@@ -1,12 +1,12 @@
 import { Accordion, ActionIcon, Button, Grid, Group, ScrollArea, Select, Stack, Tabs, Text, Transition } from "@mantine/core";
-import { Icon123, IconAbc, IconCalendar, IconChartBar, IconChartLine, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
+import { Icon123, IconAbc, IconCalendar, IconChartBar, IconChartLine, IconGrain, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
 import React, { forwardRef, FunctionComponent, useEffect, useState } from "react";
 import { useModel, useModelState } from "../hooks";
 import { ViewHeight } from "./const";
 
 interface menuProps {
-    chartType: number,
-    setChartType: React.Dispatch<React.SetStateAction<number>>,
+    chartType: string,
+    setChartType: React.Dispatch<React.SetStateAction<string>>,
     XAxis: string,
     setXAxis: React.Dispatch<React.SetStateAction<string>>,
     numericCols: string[],
@@ -16,7 +16,7 @@ interface SelectProps {
     index: number,
     name: string,
     header: string[],
-    colArray: string[],
+    colArray: { seriesName: string, colName: string, aggregate: string }[],
     setColArray: any,
     XAxis: string,
     sendVisSql: any,
@@ -40,6 +40,11 @@ const IconMap: Record<string, JSX.Element> = {
     "bool": <IconAbc />,
     "datetime": <IconCalendar />,
 };
+interface ColItem {
+    seriesName: string;
+    colName: string;
+    aggregate: string;
+}
 const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
     ({ label, icon, ...others }: ItemProps, ref) => (
         <div ref={ref} {...others}>
@@ -51,7 +56,7 @@ const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
     )
 );
 
-const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, colArray, setColArray, XAxis, sendVisSql }) => {
+const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray, setColArray, XAxis, sendVisSql }) => {
     const [showedButton, setShowedButton] = useState<boolean>(false)
     const model = useModel();
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
@@ -91,7 +96,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                 <Accordion.Item value={`Y-axis ${index}`} >
                     <Group noWrap sx={{ gap: "0" }}>
                         <Accordion.Control>
-                            <Text>{`Y-axis ${index}`}</Text>
+                            <Text size={"sm"}>{`Y-axis ${index}`}</Text>
                         </Accordion.Control>
                         <Transition mounted={showedButton} transition="fade" duration={200} timingFunction="ease">
                             {(styles) => (
@@ -100,9 +105,9 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                                     size="xs"
                                     color="blue"
                                     onClick={() => {
-                                        colArray.splice(index, 1)
-                                        setColArray([...colArray])
-                                        var array = colArray.filter(item => item !== "")
+                                        var array = [...colArray];
+                                        array.splice(index, 1)
+                                        setColArray([...array])
                                         sendVisSql(XAxis, array)
                                     }}
                                 >
@@ -123,16 +128,42 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, header, c
                                     data={headerWithType}
                                     onChange={(value) => {
                                         setSeriesIcon(headerWithType.filter(item => item.value === value)[0].icon)
-                                        var array = [...colArray]
-                                        if (!array.includes(value!)) {
-                                            array.splice(index, 1, value!)
+                                        var names = colArray.map(item => item.colName);
+                                        var array = [...colArray];
+                                        if (!names.includes(value!)) {
+                                            array.splice(index, 1, { seriesName: "", colName: value!, aggregate: '' })
+                                            names.splice(index, 1, value!)
                                         }
                                         setColArray([...array])
-                                        array = array.filter(item => item !== "")
                                         sendVisSql(XAxis, array)
                                     }}
                                 />
                             </Grid.Col>
+                            {/* <Grid.Col span={5}>
+                                <Text>Aggregate: </Text>
+                            </Grid.Col>
+                            <Grid.Col span={7}>
+                                <Select
+                                    size="xs"
+                                    defaultValue={""}
+                                    value={colArray.filter(item => item.colName === name)[0].aggregate}
+                                    data={[
+                                        { value: "avg", label: "Average" },
+                                        { value: "sum", label: "Sum" },
+                                        { value: "count", label: "Count" },
+                                        { value: "", label: "None" },
+                                    ]}
+                                    onChange={(value) => {
+                                        var array = [...colArray];
+                                        var target = colArray.filter(item => item.colName === name)[0]
+                                        if (target) {
+                                            target.aggregate = value!
+                                            array.splice(index, 1, target)
+                                        }
+                                        sendVisSql(XAxis, array)
+                                    }}
+                                />
+                            </Grid.Col> */}
                         </Grid>
                     </Accordion.Panel>
                 </Accordion.Item>
@@ -177,7 +208,9 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
                 }}
             >
                 <Accordion.Item value="X-axis" >
-                    <Accordion.Control>X-axis</Accordion.Control>
+                    <Accordion.Control>
+                        <Text size={"sm"}>X-axis</Text>
+                    </Accordion.Control>
                     <Accordion.Panel>
                         <Grid>
                             <Grid.Col span={12}>
@@ -237,22 +270,35 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
 export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, XAxis, setXAxis, numericCols, categoricCols }) => {
     const model = useModel();
     const [cache, setCache] = useModelState("cache");
-    const [colName, setColName] = useState<string[]>(JSON.parse(cache.includes("selectedCol") ? cache : `{"selectedCol":[""]}`).selectedCol);
+    const [colNames, setColNames] = useState<ColItem[]>(JSON.parse(cache.includes("selectedCol") ? cache : `{"selectedCol":[{"seriesName":"", "colName":"", "aggregate":""}]}`).selectedCol);
     const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
-
-    const sendVisSql = (ColName: string, array: string[]) => {
+    const ChartIconMap: Record<string, JSX.Element> = {
+        "line": <IconChartLine />,
+        "bar": <IconChartBar />,
+        "point": <IconGrain />,
+    }
+    const sendVisSql = (ColName: string, array: ColItem[]) => {
         const isIndex = ColName === "Index";
+        const group = array.map((item: ColItem) => (
+            item.aggregate === "" ?
+                `"${item.colName}"`
+                :
+                `${item.aggregate}("${item.colName}")`
+        ))
         model?.set("vis_sql", [
-            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${array.join(",")}${!isIndex ? "," + ColName : ""}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
+            // NOTE: THE CONDITION WOULD ALWAYS BE TRUE
+            `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${group.join(",")}${!isIndex ? "," + `"${ColName}"` : ""}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\n FROM $$__NAME__$$ ${true ? "" : "GROUP BY " + `"${ColName}"`}\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
             isIndex ? "index_rn1qaz2wsx" : ColName,
             new Date().toISOString()
         ]);
         model?.save_changes();
     }
+
     useEffect(() => {
-        cacheObject["selectedCol"] = colName;
+        cacheObject["selectedCol"] = colNames;
         setCache(JSON.stringify(cacheObject))
-    }, [[...colName]])
+    }, [[...colNames]])
+
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
             <Tabs variant="pills" defaultValue="data" sx={{
@@ -282,13 +328,15 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                             <Grid.Col span={12}>
                                 <Select
                                     size="xs"
-                                    icon={chartType === 1 ? <IconChartLine /> : <IconChartBar />}
-                                    defaultValue={"1"}
+                                    icon={ChartIconMap[chartType]}
+                                    label="Chart Type"
+                                    defaultValue={"line"}
                                     data={[
-                                        { value: "1", label: "Line" },
-                                        { value: "2", label: "Bar" }
+                                        { value: "line", label: "Line" },
+                                        { value: "bar", label: "Bar" },
+                                        { value: "point", label: "Scatter" }
                                     ]}
-                                    onChange={(value) => { setChartType(parseInt(value!)) }}
+                                    onChange={(value) => { setChartType(value!) }}
                                 />
                             </Grid.Col>
 
@@ -297,19 +345,19 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                 setXAxis={setXAxis}
                                 cacheObject={cacheObject}
                                 setCache={setCache}
-                                colName={colName}
+                                colName={colNames}
                                 sendVisSql={sendVisSql}
                             />
 
                             {
-                                colName.map((name, index) => {
+                                colNames.map((item, index) => {
                                     return (
                                         <SelectDropDown
                                             index={index}
-                                            name={name}
+                                            name={item.colName}
                                             header={numericCols}
-                                            colArray={colName}
-                                            setColArray={setColName}
+                                            colArray={colNames}
+                                            setColArray={setColNames}
                                             XAxis={XAxis}
                                             sendVisSql={sendVisSql}
                                         />
@@ -330,8 +378,8 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                         }
                                     }}
                                     onClick={() => {
-                                        colName.splice(colName.length, 0, "")
-                                        setColName([...colName])
+                                        colNames.splice(colNames.length, 0, { seriesName: "", colName: "", aggregate: "" })
+                                        setColNames([...colNames])
                                     }}
                                 >
                                     Add series
