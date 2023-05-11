@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { WidgetModel } from "@jupyter-widgets/base";
-import { WidgetModelContext } from "./hooks";
+import { useModel, useModelState, WidgetModelContext } from "./hooks";
 import { Box, Group, Stack, Tabs, Text } from "@mantine/core";
 import { DataTable } from "./table";
 import { Visualization } from "./visualization";
@@ -16,51 +16,55 @@ export interface Dfhead {
     time2?: string;
 }
 
-const ReactWidget = (props: WidgetProps) => {
-    const [data, setData] = useState(props.model.get("data_grid"))
-    const [error, setError] = useState(props.model.get("error") ? props.model.get("error")[0] : "")
-    const [rowNumber, setRowNumber] = useState<number>(props.model.get("row_range")[1] - props.model.get("row_range")[0]);
-    const [page, setPage] = useState(Math.floor(props.model.get("row_range")[0] / rowNumber) + 1);
+const ReactWidget = () => {
+    const model = useModel();
+    const [data, setData] = useState(model?.get("data_grid"))
+    const [error, setError] = useState(model?.get("error") ? model?.get("error")[0] : "")
+    const [rowNumber, setRowNumber] = useState<number>(model?.get("row_range")[1] - model?.get("row_range")[0]);
+    const [page, setPage] = useState(Math.floor(model?.get("row_range")[0] / rowNumber) + 1);
+    const [cache, setCache] = useModelState("cache");
+    const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
+    const [tabValue, setTabValue] = useState(cacheObject.tabValue ?? "table");
 
     // Receive event from Model
-    props.model?.on("change:error", () => {
-        setError(props.model.get("error") ? props.model.get("error")[0] : "");
+    model?.on("change:error", () => {
+        setError(model?.get("error") ? model?.get("error")[0] : "");
         setData("")
     })
-    props.model?.on("change:data_grid", () => {
-        setData(props.model.get("data_grid"));
+    model?.on("change:data_grid", () => {
+        setData(model?.get("data_grid"));
         setError("");
     })
-    props.model?.on("sort", (msg) => {
-        props.model?.set("column_sort", msg, "");
-        props.model?.save_changes();
+    model?.on("sort", (msg) => {
+        model?.set("column_sort", msg, "");
+        model?.save_changes();
     })
-    props.model?.on("setRange", (msg) => {
-        props.model?.set("row_range", msg, "");
-        props.model?.save_changes();
+    model?.on("setRange", (msg) => {
+        model?.set("row_range", msg, "");
+        model?.save_changes();
     })
 
-    props.model?.on("quick_view", (col_name) => {
-        props.model?.set("quickv_var", [
+    model?.on("quick_view", (col_name) => {
+        model?.set("quickv_var", [
             col_name,
             new Date().toISOString()
         ]);
-        props.model?.save_changes();
+        model?.save_changes();
     })
 
-    props.model?.on("output_var", (outputName) => {
-        props.model?.set("output_var", outputName);
-        props.model?.save_changes();
+    model?.on("output_var", (outputName) => {
+        model?.set("output_var", outputName);
+        model?.save_changes();
     })
 
-    props.model?.on("dfs_button", () => {
-        props.model?.set("dfs_button", new Date().toISOString());
-        props.model?.save_changes();
+    model?.on("dfs_button", () => {
+        model?.set("dfs_button", new Date().toISOString());
+        model?.save_changes();
     })
 
-    props.model?.on("data_sql", (sqlContent) => {
-        props.model?.set("data_sql", sqlContent);
-        props.model?.save_changes();
+    model?.on("data_sql", (sqlContent) => {
+        model?.set("data_sql", sqlContent);
+        model?.save_changes();
     })
 
     return (
@@ -83,7 +87,15 @@ const ReactWidget = (props: WidgetProps) => {
                             sx={{ marginBottom: "1rem", width: "95%" }}
                             position="center"
                         >
-                            <Tabs defaultValue="table" sx={{ width: "100%" }}>
+                            <Tabs
+                                value={tabValue}
+                                sx={{ width: "100%" }}
+                                onTabChange={(value) => {
+                                    cacheObject["tabValue"] = value!;
+                                    setCache(JSON.stringify(cacheObject));
+                                    setTabValue(value!)
+                                }}
+                            >
                                 <Tabs.List>
                                     <Tabs.Tab value="table" >
                                         <Text size={"md"}>Table</Text>

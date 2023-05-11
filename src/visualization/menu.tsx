@@ -1,6 +1,6 @@
 import { Accordion, ActionIcon, Button, Grid, Group, ScrollArea, Select, Stack, Tabs, Text, Transition } from "@mantine/core";
 import { Icon123, IconAbc, IconCalendar, IconChartBar, IconChartLine, IconGrain, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
-import React, { forwardRef, FunctionComponent, useEffect, useState } from "react";
+import React, { forwardRef, FunctionComponent, useState } from "react";
 import { useModel, useModelState } from "../hooks";
 import { MenuHeight } from "./const";
 
@@ -56,6 +56,8 @@ const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
 const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray, setColArray, XAxis, sendVisSql }) => {
     const [showedButton, setShowedButton] = useState<boolean>(false)
     const model = useModel();
+    const [cache, setCache] = useModelState("cache");
+    const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
     const headers = JSON.parse(hist ?? `{"columnName":"", "dtype":""}`);
@@ -106,6 +108,8 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                         array.splice(index, 1)
                                         setColArray([...array])
                                         sendVisSql(XAxis, array)
+                                        cacheObject["selectedCol"] = [...array];
+                                        setCache(JSON.stringify(cacheObject))
                                     }}
                                 >
                                     <IconMinus size="0.75rem" />
@@ -131,6 +135,8 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                             array.splice(index, 1, { seriesName: "", colName: value!, aggregate: '' })
                                             names.splice(index, 1, value!)
                                         }
+                                        cacheObject["selectedCol"] = [...array];
+                                        setCache(JSON.stringify(cacheObject))
                                         setColArray([...array])
                                         sendVisSql(XAxis, array)
                                     }}
@@ -267,7 +273,7 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
 export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, XAxis, setXAxis }) => {
     const model = useModel();
     const [cache, setCache] = useModelState("cache");
-    const [colNames, setColNames] = useState<ColItem[]>(JSON.parse(cache.includes("selectedCol") ? cache : `{"selectedCol":[{"seriesName":"", "colName":"", "aggregate":""}]}`).selectedCol);
+    const [colArray, setColArray] = useState<ColItem[]>(JSON.parse(cache.includes("selectedCol") ? cache : `{"selectedCol":[{"seriesName":"", "colName":"", "aggregate":""}]}`).selectedCol);
     const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
     const ChartIconMap: Record<string, JSX.Element> = {
         "line": <IconChartLine />,
@@ -292,11 +298,6 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
         ]);
         model?.save_changes();
     }
-
-    useEffect(() => {
-        cacheObject["selectedCol"] = colNames;
-        setCache(JSON.stringify(cacheObject))
-    }, [[...colNames]])
 
     return (
         <Stack h="100%" sx={{ minWidth: "15rem" }}>
@@ -343,18 +344,18 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                 setXAxis={setXAxis}
                                 cacheObject={cacheObject}
                                 setCache={setCache}
-                                colName={colNames}
+                                colName={colArray}
                                 sendVisSql={sendVisSql}
                             />
 
                             {
-                                colNames.map((item, index) => {
+                                colArray.map((item, index) => {
                                     return (
                                         <SelectDropDown
                                             index={index}
                                             name={item.colName}
-                                            colArray={colNames}
-                                            setColArray={setColNames}
+                                            colArray={colArray}
+                                            setColArray={setColArray}
                                             XAxis={XAxis}
                                             sendVisSql={sendVisSql}
                                         />
@@ -375,8 +376,10 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                         }
                                     }}
                                     onClick={() => {
-                                        colNames.splice(colNames.length, 0, { seriesName: "", colName: "", aggregate: "" })
-                                        setColNames([...colNames])
+                                        colArray.splice(colArray.length, 0, { seriesName: "", colName: "", aggregate: "" })
+                                        setColArray([...colArray])
+                                        cacheObject["selectedCol"] = [...colArray];
+                                        setCache(JSON.stringify(cacheObject))
                                     }}
                                 >
                                     Add series
