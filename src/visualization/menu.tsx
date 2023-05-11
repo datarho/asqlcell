@@ -2,7 +2,7 @@ import { Accordion, ActionIcon, Button, Grid, Group, ScrollArea, Select, Stack, 
 import { Icon123, IconAbc, IconCalendar, IconChartBar, IconChartLine, IconGrain, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
 import React, { forwardRef, FunctionComponent, useEffect, useState } from "react";
 import { useModel, useModelState } from "../hooks";
-import { ViewHeight } from "./const";
+import { MenuHeight } from "./const";
 
 interface menuProps {
     chartType: string,
@@ -230,8 +230,8 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
                                     }}
                                 />
                             </Grid.Col>
-                            <Grid.Col span={7} sx={{ paddingTop: 0 }}></Grid.Col>
-                            <Grid.Col span={5} sx={{ paddingTop: 0, display: "flex", alignItems: "end" }}>
+                            <Grid.Col span={5} sx={{ paddingTop: 0 }}></Grid.Col>
+                            <Grid.Col span={7} sx={{ paddingTop: 0, display: "flex", alignItems: "end", justifyContent: "flex-end" }}>
                                 <Button
                                     compact
                                     variant="subtle"
@@ -276,12 +276,14 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
     }
     const sendVisSql = (ColName: string, array: ColItem[]) => {
         const isIndex = ColName === "Index";
-        const group = array.map((item: ColItem) => (
-            item.aggregate === "" ?
-                `"${item.colName}"`
-                :
-                `${item.aggregate}("${item.colName}")`
-        ))
+        const group = array
+            .filter((item: ColItem) => (item.colName !== ""))
+            .map((item: ColItem) => (
+                item.aggregate === "" ?
+                    `"${item.colName}"`
+                    :
+                    `${item.aggregate}("${item.colName}")`
+            ))
         model?.set("vis_sql", [
             // NOTE: THE CONDITION WOULD ALWAYS BE TRUE
             `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT ${group.join(",")}${!isIndex ? "," + `"${ColName}"` : ""}, ROW_NUMBER() OVER () AS index_rn1qaz2wsx\n FROM $$__NAME__$$ ${true ? "" : "GROUP BY " + `"${ColName}"`}\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
@@ -311,7 +313,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                 </Tabs.List>
                 <Tabs.Panel value="data" >
                     <ScrollArea
-                        h={ViewHeight}
+                        h={MenuHeight}
                         w={"100%"}
                         sx={{
                             paddingLeft: "1rem",
