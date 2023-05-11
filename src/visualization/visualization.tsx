@@ -81,7 +81,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                         opacity: {
                             condition: {
                                 param: "hover",
-                                value: 0.5
+                                value: chartType === "line" ? 1 : 0.5
                             },
                             value: 0.2
                         }
