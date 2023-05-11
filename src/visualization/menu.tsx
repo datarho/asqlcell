@@ -9,13 +9,10 @@ interface menuProps {
     setChartType: React.Dispatch<React.SetStateAction<string>>,
     XAxis: string,
     setXAxis: React.Dispatch<React.SetStateAction<string>>,
-    numericCols: string[],
-    categoricCols: string[],
 }
 interface SelectProps {
     index: number,
     name: string,
-    header: string[],
     colArray: { seriesName: string, colName: string, aggregate: string }[],
     setColArray: any,
     XAxis: string,
@@ -96,7 +93,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                 <Accordion.Item value={`Y-series ${index}`} >
                     <Group noWrap sx={{ gap: "0" }}>
                         <Accordion.Control>
-                            <Text size={"sm"}>{`Y-axis ${index}`}</Text>
+                            <Text size={"sm"}>{`Y-series ${index}`}</Text>
                         </Accordion.Control>
                         <Transition mounted={showedButton} transition="fade" duration={200} timingFunction="ease">
                             {(styles) => (
@@ -267,7 +264,7 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
     )
 }
 
-export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, XAxis, setXAxis, numericCols, categoricCols }) => {
+export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, XAxis, setXAxis }) => {
     const model = useModel();
     const [cache, setCache] = useModelState("cache");
     const [colNames, setColNames] = useState<ColItem[]>(JSON.parse(cache.includes("selectedCol") ? cache : `{"selectedCol":[{"seriesName":"", "colName":"", "aggregate":""}]}`).selectedCol);
@@ -354,7 +351,6 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                         <SelectDropDown
                                             index={index}
                                             name={item.colName}
-                                            header={numericCols}
                                             colArray={colNames}
                                             setColArray={setColNames}
                                             XAxis={XAxis}

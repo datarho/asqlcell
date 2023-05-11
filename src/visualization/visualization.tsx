@@ -14,14 +14,18 @@ interface previewChartProp {
     chartType: string,
     XAxis: string,
     open: boolean,
-    dateColName: string[],
 }
 
-const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open, dateColName }) => {
+const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open }) => {
+    const model = useModel();
+    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
+    model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
+    const headers = JSON.parse(hist ?? `{"dtype":""}`);
+    const dateCols = headers.filter((header: any) => header.dtype.includes("datetime"))
+    const dateColName = dateCols.length >= 1 ? dateCols.map((item: { columnName: string }) => item.columnName) : [""];
     const [visData] = useModelState("vis_data");
     const lineData = { values: JSON.parse(visData === "" ? `[{ "x": 0, "y": 0, "type": 0 }]` : visData) };
     const [sortAsce, setSortAsce] = useState(true);
-    const model = useModel();
     model?.on("sort-X", () => setSortAsce(!sortAsce));
     return (
         <VegaLite
@@ -109,19 +113,11 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
 
 export const Visualization: FunctionComponent = () => {
     const model = useModel();
-    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
-    model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
-
-    const numericCols: string[] = JSON.parse(hist ?? `{"dtype":""}`).filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
-    const categoricCols: string[] = JSON.parse(hist ?? `{"dtype":""}`).filter((header: any) => !header.dtype.includes("int") && !header.dtype.includes("float")).map((header: any) => header.columnName);
     const cache = model?.get("cache");
     const [XAxis, setXAxis] = useState(JSON.parse(cache.includes("xAxisState") && !cache.includes(`{"xAxisState":""}`) ? cache : `{"xAxisState":"Index"}`)["xAxisState"]);
     const [ref, rect] = useResizeObserver();
     const [open, setOpen] = useState<boolean>(true);
     const [chartType, setChartType] = useState<string>("line");
-    const headers = JSON.parse(hist ?? `{"dtype":""}`);
-    const dateCols = headers.filter((header: any) => header.dtype.includes("datetime"))
-    const dateColName = dateCols.length >= 1 ? dateCols.map((item: { columnName: string }) => item.columnName) : [""];
 
     return (
         <Group grow ref={ref} sx={{ margin: "auto 1rem auto 0rem" }}>
@@ -134,8 +130,6 @@ export const Visualization: FunctionComponent = () => {
                                 setChartType={setChartType}
                                 XAxis={XAxis}
                                 setXAxis={setXAxis}
-                                numericCols={numericCols}
-                                categoricCols={categoricCols}
                             />
                             :
                             <></>
@@ -156,7 +150,6 @@ export const Visualization: FunctionComponent = () => {
                         chartType={chartType}
                         XAxis={XAxis}
                         open={open}
-                        dateColName={dateColName}
                     />
                 </Stack>
             </Group>
