@@ -93,7 +93,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                     },
                 }}
             >
-                <Accordion.Item value={`Y-axis ${index}`} >
+                <Accordion.Item value={`Y-series ${index}`} >
                     <Group noWrap sx={{ gap: "0" }}>
                         <Accordion.Control>
                             <Text size={"sm"}>{`Y-axis ${index}`}</Text>
