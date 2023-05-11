@@ -329,7 +329,6 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                 <Select
                                     size="xs"
                                     icon={ChartIconMap[chartType]}
-                                    label="Chart Type"
                                     defaultValue={"line"}
                                     data={[
                                         { value: "line", label: "Line" },
