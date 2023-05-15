@@ -52,7 +52,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                     :
                                     "False"
                                 :
-                                typeof (item) === "string" && item.length > 30 ?
+                                typeof (item) === "string" ?
                                     <TableElement item={item} />
                                     :
                                     item
