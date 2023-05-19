@@ -1,13 +1,15 @@
 import { ActionIcon, Divider, Group, Stack } from "@mantine/core";
 import { useResizeObserver } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FunctionComponent } from "react";
-import { VegaLite } from "react-vega";
+import { VegaLite, VisualizationSpec } from "react-vega";
+import { Spec } from "vega";
 import { AnyMark } from "vega-lite/build/src/mark";
 import { useModel, useModelState } from "../hooks";
 import { LabelWidth, MenuWidth, ViewHeight } from "./const";
 import { VisualMenu } from "./menu";
+import * as vega from "vega";
 
 interface previewChartProp {
     rect: any,
@@ -27,87 +29,110 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
     const lineData = { values: JSON.parse(visData === "" ? `[{ "x": 0, "y": 0, "type": 0 }]` : visData) };
     const [sortAsce, setSortAsce] = useState(true);
     model?.on("sort-X", () => setSortAsce(!sortAsce));
+
+    const spec = {
+        "width": open ? rect.width - MenuWidth - LabelWidth : rect.width - 4 - LabelWidth,
+        "height": ViewHeight,
+        "transform": [
+            {
+                "calculate":
+                    XAxis === "Index" ?
+                        "toNumber(datum.x)"
+                        :
+                        dateColName.includes(XAxis) ?
+                            "datetime(datum.x)"
+                            :
+                            "datum.x"
+                ,
+                "as": XAxis,
+            },
+            {
+                "calculate": "datum.y", "as": "col",
+            },
+            {
+                "calculate": "datum.type", "as": "Label",
+            }
+        ],
+        "data": { name: "values" },
+        "encoding": {
+            "x": {
+                field: XAxis,
+                axis: { labelAngle: 0 },
+                sort: sortAsce ? "ascending" : "descending",
+                type: XAxis === "Index" ?
+                    "quantitative"
+                    :
+                    dateColName.includes(XAxis) ?
+                        "temporal"
+                        :
+                        "nominal"
+            },
+            "y": {
+                field: "y",
+                type: "quantitative"
+            },
+            "color": {
+                condition: {
+                    param: "hover",
+                    field: "Label",
+                    type: "nominal",
+                },
+                value: "grey"
+            },
+            "opacity": {
+                condition: {
+                    param: "hover",
+                    value: chartType === "line" ? 1 : 0.5
+                },
+                value: 0.2
+            }
+        },
+        "layer": [
+            {
+                mark: chartType as AnyMark,
+            },
+            {
+                params: [{
+                    name: "hover",
+                    select: {
+                        type: "point",
+                        fields: ["Label"],
+                        on: "mouseover"
+                    }
+                }],
+                mark: { "type": "line", "strokeWidth": 8, "stroke": "transparent" }
+            },
+        ],
+        "config": { "view": { "stroke": null } },
+    };
+
+    useEffect(() => {
+        var view = new vega.View(vega.parse(spec as unknown as Spec), { renderer: 'none' });
+        view
+            // .toSVG()
+            .toCanvas()
+            .then(svg => {
+                var image = svg.toDataURL()
+                // const encoded = btoa(image)
+                // const decode = decodeURIComponent(encoded)
+                const decode = decodeURIComponent(image)
+                model?.set("png", decode.substring(22, decode.length))
+                model?.save_changes()
+            })
+            .catch(error => {
+                console.error('Error rendering chart:', error);
+            });
+    }, [lineData])
+
     return (
-        <VegaLite
-            data={lineData}
-            renderer={'svg'}
-            actions={false}
-            spec={
-                {
-                    width: open ? rect.width - MenuWidth - LabelWidth : rect.width - 4 - LabelWidth,
-                    height: ViewHeight,
-                    transform: [
-                        {
-                            calculate:
-                                XAxis === "Index" ?
-                                    "toNumber(datum.x)"
-                                    :
-                                    dateColName.includes(XAxis) ?
-                                        "datetime(datum.x)"
-                                        :
-                                        "datum.x"
-                            ,
-                            "as": XAxis,
-                        },
-                        {
-                            calculate: "datum.y", "as": "col",
-                        },
-                        {
-                            calculate: "datum.type", "as": "Label",
-                        }
-                    ],
-                    data: { name: "values" },
-                    encoding: {
-                        x: {
-                            field: XAxis,
-                            axis: { labelAngle: 0 },
-                            sort: sortAsce ? "ascending" : "descending",
-                            type: XAxis === "Index" ?
-                                "quantitative"
-                                :
-                                dateColName.includes(XAxis) ?
-                                    "temporal"
-                                    :
-                                    "nominal"
-                        },
-                        y: {
-                            field: "y",
-                            type: "quantitative"
-                        },
-                        color: {
-                            condition: {
-                                param: "hover",
-                                field: "Label",
-                                type: "nominal",
-                            },
-                            value: "grey"
-                        },
-                        opacity: {
-                            condition: {
-                                param: "hover",
-                                value: chartType === "line" ? 1 : 0.5
-                            },
-                            value: 0.2
-                        }
-                    },
-                    layer: [
-                        {
-                            mark: chartType as AnyMark,
-                        },
-                        {
-                            params: [{
-                                name: "hover",
-                                select: {
-                                    type: "point",
-                                    fields: ["Label"],
-                                    on: "mouseover"
-                                }
-                            }],
-                            mark: { "type": "line", "strokeWidth": 8, "stroke": "transparent" }
-                        },
-                    ],
-                    config: { "view": { "stroke": null } },
-                }} />
+        <>
+            <div id="chart"></div>
+            <VegaLite
+                data={lineData}
+                renderer={'svg'}
+                actions={false}
+                spec={spec as VisualizationSpec} />
+        </>
     )
 }
 
