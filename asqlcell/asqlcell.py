@@ -66,6 +66,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     quickv_var = Tuple(Unicode(''), Unicode(''), default_value=('', '')).tag(sync=True)
     quickv_data = Unicode('').tag(sync=True)
     cache = Unicode('').tag(sync=True)
+    png = Unicode('').tag(sync=True)
 
     def __init__(self, sql='', mode="UI"):
         super(SqlcellWidget, self).__init__()
@@ -143,3 +144,6 @@ class SqlcellWidget(DOMWidget, HasTraits):
         df = get_duckdb().execute(tmp).df()
         get_duckdb().unregister(self.data_name)
         self.quickv_data = vega_spec(df, "index_rn1qaz2wsx")
+
+    def _repr_png_(self):
+        return self.png
