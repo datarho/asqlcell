@@ -4,12 +4,10 @@ import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { FunctionComponent } from "react";
 import { VegaLite, VisualizationSpec } from "react-vega";
-import { Spec } from "vega";
-import { AnyMark } from "vega-lite/build/src/mark";
 import { useModel, useModelState } from "../hooks";
 import { LabelWidth, MenuWidth, ViewHeight } from "./const";
 import { VisualMenu } from "./menu";
-import * as vega from "vega";
+import { vega, vegaLite } from "vega-embed";
 
 interface previewChartProp {
     rect: any,
@@ -17,6 +15,8 @@ interface previewChartProp {
     XAxis: string,
     open: boolean,
 }
+
+export type ChartTypeList = "line" | "arc" | "bar";
 
 const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open }) => {
     const model = useModel();
@@ -31,6 +31,8 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
     model?.on("sort-X", () => setSortAsce(!sortAsce));
 
     const spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "description": "Google's stock price over time.",
         "width": open ? rect.width - MenuWidth - LabelWidth : rect.width - 4 - LabelWidth,
         "height": ViewHeight,
         "transform": [
@@ -53,7 +55,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                 "calculate": "datum.type", "as": "Label",
             }
         ],
-        "data": { name: "values" },
+        "data": { "values": lineData.values },
         "encoding": {
             "x": {
                 field: XAxis,
@@ -89,33 +91,31 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
         },
         "layer": [
             {
-                mark: chartType as AnyMark,
+                mark: chartType as ChartTypeList,
             },
             {
                 params: [{
                     name: "hover",
                     select: {
-                        type: "point",
+                        type: "point" as ChartTypeList,
                         fields: ["Label"],
                         on: "mouseover"
                     }
                 }],
-                mark: { "type": "line", "strokeWidth": 8, "stroke": "transparent" }
+                mark: { "type": "line" as ChartTypeList, "strokeWidth": 8, "stroke": "transparent" }
             },
         ],
-        "config": { "view": { "stroke": null } },
+
     };
 
+
     useEffect(() => {
-        var view = new vega.View(vega.parse(spec as unknown as Spec), { renderer: 'none' });
+        var view = new vega.View(vega.parse(vegaLite.compile(spec as any).spec), { renderer: 'none' });
         view
-            // .toSVG()
             .toCanvas()
-            .then(svg => {
-                var image = svg.toDataURL()
-                // const encoded = btoa(image)
-                // const decode = decodeURIComponent(encoded)
-                const decode = decodeURIComponent(image)
+            .then(png => {
+                var base64Image = png.toDataURL()
+                const decode = decodeURIComponent(base64Image)
                 model?.set("png", decode.substring(22, decode.length))
                 model?.save_changes()
             })
@@ -128,7 +128,6 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
         <>
             <div id="chart"></div>
             <VegaLite
-                data={lineData}
                 renderer={'svg'}
                 actions={false}
                 spec={spec as VisualizationSpec} />
