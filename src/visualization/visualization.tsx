@@ -6,7 +6,7 @@ import { FunctionComponent } from "react";
 import { VegaLite, VisualizationSpec } from "react-vega";
 import { useModel, useModelState } from "../hooks";
 import { LabelWidth, MenuWidth, ViewHeight } from "./const";
-import { VisualMenu } from "./menu";
+import { ColItem, VisualMenu } from "./menu";
 import { vega, vegaLite } from "vega-embed";
 
 interface previewChartProp {
@@ -16,7 +16,13 @@ interface previewChartProp {
     open: boolean,
 }
 
-export type ChartTypeList = "line" | "arc" | "bar";
+export type ChartTypeList = "line" | "arc" | "bar" | "point";
+export const ChartType: Record<string, ChartTypeList> = {
+    Line: "line",
+    Bar: "bar",
+    Scatter: "point",
+    Pie: "arc"
+}
 
 const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open }) => {
     const model = useModel();
@@ -27,8 +33,20 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
     const dateColName = dateCols.length >= 1 ? dateCols.map((item: { columnName: string }) => item.columnName) : [""];
     const [visData] = useModelState("vis_data");
     const lineData = { values: JSON.parse(visData === "" ? `[{ "x": 0, "y": 0, "type": 0 }]` : visData) };
+    console.log(lineData)
     const [sortAsce, setSortAsce] = useState(true);
     model?.on("sort-X", () => setSortAsce(!sortAsce));
+    const cache = model?.get("cache");
+    const colArray =
+        JSON.parse(
+            cache.includes("selectedCol")
+                ?
+                cache
+                :
+                `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`).selectedCol
+        ;
+    const leftCols = colArray.filter((item: ColItem) => { return (item.yAxis !== "left") })
+    const yAxisList = leftCols.length === 0 ? ["y"] : ["y", "y2"];
 
     const spec = {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -49,17 +67,19 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                 "as": XAxis,
             },
             {
-                "calculate": "datum.y", "as": "col",
-            },
-            {
                 "calculate": "datum.type", "as": "Label",
-            }
+            },
+
+            // Tempo y2, would be change to y2 once BE is updated
+            {
+                "calculate": "datum.y*5", "as": "y2",
+            },
         ],
         "data": { "values": lineData.values },
         "encoding": {
             "x": {
                 field: XAxis,
-                axis: { labelAngle: 0 },
+                axis: { labelAngle: 45 },
                 sort: sortAsce ? "ascending" : "descending",
                 type: XAxis === "Index" ?
                     "quantitative"
@@ -69,43 +89,63 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                         :
                         "nominal"
             },
-            "y": {
-                field: "y",
-                type: "quantitative"
-            },
-            "color": {
-                condition: {
-                    param: "hover",
-                    field: "Label",
-                    type: "nominal",
-                },
-                value: "grey"
-            },
-            "opacity": {
-                condition: {
-                    param: "hover",
-                    value: chartType === "line" ? 1 : 0.5
-                },
-                value: 0.2
-            }
         },
-        "layer": [
-            {
-                mark: chartType as ChartTypeList,
-            },
-            {
-                params: [{
-                    name: "hover",
-                    select: {
-                        type: "point" as ChartTypeList,
-                        fields: ["Label"],
-                        on: "mouseover"
-                    }
-                }],
-                mark: { "type": "line" as ChartTypeList, "strokeWidth": 8, "stroke": "transparent" }
-            },
-        ],
+        "layer":
+            yAxisList.map((item, index) => {
+                return ({
+                    "encoding": {
+                        y: {
+                            field: item,
+                            type: "quantitative"
+                        },
+                        opacity: {
+                            condition: {
+                                param: `hover_${index}`,
+                                value: chartType === ChartType.Line ? 1 : 0.5
+                            },
+                            value: 0.2
+                        },
+                        color: {
+                            condition: {
+                                param: `hover_${index}`,
+                                field: "Label",
+                                type: "nominal",
+                            },
+                            value: "grey"
+                        }
+                    },
+                    layer: [
+                        // Chart type of visualization
+                        ...colArray
+                            .filter((series: ColItem) => { return ((series.yAxis === "left" && index === 0) || (series.yAxis === "right" && index === 1)) })
+                            .map((series: ColItem) => {
+                                return (
+                                    {
+                                        mark: series.chartType,
+                                        transform: [
+                                            { "filter": `datum.type==='${series.colName}'` }
+                                        ]
+                                    }
+                                )
+                            }),
 
+                        // Hidden layer for interaction
+                        {
+                            params: [{
+                                name: `hover_${index}`,
+                                select: {
+                                    type: "point",
+                                    fields: ["Label"],
+                                    on: "mouseover"
+                                }
+                            }],
+                            mark: { type: "line", strokeWidth: 8, stroke: "transparent" }
+                        },
+                    ]
+                })
+            })
+        ,
+        resolve: { scale: { "y": "independent" } }
     };
 
 
@@ -125,13 +165,11 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
     }, [lineData])
 
     return (
-        <>
-            <div id="chart"></div>
-            <VegaLite
-                renderer={'svg'}
-                actions={false}
-                spec={spec as VisualizationSpec} />
-        </>
+        <VegaLite
+            renderer={'svg'}
+            actions={false}
+            spec={spec as VisualizationSpec}
+        />
     )
 }
 
