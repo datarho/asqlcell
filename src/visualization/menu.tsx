@@ -1,5 +1,5 @@
 import { Accordion, ActionIcon, Button, Grid, Group, ScrollArea, Select, Stack, Tabs, Text, Transition } from "@mantine/core";
-import { Icon123, IconAbc, IconCalendar, IconChartBar, IconChartLine, IconGrain, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
+import { Icon123, IconAbc, IconBorderLeft, IconBorderRight, IconCalendar, IconChartBar, IconChartDots, IconChartLine, IconGrain, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
 import React, { forwardRef, FunctionComponent, useState } from "react";
 import { useModel, useModelState } from "../hooks";
 import { MenuHeight } from "./const";
@@ -31,10 +31,10 @@ interface ItemProps extends React.ComponentPropsWithoutRef<'div'> {
     icon: (props: TablerIconsProps) => JSX.Element;
 }
 const IconMap: Record<string, JSX.Element> = {
-    "int": <Icon123 />,
-    "float": <Icon123 />,
-    "string": <IconAbc />,
-    "bool": <IconAbc />,
+    "int": <Icon123 size={16} />,
+    "float": <Icon123 size={16} />,
+    "string": <IconAbc size={16} />,
+    "bool": <IconAbc size={16} />,
     "datetime": <IconCalendar />,
 };
 interface ColItem {
@@ -46,7 +46,9 @@ const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
     ({ label, icon, ...others }: ItemProps, ref) => (
         <div ref={ref} {...others}>
             <Group noWrap position="apart">
-                <Text size="sm">{label}</Text>
+                <Group sx={{ width: "60%" }}>
+                    <Text truncate size="xs">{label}</Text>
+                </Group>
                 {icon}
             </Group>
         </div>
@@ -71,6 +73,8 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
             )
         });
     const [seriesIcon, setSeriesIcon] = useState<JSX.Element>(<Icon123 />);
+    const [yAxis, setYAxis] = useState("left");
+
     return (
         <Grid.Col span={12}
             onMouseMove={() => { setShowedButton(true) }} onMouseLeave={() => setShowedButton(false)}
@@ -119,7 +123,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                     </Group>
                     <Accordion.Panel>
                         <Grid>
-                            <Grid.Col span={12}>
+                            <Grid.Col span={9}>
                                 <Select
                                     size="xs"
                                     value={name}
@@ -127,6 +131,11 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                     maxDropdownHeight={5 * 16}
                                     itemComponent={SelectItem}
                                     data={headerWithType}
+                                    sx={{
+                                        ".mantine-Select-itemsWrapper": {
+                                            maxWidth: "10rem"
+                                        }
+                                    }}
                                     onChange={(value) => {
                                         setSeriesIcon(headerWithType.filter(item => item.value === value)[0].icon)
                                         var names = colArray.map(item => item.colName);
@@ -142,31 +151,52 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                     }}
                                 />
                             </Grid.Col>
-                            {/* <Grid.Col span={5}>
-                                <Text>Aggregate: </Text>
-                            </Grid.Col>
-                            <Grid.Col span={7}>
+                            <Grid.Col span={3}>
                                 <Select
                                     size="xs"
-                                    defaultValue={""}
-                                    value={colArray.filter(item => item.colName === name)[0].aggregate}
+                                    itemComponent={SelectItem}
                                     data={[
-                                        { value: "avg", label: "Average" },
-                                        { value: "sum", label: "Sum" },
-                                        { value: "count", label: "Count" },
-                                        { value: "", label: "None" },
+                                        { value: "line", label: "Line", icon: <IconChartLine size={16} /> },
+                                        { value: "bar", label: "Bar", icon: <IconChartBar size={16} /> },
+                                        { value: "point", label: "Point", icon: <IconChartDots size={16} /> },
                                     ]}
-                                    onChange={(value) => {
-                                        var array = [...colArray];
-                                        var target = colArray.filter(item => item.colName === name)[0]
-                                        if (target) {
-                                            target.aggregate = value!
-                                            array.splice(index, 1, target)
+                                    icon={<IconChartLine size={16} />}
+                                    sx={{
+                                        ".mantine-Select-input": {
+                                            paddingLeft: "1rem",
+                                        },
+                                        ".mantine-Select-dropdown": {
+                                            width: "6rem !important"
                                         }
-                                        sendVisSql(XAxis, array)
+                                    }}
+                                    onChange={(value) => {
+
                                     }}
                                 />
-                            </Grid.Col> */}
+                            </Grid.Col>
+                            <Grid.Col span={9}>
+
+                            </Grid.Col>
+                            <Grid.Col span={3}
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "center"
+                                }}
+                            >
+                                <ActionIcon
+                                    size="xs"
+                                    onClick={() => {
+                                        setYAxis(yAxis === "left" ? "right" : "left")
+                                    }}
+                                >
+                                    {
+                                        yAxis === "left" ?
+                                            <IconBorderLeft />
+                                            :
+                                            <IconBorderRight />
+                                    }
+                                </ActionIcon>
+                            </Grid.Col>
                         </Grid>
                     </Accordion.Panel>
                 </Accordion.Item>
