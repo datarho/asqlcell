@@ -208,6 +208,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                         if (!target) { return }
                                         target.chartType = value!;
                                         cacheObject["selectedCol"] = [...cacheObject["selectedCol"]];
+                                        setColArray([...cacheObject["selectedCol"]])
                                         setCache(JSON.stringify(cacheObject))
                                     }}
                                 />
