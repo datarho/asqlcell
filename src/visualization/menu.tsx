@@ -171,7 +171,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                 />
                             </Grid.Col>
 
-                            <Grid.Col span={7}>
+                            <Grid.Col span={8}>
 
                             </Grid.Col>
                             <Grid.Col span={2}>
@@ -213,7 +213,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                     }}
                                 />
                             </Grid.Col>
-                            <Grid.Col span={3}
+                            <Grid.Col span={2}
                                 sx={{
                                     display: "flex",
                                     justifyContent: "center"
