@@ -1,4 +1,4 @@
-import { ActionIcon, Divider, Group, Stack } from "@mantine/core";
+import { ActionIcon, Divider, Group } from "@mantine/core";
 import { useResizeObserver } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
@@ -11,7 +11,6 @@ import { vega, vegaLite } from "vega-embed";
 
 interface previewChartProp {
     rect: any,
-    chartType: string,
     XAxis: string,
     open: boolean,
 }
@@ -24,7 +23,7 @@ export const ChartType: Record<string, ChartTypeList> = {
     Pie: "arc"
 }
 
-const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartType, XAxis, open }) => {
+const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, open }) => {
     const model = useModel();
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
@@ -126,7 +125,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                             opacity: {
                                 condition: {
                                     param: `hover_${index}`,
-                                    value: chartType === ChartType.Line ? 1 : 0.5
+                                    value: 0.8
                                 },
                                 value: 0.2
                             },
@@ -206,8 +205,8 @@ export const Visualization: FunctionComponent = () => {
 
     return (
         <Group grow ref={ref} sx={{ margin: "auto 1rem auto 0rem" }}>
-            <Group noWrap sx={{ height: "100%", marginTop: "1rem", gap: "0", alignItems: "flex-start" }}>
-                <Group noWrap sx={{ gap: "0", width: "90%" }}>
+            <Group noWrap sx={{ height: "100%", marginTop: "1rem", gap: "0", alignItems: "flex-start", justifyContent: "space-between" }}>
+                <Group noWrap sx={{ gap: "0", width: "16rem" }}>
                     {
                         open ?
                             <VisualMenu
@@ -229,14 +228,13 @@ export const Visualization: FunctionComponent = () => {
                     }
                 </ActionIcon>
                 <Divider orientation="vertical" />
-                <Stack>
+                <Group w={open ? rect.width - 256 - 28 : rect.width - 28}>
                     <VisualPreviewChart
                         rect={rect}
-                        chartType={chartType}
                         XAxis={XAxis}
                         open={open}
                     />
-                </Stack>
+                </Group>
             </Group>
         </Group>
     )
