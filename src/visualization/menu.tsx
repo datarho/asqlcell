@@ -63,11 +63,20 @@ const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
     )
 );
 
-const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray, setColArray, XAxis, sendVisSql }) => {
+const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArray, XAxis, sendVisSql }) => {
     const [showedButton, setShowedButton] = useState<boolean>(false)
     const model = useModel();
     const [cache, setCache] = useModelState("cache");
-    const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
+    const cacheObject = JSON.parse(
+        cache === "" ?
+            `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`
+            :
+            cache
+    );
+    if (!cacheObject["selectedCol"]) {
+        cacheObject["selectedCol"] = [{ "seriesName": "", "colName": "", "chartType": "line", "yAxis": "left" }];
+    }
+
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
     const headers = JSON.parse(hist ?? `{"columnName":"", "dtype":""}`);
@@ -81,8 +90,9 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
             )
         });
     const [seriesIcon, setSeriesIcon] = useState<JSX.Element>(<Icon123 />);
-    const [chartIcon, setChartIcon] = useState<JSX.Element>(ChartIconMap[colArray.find((item: ColItem) => item.colName === name)?.chartType ?? "line"])
-    const [yAxis, setYAxis] = useState("left");
+    const target: ColItem = cacheObject["selectedCol"].find((item: ColItem) => item.colName === name);
+    const [chartIcon, setChartIcon] = useState<JSX.Element>(ChartIconMap[target ? target.chartType : "line"]);
+    const [yAxis, setYAxis] = useState(target ? target.yAxis : "left");
 
     return (
         <Grid.Col span={12}
@@ -117,7 +127,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                     size="xs"
                                     color="blue"
                                     onClick={() => {
-                                        var array = [...colArray];
+                                        var array = [...cacheObject["selectedCol"]];
                                         array.splice(index, 1)
                                         setColArray([...array])
                                         sendVisSql(XAxis, array)
@@ -132,7 +142,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                     </Group>
                     <Accordion.Panel>
                         <Grid>
-                            <Grid.Col span={9}>
+                            <Grid.Col span={12}>
                                 <Select
                                     size="xs"
                                     value={name}
@@ -140,15 +150,15 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                     maxDropdownHeight={5 * 16}
                                     itemComponent={SelectItem}
                                     data={headerWithType}
-                                    sx={{
-                                        ".mantine-Select-itemsWrapper": {
-                                            maxWidth: "10rem"
-                                        }
-                                    }}
+                                    // sx={{
+                                    //     ".mantine-Select-itemsWrapper": {
+                                    //         maxWidth: "192px"
+                                    //     }
+                                    // }}
                                     onChange={(value) => {
                                         setSeriesIcon(headerWithType.filter(item => item.value === value)[0].icon)
-                                        var names = colArray.map(item => item.colName);
-                                        var array = [...colArray];
+                                        var names = cacheObject["selectedCol"].map((item: ColItem) => item.colName);
+                                        var array = [...cacheObject["selectedCol"]];
                                         if (!names.includes(value!)) {
                                             array.splice(index, 1, { seriesName: "", colName: value!, chartType: "line", yAxis: "left" })
                                             names.splice(index, 1, value!)
@@ -157,11 +167,14 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                         setCache(JSON.stringify(cacheObject))
                                         setColArray([...array])
                                         sendVisSql(XAxis, array)
-                                        console.log(XAxis, array)
                                     }}
                                 />
                             </Grid.Col>
-                            <Grid.Col span={3}>
+
+                            <Grid.Col span={7}>
+
+                            </Grid.Col>
+                            <Grid.Col span={2}>
                                 <Select
                                     size="xs"
                                     rightSectionProps={{ display: "none" }}
@@ -173,10 +186,15 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                     ]}
                                     icon={chartIcon}
                                     sx={{
+                                        ".mantine-Select-icon": {
+                                            alignItems: "flex-start",
+                                        },
                                         ".mantine-Select-rightSection": {
                                             display: "none",
                                         },
                                         ".mantine-Select-input": {
+                                            backgroundColor: "transparent",
+                                            border: "none",
                                             paddingLeft: 0,
                                             color: "transparent"
                                         },
@@ -186,16 +204,13 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                     }}
                                     onChange={(value) => {
                                         setChartIcon(ChartIconMap[value!])
-                                        const target = colArray.find(item => item.colName === name)
+                                        const target = cacheObject["selectedCol"].find((item: ColItem) => item.colName === name)
                                         if (!target) { return }
                                         target.chartType = value!;
-                                        cacheObject["selectedCol"] = [...colArray];
+                                        cacheObject["selectedCol"] = [...cacheObject["selectedCol"]];
                                         setCache(JSON.stringify(cacheObject))
                                     }}
                                 />
-                            </Grid.Col>
-                            <Grid.Col span={9}>
-
                             </Grid.Col>
                             <Grid.Col span={3}
                                 sx={{
@@ -208,18 +223,18 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, colArray,
                                     onClick={() => {
                                         const value = yAxis === "left" ? "right" : "left"
                                         setYAxis(value);
-                                        const target = colArray.find(item => item.colName === name)
+                                        const target = cacheObject["selectedCol"].find((item: ColItem) => item.colName === name)
                                         if (!target) { return }
                                         target.yAxis = value;
-                                        cacheObject["selectedCol"] = [...colArray];
+                                        cacheObject["selectedCol"] = [...cacheObject["selectedCol"]];
                                         setCache(JSON.stringify(cacheObject))
                                     }}
                                 >
                                     {
                                         yAxis === "left" ?
-                                            <IconBorderLeft />
+                                            <IconBorderLeft size={16} />
                                             :
-                                            <IconBorderRight />
+                                            <IconBorderRight size={16} />
                                     }
                                 </ActionIcon>
                             </Grid.Col>
@@ -335,14 +350,10 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                 ?
                 cache
                 :
-                `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`).selectedCol
+                `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`
+        ).selectedCol
     );
     const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
-    // const ChartIconMap: Record<string, JSX.Element> = {
-    //     "line": <IconChartLine />,
-    //     "bar": <IconChartBar />,
-    //     "point": <IconGrain />,
-    // }
     const sendVisSql = (ColName: string, array: ColItem[]) => {
         const isIndex = ColName === "Index";
         const group = array
@@ -374,31 +385,20 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                 </Tabs.List>
                 <Tabs.Panel value="data" >
                     <ScrollArea
+                        offsetScrollbars={true}
+                        dir="rtl"
                         h={MenuHeight}
                         w={"100%"}
                         sx={{
                             paddingLeft: "1rem",
                         }}>
                         <Grid sx={{
+                            direction: "ltr",
                             gap: "0",
                             marginBottom: "1.5rem",
                             maxWidth: "100%",
                             overflowX: "hidden",
                         }}>
-                            {/* <Grid.Col span={12}>
-                                <Select
-                                    size="xs"
-                                    icon={ChartIconMap[chartType]}
-                                    defaultValue={"line"}
-                                    data={[
-                                        { value: "line", label: "Line" },
-                                        { value: "bar", label: "Bar" },
-                                        { value: "point", label: "Scatter" }
-                                    ]}
-                                    onChange={(value) => { setChartType(value!) }}
-                                />
-                            </Grid.Col> */}
-
                             <XAxisSelection
                                 XAxis={XAxis}
                                 setXAxis={setXAxis}
@@ -422,7 +422,12 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                                 })
                             }
                             <Grid.Col span={7}></Grid.Col>
-                            <Grid.Col span={5}>
+                            <Grid.Col span={5}
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "flex-end"
+                                }}
+                            >
                                 <Button
                                     compact
                                     variant="subtle"

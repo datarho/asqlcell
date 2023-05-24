@@ -33,11 +33,10 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
     const dateColName = dateCols.length >= 1 ? dateCols.map((item: { columnName: string }) => item.columnName) : [""];
     const [visData] = useModelState("vis_data");
     const lineData = { values: JSON.parse(visData === "" ? `[{ "x": 0, "y": 0, "type": 0 }]` : visData) };
-    console.log(lineData)
     const [sortAsce, setSortAsce] = useState(true);
     model?.on("sort-X", () => setSortAsce(!sortAsce));
     const cache = model?.get("cache");
-    const colArray =
+    const cacheObject =
         JSON.parse(
             cache.includes("selectedCol")
                 ?
@@ -45,8 +44,15 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
                 :
                 `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`).selectedCol
         ;
-    const leftCols = colArray.filter((item: ColItem) => { return (item.yAxis !== "left") })
-    const yAxisList = leftCols.length === 0 ? ["y"] : ["y", "y2"];
+    const leftCols: string[] = cacheObject.filter((item: ColItem) => { return (item.yAxis === "left") }).map((item: ColItem) => item.colName)
+    const rightCols: string[] = cacheObject.filter((item: ColItem) => { return (item.yAxis === "right") }).map((item: ColItem) => item.colName)
+    const yAxisList = (leftCols.length > 0 && rightCols.length > 0) ?
+        ["y", "y2"]
+        :
+        leftCols.length > 0 ?
+            ["y"]
+            :
+            ["y2"]
 
     const spec = {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -69,11 +75,6 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
             {
                 "calculate": "datum.type", "as": "Label",
             },
-
-            // Tempo y2, would be change to y2 once BE is updated
-            {
-                "calculate": "datum.y*5", "as": "y2",
-            },
         ],
         "data": { "values": lineData.values },
         "encoding": {
@@ -92,62 +93,84 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, chartTy
         },
         "layer":
             yAxisList.map((item, index) => {
-                return ({
-                    "encoding": {
-                        y: {
-                            field: item,
-                            type: "quantitative"
-                        },
-                        opacity: {
-                            condition: {
-                                param: `hover_${index}`,
-                                value: chartType === ChartType.Line ? 1 : 0.5
-                            },
-                            value: 0.2
-                        },
-                        color: {
-                            condition: {
-                                param: `hover_${index}`,
-                                field: "Label",
-                                type: "nominal",
-                            },
-                            value: "grey"
-                        }
-                    },
-                    layer: [
-                        // Chart type of visualization
-                        ...colArray
-                            .filter((series: ColItem) => { return ((series.yAxis === "left" && index === 0) || (series.yAxis === "right" && index === 1)) })
-                            .map((series: ColItem) => {
-                                return (
+                return (
+                    {
+                        "transform":
+                            item === "y"
+                                ?
+                                [
                                     {
-                                        mark: series.chartType,
-                                        transform: [
-                                            { "filter": `datum.type==='${series.colName}'` }
-                                        ]
+                                        "filter": {
+                                            "field": "type",
+                                            "oneOf": leftCols
+                                        }
                                     }
-                                )
-                            }),
-
-                        // Hidden layer for interaction
-                        {
-                            params: [{
-                                name: `hover_${index}`,
-                                select: {
-                                    type: "point",
-                                    fields: ["Label"],
-                                    on: "mouseover"
+                                ]
+                                :
+                                [
+                                    {
+                                        "filter": {
+                                            "field": "type",
+                                            "oneOf": rightCols
+                                        }
+                                    }
+                                ],
+                        "encoding": {
+                            y: {
+                                field: "y",
+                                type: "quantitative",
+                                axis: {
+                                    orient: item === "y" ? "left" : "right"
                                 }
-                            }],
-                            mark: { type: "line", strokeWidth: 8, stroke: "transparent" }
+                            },
+                            opacity: {
+                                condition: {
+                                    param: `hover_${index}`,
+                                    value: chartType === ChartType.Line ? 1 : 0.5
+                                },
+                                value: 0.2
+                            },
+                            color: {
+                                condition: {
+                                    param: `hover_${index}`,
+                                    field: "Label",
+                                    type: "nominal",
+                                },
+                                value: "grey"
+                            }
                         },
-                    ]
-                })
+                        layer: [
+                            // Chart type of visualization
+                            ...cacheObject
+                                .map((series: ColItem) => {
+                                    return (
+                                        {
+                                            mark: series.chartType,
+                                            transform: [
+                                                { "filter": `datum.type==='${series.colName}'` }
+                                            ]
+                                        }
+                                    )
+                                }),
+
+                            // Hidden layer for interaction
+                            {
+                                params: [{
+                                    name: `hover_${index}`,
+                                    select: {
+                                        type: "point",
+                                        fields: ["Label"],
+                                        on: "mouseover"
+                                    }
+                                }],
+                                mark: { type: "line", strokeWidth: 8, stroke: "transparent" }
+                            },
+                        ]
+                    })
             })
         ,
         resolve: { scale: { "y": "independent" } }
     };
-
 
     useEffect(() => {
         var view = new vega.View(vega.parse(vegaLite.compile(spec as any).spec), { renderer: 'none' });
