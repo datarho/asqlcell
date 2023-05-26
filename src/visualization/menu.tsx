@@ -53,7 +53,7 @@ const ChartIconMap: Record<string, JSX.Element> = {
 const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
     ({ label, icon, ...others }: ItemProps, ref) => (
         <div ref={ref} {...others}>
-            <Group noWrap position="apart">
+            <Group noWrap position="apart" w={"100%"}>
                 <Group sx={{ width: "60%" }}>
                     <Text truncate size="xs">{label}</Text>
                 </Group>
@@ -150,11 +150,11 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                     maxDropdownHeight={5 * 16}
                                     itemComponent={SelectItem}
                                     data={headerWithType}
-                                    // sx={{
-                                    //     ".mantine-Select-itemsWrapper": {
-                                    //         maxWidth: "192px"
-                                    //     }
-                                    // }}
+                                    sx={{
+                                        ".mantine-Select-itemsWrapper": {
+                                            maxWidth: "207px" // Given width of dropdown item according to fixed width of menu list
+                                        }
+                                    }}
                                     onChange={(value) => {
                                         setSeriesIcon(headerWithType.filter(item => item.value === value)[0].icon)
                                         var names = cacheObject["selectedCol"].map((item: ColItem) => item.colName);

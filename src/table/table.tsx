@@ -1,16 +1,32 @@
 import { FunctionComponent, useState } from "react";
-import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea } from "@mantine/core"
+import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea, Box, ActionIcon, Tooltip } from "@mantine/core"
 import React from "react";
 import { uuid } from "@jupyter-widgets/base";
 import { DataframeHeader } from "./header";
 import { TableElement } from "./element";
 import { useModel } from "../hooks";
+import { IconFilters } from "@tabler/icons-react";
 
 interface prop {
     page: number,
     setPage: React.Dispatch<React.SetStateAction<number>>,
     rowNumber: number,
     setRowNumber: React.Dispatch<React.SetStateAction<number>>,
+}
+
+const NumericElement: FunctionComponent<{ item: number, maxItem: number, minItem: number, actived: boolean }> = ({ item, maxItem, minItem, actived }) => {
+    const percentage = maxItem !== minItem ? (item - minItem) / (maxItem - minItem) : 1;
+    const color = 150 * percentage + 105;
+    const textColor = color > 125 ? 0 : 255;
+    return (
+        <Box bg={actived ? `rgb(${color}, ${color}, ${color})` : "transparent"} c={actived ? `rgb(${textColor}, ${textColor}, ${textColor})` : "black"}>
+            <Text sx={{ overflow: "hidden" }} fz="8px">
+                {
+                    item
+                }
+            </Text>
+        </Box>
+    )
 }
 
 export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, setRowNumber }) => {
@@ -27,7 +43,12 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
 
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
+    const [activedFormatting, setActiedFormatting] = useState<boolean>(false);
     const info = JSON.parse(data.split("\n")[0]);
+    const cols = info.columns;
+    const infoByCol = cols.map((item: string | number, index: number) => {
+        return (info.data.map((item: { [x: string]: any; }) => { return (item[index]) }))
+    })
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
     let timeDiff = 0;
@@ -55,7 +76,12 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                 typeof (item) === "string" ?
                                     <TableElement item={item} />
                                     :
-                                    item
+                                    <NumericElement
+                                        item={item}
+                                        minItem={Math.min(...infoByCol[tdIndex])}
+                                        maxItem={Math.max(...infoByCol[tdIndex])}
+                                        actived={activedFormatting}
+                                    />
                         }
                     </td>
                 ))
@@ -71,6 +97,19 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                 width: "100%",
                 marginBottom: "16px",
             }}>
+            <Group position="left" w="100%" pt="xs">
+                <Tooltip
+                    label="Conditional Formatting"
+                    color="gray"
+                    withArrow
+                >
+                    <ActionIcon
+                        onClick={() => { setActiedFormatting(!activedFormatting) }}
+                    >
+                        <IconFilters />
+                    </ActionIcon>
+                </Tooltip>
+            </Group>
             <ScrollArea scrollbarSize={8} style={{ width: "100%" }}>
                 <Table
                     withBorder
