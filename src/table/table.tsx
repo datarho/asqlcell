@@ -97,19 +97,6 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                 width: "100%",
                 marginBottom: "16px",
             }}>
-            <Group position="left" w="100%" pt="xs">
-                <Tooltip
-                    label="Conditional Formatting"
-                    color="gray"
-                    withArrow
-                >
-                    <ActionIcon
-                        onClick={() => { setActiedFormatting(!activedFormatting) }}
-                    >
-                        <IconFilters />
-                    </ActionIcon>
-                </Tooltip>
-            </Group>
             <ScrollArea scrollbarSize={8} style={{ width: "100%" }}>
                 <Table
                     withBorder
@@ -158,6 +145,17 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                     }
                 </Group>
                 <Group align={"center"}>
+                    <Tooltip
+                        label="Conditional Formatting"
+                        withArrow
+                    >
+                        <ActionIcon
+                            variant="transparent"
+                            onClick={() => { setActiedFormatting(!activedFormatting) }}
+                        >
+                            <IconFilters size={16} />
+                        </ActionIcon>
+                    </Tooltip>
                     <Group sx={{ gap: 0 }}>
                         <Select
                             sx={{
