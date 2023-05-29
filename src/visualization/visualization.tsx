@@ -201,7 +201,6 @@ export const Visualization: FunctionComponent = () => {
     const [XAxis, setXAxis] = useState(JSON.parse(cache.includes("xAxisState") && !cache.includes(`{"xAxisState":""}`) ? cache : `{"xAxisState":"Index"}`)["xAxisState"]);
     const [ref, rect] = useResizeObserver();
     const [open, setOpen] = useState<boolean>(true);
-    const [chartType, setChartType] = useState<string>("line");
 
     return (
         <Group grow ref={ref} sx={{ margin: "auto 1rem auto 0rem" }}>
@@ -210,8 +209,6 @@ export const Visualization: FunctionComponent = () => {
                     {
                         open ?
                             <VisualMenu
-                                chartType={chartType}
-                                setChartType={setChartType}
                                 XAxis={XAxis}
                                 setXAxis={setXAxis}
                             />

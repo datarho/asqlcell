@@ -1,12 +1,11 @@
-import { Accordion, ActionIcon, Button, Grid, Group, ScrollArea, Select, Stack, Tabs, Text, Transition } from "@mantine/core";
-import { Icon123, IconAbc, IconBorderLeft, IconBorderRight, IconCalendar, IconChartBar, IconChartDots, IconChartLine, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
+import { Accordion, ActionIcon, Button, Grid, Group, Popover, ScrollArea, Select, Stack, Tabs, Text, Transition } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { Icon123, IconAbc, IconAlertSquareRounded, IconBorderLeft, IconBorderRight, IconCalendar, IconChartBar, IconChartDots, IconChartLine, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
 import React, { forwardRef, FunctionComponent, useState } from "react";
 import { useModel, useModelState } from "../hooks";
 import { MenuHeight } from "./const";
 
 interface menuProps {
-    chartType: string,
-    setChartType: React.Dispatch<React.SetStateAction<string>>,
     XAxis: string,
     setXAxis: React.Dispatch<React.SetStateAction<string>>,
 }
@@ -342,9 +341,34 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
     )
 }
 
-export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, XAxis, setXAxis }) => {
+const SamplingIndicator: FunctionComponent = () => {
+    const [opened, { close, open }] = useDisclosure(false);
+    return (
+        <Grid.Col span={12} sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            paddingRight: "2rem",
+            paddingTop: "0.5rem",
+            paddingBottom: "0",
+            marginBottom: "-0.5rem"
+        }}
+        >
+            <Popover opened={opened}>
+                <Popover.Target>
+                    <IconAlertSquareRounded onMouseEnter={open} onMouseLeave={close} size={16} />
+                </Popover.Target>
+                <Popover.Dropdown>
+                    Data has been sampled.
+                </Popover.Dropdown>
+            </Popover>
+        </Grid.Col>
+    )
+}
+
+export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) => {
     const model = useModel();
     const [cache, setCache] = useModelState("cache");
+    const dataLength = (model?.get("data_grid") ?? "{}").split("\n")[1] as unknown as number || 0;
     const [colArray, setColArray] = useState<ColItem[]>(
         JSON.parse(
             cache.includes("selectedCol")
@@ -400,6 +424,12 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartTy
                             maxWidth: "100%",
                             overflowX: "hidden",
                         }}>
+                            {
+                                dataLength > 500 ?
+                                    <SamplingIndicator />
+                                    :
+                                    <></>
+                            }
                             <XAxisSelection
                                 XAxis={XAxis}
                                 setXAxis={setXAxis}
