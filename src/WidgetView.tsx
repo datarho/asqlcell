@@ -4,6 +4,7 @@ import { useModel, useModelState, WidgetModelContext } from "./hooks";
 import { Box, Group, Stack, Tabs, Text } from "@mantine/core";
 import { DataTable } from "./table";
 import { Visualization } from "./visualization";
+import { IconChartBar, IconTable } from "@tabler/icons-react";
 
 interface WidgetProps {
     model: WidgetModel;
@@ -88,21 +89,17 @@ const ReactWidget = () => {
                             position="center"
                         >
                             <Tabs
+                                defaultValue="table"
                                 value={tabValue}
                                 sx={{ width: "100%" }}
                                 onTabChange={(value) => {
                                     cacheObject["tabValue"] = value!;
                                     setCache(JSON.stringify(cacheObject));
                                     setTabValue(value!)
-                                }}
-                            >
+                                }}>
                                 <Tabs.List>
-                                    <Tabs.Tab value="table" >
-                                        <Text size={"md"}>Table</Text>
-                                    </Tabs.Tab>
-                                    <Tabs.Tab value="visualization" >
-                                        <Text size={"md"}>Visualization</Text>
-                                    </Tabs.Tab>
+                                    <Tabs.Tab value="table" icon={<IconTable size="0.8rem" />}>Table</Tabs.Tab>
+                                    <Tabs.Tab value="visualization" icon={<IconChartBar size="0.8rem" />}>Visualization</Tabs.Tab>
                                 </Tabs.List>
                                 <Tabs.Panel value="table" >
                                     <DataTable

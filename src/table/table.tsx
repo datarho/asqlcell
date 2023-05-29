@@ -15,7 +15,7 @@ interface prop {
 }
 
 const NumericElement: FunctionComponent<{ item: number, maxItem: number, minItem: number, actived: boolean }> = ({ item, maxItem, minItem, actived }) => {
-    const percentage = maxItem !== minItem ? (item - minItem) / (maxItem - minItem) : 1;
+    const percentage = maxItem !== minItem ? 1 - ((item - minItem) / (maxItem - minItem)) : 0;
     const color = 150 * percentage + 105;
     const textColor = color > 125 ? 0 : 255;
     return (
