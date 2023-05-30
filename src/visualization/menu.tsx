@@ -1,6 +1,6 @@
 import { Accordion, ActionIcon, Button, Grid, Group, Popover, ScrollArea, Select, Stack, Tabs, Text, Transition } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { Icon123, IconAbc, IconAlertSquareRounded, IconBorderLeft, IconBorderRight, IconCalendar, IconChartArrows, IconChartArrowsVertical, IconChartBar, IconChartDots, IconChartLine, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
+import { Icon123, IconAbc, IconAlertSquareRounded, IconBorderLeft, IconBorderRight, IconCalendar, IconChartArrows, IconChartArrowsVertical, IconChartBar, IconChartDots, IconChartLine, IconChartPie, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
 import React, { forwardRef, FunctionComponent, useState } from "react";
 import { useModel, useModelState } from "../hooks";
 import { MenuHeight } from "./const";
@@ -27,7 +27,6 @@ interface XAxisProps {
     XAxis: string,
     setXAxis: any,
     cacheObject: any,
-    setCache: any,
     colName: any,
     sendVisSql: any
 }
@@ -46,7 +45,8 @@ const IconMap: Record<string, JSX.Element> = {
 const ChartIconMap: Record<string, JSX.Element> = {
     "line": <IconChartLine size={16} />,
     "bar": <IconChartBar size={16} />,
-    "point": <IconChartDots size={16} />
+    "point": <IconChartDots size={16} />,
+    "arc": <IconChartPie size={16} />
 }
 
 const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
@@ -246,13 +246,23 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
     )
 }
 
-const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheObject, setCache, colName, sendVisSql }) => {
+const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheObject, colName, sendVisSql }) => {
     const model = useModel();
     const [sortAsce, setSortAsce] = useState(true);
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
     model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
     const headers = JSON.parse(hist ?? `{"columnName":"", "dtype":""}`);
-    const [xAxisIcon, setXAxisIcon] = useState<JSX.Element>(<Icon123 />)
+    const [xAxisIcon, setXAxisIcon] = useState<JSX.Element>(<Icon123 />);
+    const [cache, setCache] = useModelState("cache");
+    const [opened, { close, open }] = useDisclosure(false);
+    const dataLength = (model?.get("data_grid") ?? "{}").split("\n")[1] as unknown as number || 0;
+    const [orient, setOrient] = useState(JSON.parse(
+        cache.includes("chartState")
+            ?
+            cache
+            :
+            `{"chartState":{"orient": "vertical"}}`
+    ).chartState.orient);
 
     const headerWithType: (string | any)[] = [{ columnName: "Index(Default)", dtype: "int" }, ...headers]
         .filter(item => (item.dtype !== "int" && item.dtype !== "float") || item.columnName === "Index(Default)")
@@ -283,7 +293,15 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
             >
                 <Accordion.Item value="X-axis" >
                     <Accordion.Control>
-                        <Text size={"sm"}>X-axis</Text>
+                        <Group noWrap>
+                            <Text size={"sm"}>X-axis</Text>
+                            {
+                                dataLength > 500 ?
+                                    <SamplingIndicator />
+                                    :
+                                    <></>
+                            }
+                        </Group>
                     </Accordion.Control>
                     <Accordion.Panel>
                         <Grid>
@@ -307,7 +325,40 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
                                     }}
                                 />
                             </Grid.Col>
-                            <Grid.Col span={5} sx={{ paddingTop: 0 }}></Grid.Col>
+                            <Grid.Col span={5} sx={{ paddingTop: 0 }}>
+                                <Popover opened={opened}>
+                                    <Popover.Target>
+                                        <ActionIcon
+                                            onMouseEnter={open}
+                                            onMouseLeave={close}
+                                            onClick={() => {
+                                                if (cache.includes("chartState")) {
+                                                    orient === "vertical"
+                                                        ?
+                                                        cacheObject["chartState"] = { "orient": "horizontal" }
+                                                        :
+                                                        cacheObject["chartState"] = { "orient": "vertical" };
+                                                } else {
+                                                    cacheObject["chartState"] = JSON.parse(`{"orient":"horizontal"}`)
+                                                }
+                                                setCache(
+                                                    JSON.stringify(cacheObject)
+                                                );
+                                                setOrient(orient === "vertical" ? "horizontal" : "vertical")
+                                            }}>
+                                            {
+                                                orient === "vertical" ?
+                                                    <IconChartArrowsVertical size={16} />
+                                                    :
+                                                    <IconChartArrows size={16} />
+                                            }
+                                        </ActionIcon>
+                                    </Popover.Target>
+                                    <Popover.Dropdown>
+                                        <Text size={8}> Change Chart Orient</Text>
+                                    </Popover.Dropdown>
+                                </Popover>
+                            </Grid.Col>
                             <Grid.Col span={7} sx={{ paddingTop: 0, display: "flex", alignItems: "end", justifyContent: "flex-end" }}>
                                 <Button
                                     compact
@@ -349,7 +400,7 @@ const SamplingIndicator: FunctionComponent = () => {
                 <IconAlertSquareRounded onMouseEnter={open} onMouseLeave={close} size={16} />
             </Popover.Target>
             <Popover.Dropdown>
-                Data has been sampled.
+                <Text size={8}>Data has been sampled.</Text>
             </Popover.Dropdown>
         </Popover>
     )
@@ -358,8 +409,6 @@ const SamplingIndicator: FunctionComponent = () => {
 export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) => {
     const model = useModel();
     const [cache, setCache] = useModelState("cache");
-    const dataLength = (model?.get("data_grid") ?? "{}").split("\n")[1] as unknown as number || 0;
-    const [opened, { close, open }] = useDisclosure(false);
     const [colArray, setColArray] = useState<ColItem[]>(
         JSON.parse(
             cache.includes("selectedCol")
@@ -369,13 +418,6 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                 `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`
         ).selectedCol
     );
-    const [orient, setOrient] = useState(JSON.parse(
-        cache.includes("chartState")
-            ?
-            cache
-            :
-            `{"chartState":{"orient": "vertical"}}`
-    ).chartState.orient);
     const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
     const sendVisSql = (ColName: string, array: ColItem[]) => {
         const isIndex = ColName === "Index";
@@ -415,60 +457,6 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                         sx={{
                             paddingLeft: "1rem",
                         }}>
-                        <Group
-                            dir="ltr"
-                            sx={{
-                                justifyContent: "flex-end",
-                                position: "sticky",
-                                width: "95%",
-                                top: 0,
-                                backgroundColor: "white",
-                                paddingRight: "2rem",
-                                paddingTop: "0.5rem",
-                                paddingBottom: "0.5rem",
-                                marginBottom: "-0.5rem",
-                                zIndex: 1
-                            }}
-                        >
-                            <Popover opened={opened}>
-                                <Popover.Target>
-                                    <ActionIcon
-                                        onMouseEnter={open}
-                                        onMouseLeave={close}
-                                        onClick={() => {
-                                            if (cache.includes("chartState")) {
-                                                orient === "vertical"
-                                                    ?
-                                                    cacheObject["chartState"] = { "orient": "horizontal" }
-                                                    :
-                                                    cacheObject["chartState"] = { "orient": "vertical" };
-                                            } else {
-                                                cacheObject["chartState"] = JSON.parse(`{"orient":"horizontal"}`)
-                                            }
-                                            setCache(
-                                                JSON.stringify(cacheObject)
-                                            );
-                                            setOrient(orient === "vertical" ? "horizontal" : "vertical")
-                                        }}>
-                                        {
-                                            orient === "vertical" ?
-                                                <IconChartArrowsVertical size={16} />
-                                                :
-                                                <IconChartArrows size={16} />
-                                        }
-                                    </ActionIcon>
-                                </Popover.Target>
-                                <Popover.Dropdown>
-                                    Change Chart Orient
-                                </Popover.Dropdown>
-                            </Popover>
-                            {
-                                dataLength > 500 ?
-                                    <SamplingIndicator />
-                                    :
-                                    <></>
-                            }
-                        </Group>
                         <Grid sx={{
                             direction: "ltr",
                             gap: "0",
@@ -480,7 +468,6 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                                 XAxis={XAxis}
                                 setXAxis={setXAxis}
                                 cacheObject={cacheObject}
-                                setCache={setCache}
                                 colName={colArray}
                                 sendVisSql={sendVisSql}
                             />
