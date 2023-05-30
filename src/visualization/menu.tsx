@@ -344,13 +344,17 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
 const SamplingIndicator: FunctionComponent = () => {
     const [opened, { close, open }] = useDisclosure(false);
     return (
-        <Grid.Col span={12} sx={{
-            display: "flex",
-            justifyContent: "flex-end",
+        <Group sx={{
+            justifyContent: "flex-start",
+            position: "sticky",
+            width: "95%",
+            top: 0,
+            backgroundColor: "white",
             paddingRight: "2rem",
             paddingTop: "0.5rem",
-            paddingBottom: "0",
-            marginBottom: "-0.5rem"
+            paddingBottom: "0.5rem",
+            marginBottom: "-0.5rem",
+            zIndex: 1
         }}
         >
             <Popover opened={opened}>
@@ -361,7 +365,7 @@ const SamplingIndicator: FunctionComponent = () => {
                     Data has been sampled.
                 </Popover.Dropdown>
             </Popover>
-        </Grid.Col>
+        </Group>
     )
 }
 
@@ -417,6 +421,12 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                         sx={{
                             paddingLeft: "1rem",
                         }}>
+                        {
+                            dataLength > 500 ?
+                                <SamplingIndicator />
+                                :
+                                <></>
+                        }
                         <Grid sx={{
                             direction: "ltr",
                             gap: "0",
@@ -424,12 +434,6 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                             maxWidth: "100%",
                             overflowX: "hidden",
                         }}>
-                            {
-                                dataLength > 500 ?
-                                    <SamplingIndicator />
-                                    :
-                                    <></>
-                            }
                             <XAxisSelection
                                 XAxis={XAxis}
                                 setXAxis={setXAxis}
