@@ -34,8 +34,10 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
     const lineData = { values: JSON.parse(visData === "" ? `[{ "x": 0, "y": 0, "type": 0 }]` : visData) };
     const [sortAsce, setSortAsce] = useState(true);
     model?.on("sort-X", () => setSortAsce(!sortAsce));
-    const cache = model?.get("cache");
-    const cacheObject =
+    const [cache] = useModelState("cache");
+    // const [orient, setOrient] = useState<string>("vertical");
+    const orient = JSON.parse(cache.includes("chartState") ? cache : `{"chartState":{"orient":"vertical"}}`).chartState.orient;
+    const selectedCol =
         JSON.parse(
             cache.includes("selectedCol")
                 ?
@@ -43,8 +45,8 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                 :
                 `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`).selectedCol
         ;
-    const leftCols: string[] = cacheObject.filter((item: ColItem) => { return (item.yAxis === "left") }).map((item: ColItem) => item.colName)
-    const rightCols: string[] = cacheObject.filter((item: ColItem) => { return (item.yAxis === "right") }).map((item: ColItem) => item.colName)
+    const leftCols: string[] = selectedCol.filter((item: ColItem) => { return (item.yAxis === "left") }).map((item: ColItem) => item.colName)
+    const rightCols: string[] = selectedCol.filter((item: ColItem) => { return (item.yAxis === "right") }).map((item: ColItem) => item.colName)
     const yAxisList = (leftCols.length > 0 && rightCols.length > 0) ?
         ["y", "y2"]
         :
@@ -78,7 +80,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
         "data": { "values": lineData.values },
         "encoding": {
             "x": {
-                field: XAxis,
+                field: orient === "vertical" ? XAxis : "y",
                 axis: { labelAngle: 45 },
                 sort: sortAsce ? "ascending" : "descending",
                 type: XAxis === "Index" ?
@@ -116,8 +118,8 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                                 ],
                         "encoding": {
                             y: {
-                                field: "y",
-                                type: "quantitative",
+                                field: orient === "vertical" ? "y" : XAxis,
+                                type: orient === "vertical" ? "quantitative" : "nominal",
                                 axis: {
                                     orient: item === "y" ? "left" : "right"
                                 }
@@ -140,7 +142,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                         },
                         layer: [
                             // Chart type of visualization
-                            ...cacheObject
+                            ...selectedCol
                                 .map((series: ColItem) => {
                                     return (
                                         {

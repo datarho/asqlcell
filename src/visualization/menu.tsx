@@ -1,6 +1,6 @@
 import { Accordion, ActionIcon, Button, Grid, Group, Popover, ScrollArea, Select, Stack, Tabs, Text, Transition } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { Icon123, IconAbc, IconAlertSquareRounded, IconBorderLeft, IconBorderRight, IconCalendar, IconChartBar, IconChartDots, IconChartLine, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
+import { Icon123, IconAbc, IconAlertSquareRounded, IconBorderLeft, IconBorderRight, IconCalendar, IconChartArrows, IconChartArrowsVertical, IconChartBar, IconChartDots, IconChartLine, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
 import React, { forwardRef, FunctionComponent, useState } from "react";
 import { useModel, useModelState } from "../hooks";
 import { MenuHeight } from "./const";
@@ -344,28 +344,14 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
 const SamplingIndicator: FunctionComponent = () => {
     const [opened, { close, open }] = useDisclosure(false);
     return (
-        <Group sx={{
-            justifyContent: "flex-start",
-            position: "sticky",
-            width: "95%",
-            top: 0,
-            backgroundColor: "white",
-            paddingRight: "2rem",
-            paddingTop: "0.5rem",
-            paddingBottom: "0.5rem",
-            marginBottom: "-0.5rem",
-            zIndex: 1
-        }}
-        >
-            <Popover opened={opened}>
-                <Popover.Target>
-                    <IconAlertSquareRounded onMouseEnter={open} onMouseLeave={close} size={16} />
-                </Popover.Target>
-                <Popover.Dropdown>
-                    Data has been sampled.
-                </Popover.Dropdown>
-            </Popover>
-        </Group>
+        <Popover opened={opened}>
+            <Popover.Target>
+                <IconAlertSquareRounded onMouseEnter={open} onMouseLeave={close} size={16} />
+            </Popover.Target>
+            <Popover.Dropdown>
+                Data has been sampled.
+            </Popover.Dropdown>
+        </Popover>
     )
 }
 
@@ -373,6 +359,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
     const model = useModel();
     const [cache, setCache] = useModelState("cache");
     const dataLength = (model?.get("data_grid") ?? "{}").split("\n")[1] as unknown as number || 0;
+    const [opened, { close, open }] = useDisclosure(false);
     const [colArray, setColArray] = useState<ColItem[]>(
         JSON.parse(
             cache.includes("selectedCol")
@@ -382,6 +369,13 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                 `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`
         ).selectedCol
     );
+    const [orient, setOrient] = useState(JSON.parse(
+        cache.includes("chartState")
+            ?
+            cache
+            :
+            `{"chartState":{"orient": "vertical"}}`
+    ).chartState.orient);
     const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
     const sendVisSql = (ColName: string, array: ColItem[]) => {
         const isIndex = ColName === "Index";
@@ -421,12 +415,60 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                         sx={{
                             paddingLeft: "1rem",
                         }}>
-                        {
-                            dataLength > 500 ?
-                                <SamplingIndicator />
-                                :
-                                <></>
-                        }
+                        <Group
+                            dir="ltr"
+                            sx={{
+                                justifyContent: "flex-end",
+                                position: "sticky",
+                                width: "95%",
+                                top: 0,
+                                backgroundColor: "white",
+                                paddingRight: "2rem",
+                                paddingTop: "0.5rem",
+                                paddingBottom: "0.5rem",
+                                marginBottom: "-0.5rem",
+                                zIndex: 1
+                            }}
+                        >
+                            <Popover opened={opened}>
+                                <Popover.Target>
+                                    <ActionIcon
+                                        onMouseEnter={open}
+                                        onMouseLeave={close}
+                                        onClick={() => {
+                                            if (cache.includes("chartState")) {
+                                                orient === "vertical"
+                                                    ?
+                                                    cacheObject["chartState"] = { "orient": "horizontal" }
+                                                    :
+                                                    cacheObject["chartState"] = { "orient": "vertical" };
+                                            } else {
+                                                cacheObject["chartState"] = JSON.parse(`{"orient":"horizontal"}`)
+                                            }
+                                            setCache(
+                                                JSON.stringify(cacheObject)
+                                            );
+                                            setOrient(orient === "vertical" ? "horizontal" : "vertical")
+                                        }}>
+                                        {
+                                            orient === "vertical" ?
+                                                <IconChartArrowsVertical size={16} />
+                                                :
+                                                <IconChartArrows size={16} />
+                                        }
+                                    </ActionIcon>
+                                </Popover.Target>
+                                <Popover.Dropdown>
+                                    Change Chart Orient
+                                </Popover.Dropdown>
+                            </Popover>
+                            {
+                                dataLength > 500 ?
+                                    <SamplingIndicator />
+                                    :
+                                    <></>
+                            }
+                        </Group>
                         <Grid sx={{
                             direction: "ltr",
                             gap: "0",
