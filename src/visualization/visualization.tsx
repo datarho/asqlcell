@@ -35,7 +35,6 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
     const [sortAsce, setSortAsce] = useState(true);
     model?.on("sort-X", () => setSortAsce(!sortAsce));
     const [cache] = useModelState("cache");
-    // const [orient, setOrient] = useState<string>("vertical");
     const orient = JSON.parse(cache.includes("chartState") ? cache : `{"chartState":{"orient":"vertical"}}`).chartState.orient;
     const selectedCol =
         JSON.parse(
@@ -55,29 +54,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
             :
             ["y2"]
 
-    const spec = {
-        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-        "description": "Google's stock price over time.",
-        "width": open ? rect.width - MenuWidth - LabelWidth : rect.width - 4 - LabelWidth,
-        "height": ViewHeight,
-        "transform": [
-            {
-                "calculate":
-                    XAxis === "Index" ?
-                        "toNumber(datum.x)"
-                        :
-                        dateColName.includes(XAxis) ?
-                            "datetime(datum.x)"
-                            :
-                            "datum.x"
-                ,
-                "as": XAxis,
-            },
-            {
-                "calculate": "datum.type", "as": "Label",
-            },
-        ],
-        "data": { "values": lineData.values },
+    const charts = {
         "encoding": {
             "x": {
                 field: orient === "vertical" ? XAxis : "y",
@@ -143,6 +120,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                         layer: [
                             // Chart type of visualization
                             ...selectedCol
+                                .filter((series: ColItem) => series.chartType !== "arc")
                                 .map((series: ColItem) => {
                                     return (
                                         {
@@ -160,7 +138,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                                     name: `hover_${index}`,
                                     select: {
                                         type: "point",
-                                        fields: ["Label"],
+                                        field: "Label",
                                         on: "mouseover"
                                     }
                                 }],
@@ -169,8 +147,77 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                         ]
                     })
             })
-        ,
-        resolve: { scale: { "y": "independent" } }
+    };
+
+    const pieCharts = selectedCol
+        .filter((series: ColItem) => series.chartType === "arc")
+        .map((series: ColItem) => {
+            return (
+                {
+                    mark: { "type": "arc", "tooltip": true },
+                    transform: [
+                        { "filter": `datum.type==='${series.colName}'` }
+                    ],
+                    encoding: {
+                        "theta": { "field": "Theta", "aggregate": "count", "type": "quantitative" },
+                        "color": { "field": "Categories", "type": "nominal" }
+                    }
+                }
+            )
+        });
+
+    const hasPieChart = selectedCol.filter((series: ColItem) => series.chartType === "arc").length > 0;
+    const hasOtherCharts = selectedCol.filter((series: ColItem) => series.chartType !== "arc").length > 0;
+    const chartSpec = hasPieChart && hasOtherCharts ?
+        {
+            "hconcat": [
+                charts,
+                ...pieCharts
+            ]
+        }
+        :
+        hasPieChart ?
+            { "hconcat": [...pieCharts] }
+            :
+            { ...charts };
+
+    const spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "description": "Google's stock price over time.",
+        "width": open ? rect.width - MenuWidth - LabelWidth : rect.width - 4 - LabelWidth,
+        "height": ViewHeight,
+        "transform": [
+            {
+                "calculate":
+                    XAxis === "Index" ?
+                        "toNumber(datum.x)"
+                        :
+                        dateColName.includes(XAxis) ?
+                            "datetime(datum.x)"
+                            :
+                            "datum.x"
+                ,
+                "as": XAxis,
+            },
+            {
+                "calculate": "datum.type", "as": "Label",
+            },
+            {
+                "calculate": "datum.y", "as": "Theta"
+            },
+            {
+                "calculate": "datum.x", "as": "Categories"
+            }
+        ],
+        "data": { "values": lineData.values },
+        ...chartSpec,
+        resolve: {
+            scale: { "y": "independent" },
+            legend: {
+                // "color": "independent",
+                // "size": "independent"
+            }
+        }
     };
 
     useEffect(() => {

@@ -159,7 +159,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                         var names = cacheObject["selectedCol"].map((item: ColItem) => item.colName);
                                         var array = [...cacheObject["selectedCol"]];
                                         if (!names.includes(value!)) {
-                                            array.splice(index, 1, { seriesName: "", colName: value!, chartType: "line", yAxis: "left" })
+                                            array.splice(index, 1, { seriesName: "", colName: value!, chartType: target.chartType, yAxis: "left" })
                                             names.splice(index, 1, value!)
                                         }
                                         cacheObject["selectedCol"] = [...array];
@@ -182,6 +182,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                         { value: "line", label: "Line", icon: ChartIconMap["line"] },
                                         { value: "bar", label: "Bar", icon: ChartIconMap["bar"] },
                                         { value: "point", label: "Point", icon: ChartIconMap["point"] },
+                                        { value: "arc", label: "Pie", icon: ChartIconMap["arc"] },
                                     ]}
                                     icon={chartIcon}
                                     sx={{
@@ -223,7 +224,6 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                     onClick={() => {
                                         const value = yAxis === "left" ? "right" : "left"
                                         setYAxis(value);
-                                        const target = cacheObject["selectedCol"].find((item: ColItem) => item.colName === name)
                                         if (!target) { return }
                                         target.yAxis = value;
                                         cacheObject["selectedCol"] = [...cacheObject["selectedCol"]];
@@ -254,7 +254,6 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
     const headers = JSON.parse(hist ?? `{"columnName":"", "dtype":""}`);
     const [xAxisIcon, setXAxisIcon] = useState<JSX.Element>(<Icon123 />);
     const [cache, setCache] = useModelState("cache");
-    const [opened, { close, open }] = useDisclosure(false);
     const dataLength = (model?.get("data_grid") ?? "{}").split("\n")[1] as unknown as number || 0;
     const [orient, setOrient] = useState(JSON.parse(
         cache.includes("chartState")
@@ -325,64 +324,48 @@ const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheO
                                     }}
                                 />
                             </Grid.Col>
-                            <Grid.Col span={5} sx={{ paddingTop: 0 }}>
-                                <Popover opened={opened}>
-                                    <Popover.Target>
-                                        <ActionIcon
-                                            onMouseEnter={open}
-                                            onMouseLeave={close}
-                                            onClick={() => {
-                                                if (cache.includes("chartState")) {
-                                                    orient === "vertical"
-                                                        ?
-                                                        cacheObject["chartState"] = { "orient": "horizontal" }
-                                                        :
-                                                        cacheObject["chartState"] = { "orient": "vertical" };
-                                                } else {
-                                                    cacheObject["chartState"] = JSON.parse(`{"orient":"horizontal"}`)
-                                                }
-                                                setCache(
-                                                    JSON.stringify(cacheObject)
-                                                );
-                                                setOrient(orient === "vertical" ? "horizontal" : "vertical")
-                                            }}>
-                                            {
-                                                orient === "vertical" ?
-                                                    <IconChartArrowsVertical size={16} />
-                                                    :
-                                                    <IconChartArrows size={16} />
-                                            }
-                                        </ActionIcon>
-                                    </Popover.Target>
-                                    <Popover.Dropdown>
-                                        <Text size={8}> Change Chart Orient</Text>
-                                    </Popover.Dropdown>
-                                </Popover>
+                            <Grid.Col span={8}></Grid.Col>
+                            <Grid.Col span={2} sx={{ paddingTop: 0 }}>
+                                <ActionIcon
+                                    onClick={() => {
+                                        if (cache.includes("chartState")) {
+                                            orient === "vertical"
+                                                ?
+                                                cacheObject["chartState"] = { "orient": "horizontal" }
+                                                :
+                                                cacheObject["chartState"] = { "orient": "vertical" };
+                                        } else {
+                                            cacheObject["chartState"] = JSON.parse(`{"orient":"horizontal"}`)
+                                        }
+                                        setCache(
+                                            JSON.stringify(cacheObject)
+                                        );
+                                        setOrient(orient === "vertical" ? "horizontal" : "vertical")
+                                    }}>
+                                    {
+                                        orient === "vertical" ?
+                                            <IconChartArrowsVertical size={16} />
+                                            :
+                                            <IconChartArrows size={16} />
+                                    }
+                                </ActionIcon>
                             </Grid.Col>
-                            <Grid.Col span={7} sx={{ paddingTop: 0, display: "flex", alignItems: "end", justifyContent: "flex-end" }}>
-                                <Button
-                                    compact
+                            <Grid.Col span={2} sx={{ paddingTop: 0, display: "flex", alignItems: "center" }}>
+                                <ActionIcon
                                     variant="subtle"
                                     size="xs"
-                                    rightIcon={
-                                        sortAsce ?
-                                            <IconSortAscending size={16} />
-                                            :
-                                            <IconSortDescending size={16} />
-                                    }
-                                    sx={{
-                                        ":hover": {
-                                            color: "blue",
-                                            backgroundColor: "transparent"
-                                        }
-                                    }}
                                     onClick={() => {
                                         setSortAsce(!sortAsce);
                                         model?.trigger("sort-X");
                                     }}
                                 >
-                                    {sortAsce ? "Ascending" : "Descending"}
-                                </Button>
+                                    {
+                                        sortAsce ?
+                                            <IconSortAscending size={16} />
+                                            :
+                                            <IconSortDescending size={16} />
+                                    }
+                                </ActionIcon>
                             </Grid.Col>
                         </Grid>
                     </Accordion.Panel>
