@@ -68,6 +68,9 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                         :
                         "nominal"
             },
+            "tooltip": [
+                { "field": "x", "type": "nominal" }
+            ]
         },
         "layer":
             yAxisList.map((item, index) => {
@@ -160,7 +163,10 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                     ],
                     encoding: {
                         "theta": { "field": "Theta", "aggregate": "count", "type": "quantitative" },
-                        "color": { "field": "Categories", "type": "nominal" }
+                        "color": { "field": "Categories", "type": "nominal" },
+                        "tooltip": [
+                            { "field": "Theta", "aggregate": "count", "type": "nominal" }
+                        ]
                     }
                 }
             )
