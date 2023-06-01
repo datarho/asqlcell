@@ -15,18 +15,9 @@ interface previewChartProp {
     open: boolean,
 }
 
-export type ChartTypeList = "line" | "arc" | "bar" | "point";
-export const ChartType: Record<string, ChartTypeList> = {
-    Line: "line",
-    Bar: "bar",
-    Scatter: "point",
-    Pie: "arc"
-}
-
 const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, open }) => {
     const model = useModel();
-    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
-    model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
+    const [hist] = useModelState("title_hist");
     const headers = JSON.parse(hist ?? `{"dtype":""}`);
     const dateCols = headers.filter((header: any) => header.dtype.includes("datetime"))
     const dateColName = dateCols.length >= 1 ? dateCols.map((item: { columnName: string }) => item.columnName) : [""];
@@ -111,14 +102,6 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                                 },
                                 value: 0.2
                             },
-                            // color: {
-                            //     condition: {
-                            //         param: `hover_${index}`,
-                            //         field: "Label2",
-                            //         type: "nominal",
-                            //     },
-                            //     value: "grey"
-                            // }
                         },
                         layer: [
                             // Chart type of visualization
@@ -130,13 +113,13 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                                             mark: series.chartType,
                                             transform: [
                                                 { "filter": `datum.type==='${series.colName}'` },
-                                                { "calculate": `datum.type + "_${series.chartType ?? ""}"`, "as": "Label2" }
+                                                { "calculate": `datum.type + "_${series.chartType ?? ""}"`, "as": "Legend" }
                                             ],
                                             "encoding": {
                                                 color: {
                                                     condition: {
                                                         param: `hover_${index}`,
-                                                        field: "Label2",
+                                                        field: "Legend",
                                                         type: "nominal",
                                                     },
                                                     value: "grey"
@@ -152,7 +135,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                                     name: `hover_${index}`,
                                     select: {
                                         type: "point",
-                                        field: "Label2",
+                                        field: "Legend",
                                         on: "mouseover"
                                     }
                                 }],

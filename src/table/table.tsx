@@ -4,7 +4,7 @@ import React from "react";
 import { uuid } from "@jupyter-widgets/base";
 import { DataframeHeader } from "./header";
 import { TableElement } from "./element";
-import { useModel } from "../hooks";
+import { useModel, useModelState } from "../hooks";
 import { IconFilters } from "@tabler/icons-react";
 
 interface prop {
@@ -35,8 +35,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
     const [data, setData] = useState(model?.get("data_grid") ?? "{}");
     model?.on("change:data_grid", () => { setData(model.get("data_grid")) });
 
-    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
-    model?.on("change:title_hist", () => setHist(model?.get("title_hist")));
+    const [hist] = useModelState("title_hist");
 
     const [execTime, setExecTime] = useState<string>(model?.get("exec_time") ?? "");
     model?.on("execTime", (msg: string) => setExecTime(msg.slice(9, msg.length)));

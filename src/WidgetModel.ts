@@ -51,7 +51,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             data_name: undefined,
             data_sql: undefined,
             error: undefined,
-            quickv_sql: undefined,
+            quickv_var: undefined,
             quickv_data: undefined,
             vis_sql: undefined,
             vis_data: undefined,
