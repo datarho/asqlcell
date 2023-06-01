@@ -111,14 +111,14 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                                 },
                                 value: 0.2
                             },
-                            color: {
-                                condition: {
-                                    param: `hover_${index}`,
-                                    field: "Label",
-                                    type: "nominal",
-                                },
-                                value: "grey"
-                            }
+                            // color: {
+                            //     condition: {
+                            //         param: `hover_${index}`,
+                            //         field: "Label2",
+                            //         type: "nominal",
+                            //     },
+                            //     value: "grey"
+                            // }
                         },
                         layer: [
                             // Chart type of visualization
@@ -129,8 +129,19 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                                         {
                                             mark: series.chartType,
                                             transform: [
-                                                { "filter": `datum.type==='${series.colName}'` }
-                                            ]
+                                                { "filter": `datum.type==='${series.colName}'` },
+                                                { "calculate": `datum.type + "_${series.chartType ?? ""}"`, "as": "Label2" }
+                                            ],
+                                            "encoding": {
+                                                color: {
+                                                    condition: {
+                                                        param: `hover_${index}`,
+                                                        field: "Label2",
+                                                        type: "nominal",
+                                                    },
+                                                    value: "grey"
+                                                }
+                                            }
                                         }
                                     )
                                 }),
@@ -141,7 +152,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                                     name: `hover_${index}`,
                                     select: {
                                         type: "point",
-                                        field: "Label",
+                                        field: "Label2",
                                         on: "mouseover"
                                     }
                                 }],
@@ -206,7 +217,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                 "as": XAxis,
             },
             {
-                "calculate": "datum.type", "as": "Label",
+                "calculate": `datum.type`, "as": "Label",
             },
             {
                 "calculate": "datum.y", "as": "Theta"

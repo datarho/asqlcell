@@ -1,6 +1,6 @@
-import { Accordion, ActionIcon, Button, Grid, Group, Popover, ScrollArea, Select, Stack, Tabs, Text, Transition } from "@mantine/core";
+import { Accordion, ActionIcon, Button, Grid, Group, Popover, ScrollArea, Select, Stack, Tabs, Text, TextInput, Transition } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { Icon123, IconAbc, IconAlertSquareRounded, IconBorderLeft, IconBorderRight, IconCalendar, IconChartArrows, IconChartArrowsVertical, IconChartBar, IconChartDots, IconChartLine, IconChartPie, IconMinus, IconPlus, IconSortAscending, IconSortDescending, TablerIconsProps } from "@tabler/icons-react";
+import { Icon123, IconAbc, IconAlertSquareRounded, IconBorderLeft, IconBorderRight, IconCalendar, IconChartArrows, IconChartArrowsVertical, IconChartBar, IconChartDots, IconChartLine, IconChartPie, IconCheck, IconEdit, IconMinus, IconPlus, IconSortAscending, IconSortDescending, IconX, TablerIconsProps } from "@tabler/icons-react";
 import React, { forwardRef, FunctionComponent, useState } from "react";
 import { useModel, useModelState } from "../hooks";
 import { MenuHeight } from "./const";
@@ -18,6 +18,7 @@ export interface ColItem {
 interface SelectProps {
     index: number,
     name: string,
+    seriesName: string,
     colArray: ColItem[],
     setColArray: any,
     XAxis: string,
@@ -62,18 +63,20 @@ const SelectItem = forwardRef<HTMLDivElement, ItemProps>(
     )
 );
 
-const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArray, XAxis, sendVisSql }) => {
+const InitialSelectedCols = `{"selectedCol":[{"seriesName":"Y-series-0", "colName":"","chartType":"line", "yAxis":"left"}]}`;
+const InitialSingleSelectedCol = { "seriesName": "Y-series-0", "colName": "", "chartType": "line", "yAxis": "left" };
+const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, seriesName, setColArray, XAxis, sendVisSql }) => {
     const [showedButton, setShowedButton] = useState<boolean>(false)
     const model = useModel();
     const [cache, setCache] = useModelState("cache");
     const cacheObject = JSON.parse(
         cache === "" ?
-            `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`
+            InitialSelectedCols
             :
             cache
     );
     if (!cacheObject["selectedCol"]) {
-        cacheObject["selectedCol"] = [{ "seriesName": "", "colName": "", "chartType": "line", "yAxis": "left" }];
+        cacheObject["selectedCol"] = [InitialSingleSelectedCol];
     }
 
     const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
@@ -89,9 +92,12 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
             )
         });
     const [seriesIcon, setSeriesIcon] = useState<JSX.Element>(<Icon123 />);
-    const target: ColItem = cacheObject["selectedCol"].find((item: ColItem) => item.colName === name);
-    const [chartIcon, setChartIcon] = useState<JSX.Element>(ChartIconMap[target ? target.chartType : "line"]);
+    const target: ColItem = cacheObject["selectedCol"].find((item: ColItem) => item.seriesName === seriesName);
+    const [chartIcon, setChartIcon] = useState<JSX.Element>(ChartIconMap[target.chartType]);
     const [yAxis, setYAxis] = useState(target ? target.yAxis : "left");
+    const [openRenaming, setOpenRenaming] = useState<boolean>(false);
+    const [seriesNameState, setSeriesNameState] = useState<string>(seriesName);
+    const seriesNames = cacheObject.selectedCol.map((item: ColItem) => { return (item.seriesName) });
 
     return (
         <Grid.Col span={12}
@@ -117,7 +123,7 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                 <Accordion.Item value={`Y-series ${index}`} >
                     <Group noWrap sx={{ gap: "0" }}>
                         <Accordion.Control>
-                            <Text size={"sm"}>{`Y-series ${index}`}</Text>
+                            <Text size={"sm"}>{seriesName}</Text>
                         </Accordion.Control>
                         <Transition mounted={showedButton} transition="fade" duration={200} timingFunction="ease">
                             {(styles) => (
@@ -158,10 +164,8 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                         setSeriesIcon(headerWithType.filter(item => item.value === value)[0].icon)
                                         var names = cacheObject["selectedCol"].map((item: ColItem) => item.colName);
                                         var array = [...cacheObject["selectedCol"]];
-                                        if (!names.includes(value!)) {
-                                            array.splice(index, 1, { seriesName: "", colName: value!, chartType: target.chartType, yAxis: "left" })
-                                            names.splice(index, 1, value!)
-                                        }
+                                        array.splice(index, 1, { seriesName: seriesNameState, colName: value!, chartType: target.chartType, yAxis: "left" })
+                                        names.splice(index, 1, value!)
                                         cacheObject["selectedCol"] = [...array];
                                         setCache(JSON.stringify(cacheObject))
                                         setColArray([...array])
@@ -170,10 +174,90 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                 />
                             </Grid.Col>
 
-                            <Grid.Col span={8}>
-
+                            <Grid.Col span={6}></Grid.Col>
+                            <Grid.Col
+                                span={2}
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "center"
+                                }}
+                            >
+                                <ActionIcon size="xs" color={"darkgray"}>
+                                    <Popover opened={openRenaming}>
+                                        <Popover.Target>
+                                            <ActionIcon onClick={() => setOpenRenaming(!openRenaming)}>
+                                                <IconEdit size={16} />
+                                            </ActionIcon>
+                                        </Popover.Target>
+                                        <Popover.Dropdown>
+                                            <TextInput
+                                                autoFocus
+                                                size={"xs"}
+                                                value={seriesNameState}
+                                                error={
+                                                    seriesNames.includes(seriesNameState) && target.seriesName !== seriesNameState
+                                                        ?
+                                                        <Text sx={{ fontSize: "x-small" }}>No duplicated series name.</Text>
+                                                        :
+                                                        ""
+                                                }
+                                                rightSection={
+                                                    <Group noWrap sx={{ gap: 0 }}>
+                                                        <ActionIcon
+                                                            size="xs"
+                                                            variant="transparent"
+                                                            onClick={() => {
+                                                                if (target && !seriesNames.includes(seriesNameState)) {
+                                                                    target.seriesName = seriesNameState;
+                                                                    cacheObject["selectedCol"] = [...cacheObject["selectedCol"]];
+                                                                    setColArray([...cacheObject["selectedCol"]])
+                                                                    setCache(JSON.stringify(cacheObject))
+                                                                }
+                                                                setOpenRenaming(!openRenaming);
+                                                            }}>
+                                                            <IconCheck size={10} />
+                                                        </ActionIcon>
+                                                        <ActionIcon
+                                                            size="xs"
+                                                            variant="transparent"
+                                                            onClick={() => {
+                                                                setOpenRenaming(!openRenaming);
+                                                                setSeriesNameState(seriesName)
+                                                            }}>
+                                                            <IconX size={10} />
+                                                        </ActionIcon>
+                                                    </Group>
+                                                }
+                                                onChange={(e) => setSeriesNameState(e.target.value)}
+                                                onKeyDown={(event) => {
+                                                    switch (event.key) {
+                                                        case "Enter":
+                                                            if (target && !seriesNames.includes(seriesNameState)) {
+                                                                target.seriesName = seriesNameState;
+                                                                cacheObject["selectedCol"] = [...cacheObject["selectedCol"]];
+                                                                setColArray([...cacheObject["selectedCol"]])
+                                                                setCache(JSON.stringify(cacheObject))
+                                                            }
+                                                            setOpenRenaming(!openRenaming);
+                                                            break;
+                                                        case "Escape":
+                                                            setOpenRenaming(!openRenaming);
+                                                            setSeriesNameState(seriesName)
+                                                            break;
+                                                    }
+                                                }}
+                                            />
+                                        </Popover.Dropdown>
+                                    </Popover>
+                                </ActionIcon>
                             </Grid.Col>
-                            <Grid.Col span={2}>
+                            <Grid.Col
+                                span={2}
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "center"
+                                }}
+                            >
                                 <Select
                                     size="xs"
                                     rightSectionProps={{ display: "none" }}
@@ -204,7 +288,6 @@ const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, setColArr
                                     }}
                                     onChange={(value) => {
                                         setChartIcon(ChartIconMap[value!])
-                                        const target = cacheObject["selectedCol"].find((item: ColItem) => item.colName === name)
                                         if (!target) { return }
                                         target.chartType = value!;
                                         cacheObject["selectedCol"] = [...cacheObject["selectedCol"]];
@@ -398,7 +481,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                 ?
                 cache
                 :
-                `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`
+                InitialSelectedCols
         ).selectedCol
     );
     const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
@@ -460,6 +543,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                                         <SelectDropDown
                                             index={index}
                                             name={item.colName}
+                                            seriesName={item.seriesName}
                                             colArray={colArray}
                                             setColArray={setColArray}
                                             XAxis={XAxis}
@@ -487,7 +571,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                                         }
                                     }}
                                     onClick={() => {
-                                        colArray.splice(colArray.length, 0, { seriesName: "", colName: "", chartType: "line", yAxis: "left" })
+                                        colArray.splice(colArray.length, 0, { seriesName: `Y-series-${colArray.length}`, colName: "", chartType: "line", yAxis: "left" })
                                         setColArray([...colArray])
                                         cacheObject["selectedCol"] = [...colArray];
                                         setCache(JSON.stringify(cacheObject))
