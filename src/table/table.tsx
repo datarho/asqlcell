@@ -48,6 +48,14 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
     const infoByCol = cols.map((item: string | number, index: number) => {
         return (info.data.map((item: { [x: string]: any; }) => { return (item[index]) }))
     })
+    const maxArray = infoByCol.map((item: any[]) => {
+        if (typeof (item[0]) === "number") { return (Math.max(...item)) }
+        else { return (undefined) }
+    })
+    const minArray = infoByCol.map((item: any[]) => {
+        if (typeof (item[0]) === "number") { return (Math.min(...item)) }
+        else { return (undefined) }
+    })
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
     let timeDiff = 0;
@@ -77,8 +85,8 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                     :
                                     <NumericElement
                                         item={item}
-                                        minItem={Math.min(...infoByCol[tdIndex])}
-                                        maxItem={Math.max(...infoByCol[tdIndex])}
+                                        minItem={minArray[tdIndex]}
+                                        maxItem={maxArray[tdIndex]}
                                         actived={activedFormatting}
                                     />
                         }
