@@ -18,7 +18,7 @@ export const IconMap: Record<string, JSX.Element> = {
     "float": <Icon123 size={16} />,
     "string": <IconAbc size={16} />,
     "bool": <IconAbc size={16} />,
-    "datetime": <IconCalendar />,
+    "datetime": <IconCalendar size={16} />,
 };
 
 export type ChartTypeList = "line" | "arc" | "bar" | "point";

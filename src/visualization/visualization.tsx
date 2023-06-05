@@ -51,11 +51,17 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                 field: orient === "vertical" ? XAxis : "y",
                 axis: { labelAngle: 45 },
                 sort: sortAsce ? "ascending" : "descending",
-                type: XAxis === "Index" ?
-                    "quantitative"
+                type: orient === "vertical" ?
+                    XAxis === "Index" ?
+                        "quantitative"
+                        :
+                        dateColName.includes(XAxis) ?
+                            "temporal"
+                            :
+                            "nominal"
                     :
-                    dateColName.includes(XAxis) ?
-                        "temporal"
+                    XAxis === "Index" ?
+                        "quantitative"
                         :
                         "nominal"
             },
