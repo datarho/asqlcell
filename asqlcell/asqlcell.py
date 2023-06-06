@@ -53,11 +53,12 @@ class SqlcellWidget(DOMWidget, HasTraits):
     dfs_button = Unicode('').tag(sync=True)
     dfs_result = Unicode('').tag(sync=True)
     sql_button = Unicode('').tag(sync=True)
+    mode = Unicode('').tag(sync=True)
 
     row_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
+    column_minmax = Tuple(Unicode(), Unicode(), default_value=('', '')).tag(sync=True)
     column_sort = Tuple(Unicode(), Int(), default_value=('', 0)).tag(sync=True)
     title_hist = Unicode('').tag(sync=True)
-    mode = Unicode('').tag(sync=True)
     data_grid = Unicode('').tag(sync=True)
     exec_time = Unicode('').tag(sync=True)
     data_name = Unicode('').tag(sync=True)
@@ -70,6 +71,10 @@ class SqlcellWidget(DOMWidget, HasTraits):
 
     def __init__(self, sql='', mode="UI"):
         super(SqlcellWidget, self).__init__()
+        from IPython.display import DisplayHandle
+        # IPython.display.clear_output()
+        # self.handle = DisplayHandle()
+        # self.handle.display(self)
         self.mode = mode
 
     def run_sql(self, sql):
@@ -77,22 +82,27 @@ class SqlcellWidget(DOMWidget, HasTraits):
             if len(self.data_name) == 0:
                 self.data_name = "__" + get_cell_id()
             time = datetime.datetime.now()
+            self.row_range = (0, self.row_range[1] - self.row_range[0])
+            self.data_grid = ''
+            self.title_hist = ''
+            self.column_minmax = ('', '')
+            self.column_sort = ('', 0)
             jsql = JinjaSql(param_style="qmark")
             res, vlist = jsql.prepare_query(sqlparse.format(sql, strip_comments=True, reindent=True), get_vars())
             setattr(__main__, self.data_name, get_duckdb_result(res, vlist))
-            self.row_range = (0, self.row_range[1] - self.row_range[0])
-            self.column_sort = ('', 0)
             self.title_hist = str(json.dumps(get_histogram(get_value(self.data_name))))
             self.exec_time = str(time) + "," + str(datetime.datetime.now())
             self.set_data_grid()
             self.run_vis_sql()
         except Exception as r:
-            self.data_grid = ''
             raise NoTracebackException(r)
 
     def set_data_grid(self):
         df = get_value(self.data_name)
         self.data_grid = str(df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format='iso')) + "\n" + str(len(df))
+        self.column_minmax = (df[self.row_range[0] : self.row_range[1]].max().to_json(orient="split", date_format='iso'),
+                              df[self.row_range[0] : self.row_range[1]].min().to_json(orient="split", date_format='iso'))
+        print(self.column_minmax)
 
     @observe('dfs_button')
     def on_dfs_button(self, change):
@@ -109,6 +119,10 @@ class SqlcellWidget(DOMWidget, HasTraits):
     @observe('row_range')
     def on_row_range(self, change):
         self.set_data_grid()
+        IPython.display.clear_output()
+        # from IPython.display import display, update_display
+        # update_display({"text/html": "New text content"}, 
+        #        display_id=self.handle.display_id, raw=True)
 
     @observe('column_sort')
     def on_column_sort(self, change):
@@ -144,6 +158,3 @@ class SqlcellWidget(DOMWidget, HasTraits):
         df = get_duckdb().execute(tmp).df()
         get_duckdb().unregister(self.data_name)
         self.quickv_data = vega_spec(df, "index_rn1qaz2wsx")
-
-    def _repr_png_(self):
-        return self.png
