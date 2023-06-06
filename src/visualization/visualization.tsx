@@ -93,7 +93,13 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                         "encoding": {
                             y: {
                                 field: orient === "vertical" ? "y" : XAxis,
-                                type: orient === "vertical" ? "quantitative" : "nominal",
+                                type: orient === "vertical" ?
+                                    "quantitative"
+                                    :
+                                    dateColName.includes(XAxis) ?
+                                        "temporal"
+                                        :
+                                        "nominal",
                                 axis: {
                                     orient: item === "y" ? "left" : "right"
                                 }
