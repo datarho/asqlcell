@@ -60,10 +60,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
                             :
                             "nominal"
                     :
-                    XAxis === "Index" ?
-                        "quantitative"
-                        :
-                        "nominal"
+                    "quantitative"
             },
             "tooltip": [
                 { "field": "x", "type": "nominal" }
