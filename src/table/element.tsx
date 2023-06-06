@@ -11,12 +11,12 @@ export const TableElement: FunctionComponent<{ item: string }> = ({ item }) => {
             <Group ref={ref} noWrap sx={{ gap: 0 }}>
                 <Text sx={{ overflow: "hidden" }} fz="8px">
                     {
-                        item.substring(0, width / 8)
+                        item.substring(0, Math.max(160, width) / 8)
                     }
                 </Text>
                 <Popover.Target>
                     {
-                        width < (8 * item.length - 40) ?
+                        Math.max(160, width) < (8 * item.length - 40) ?
                             <ActionIcon variant="light" color="blue" sx={{ height: "10px", minHeight: "10px", width: "10px", minWidth: "10px" }}>
                                 <VscEllipsis size={8} />
                             </ActionIcon>

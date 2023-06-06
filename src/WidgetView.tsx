@@ -21,8 +21,6 @@ const ReactWidget = () => {
     const model = useModel();
     const [data, setData] = useState(model?.get("data_grid"))
     const [error, setError] = useState(model?.get("error") ? model?.get("error")[0] : "")
-    const [rowNumber, setRowNumber] = useState<number>(model?.get("row_range")[1] - model?.get("row_range")[0]);
-    const [page, setPage] = useState(Math.floor(model?.get("row_range")[0] / rowNumber) + 1);
     const [cache, setCache] = useModelState("cache");
     const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
     const [tabValue, setTabValue] = useState(cacheObject.tabValue ?? "table");
@@ -102,12 +100,7 @@ const ReactWidget = () => {
                                     <Tabs.Tab value="visualization" icon={<IconChartBar size="0.8rem" />}>Visualization</Tabs.Tab>
                                 </Tabs.List>
                                 <Tabs.Panel value="table" >
-                                    <DataTable
-                                        page={page}
-                                        setPage={setPage}
-                                        rowNumber={rowNumber}
-                                        setRowNumber={setRowNumber}
-                                    />
+                                    <DataTable />
                                 </Tabs.Panel>
 
                                 <Tabs.Panel value="visualization" >
