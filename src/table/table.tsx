@@ -14,12 +14,10 @@ interface prop {
     setRowNumber: React.Dispatch<React.SetStateAction<number>>,
 }
 
-const NumericElement: FunctionComponent<{ item: number, maxItem: number, minItem: number, actived: boolean }> = ({ item, maxItem, minItem, actived }) => {
-    const percentage = maxItem !== minItem ? 1 - ((item - minItem) / (maxItem - minItem)) : 0;
-    const color = 150 * percentage + 105;
+const NumericElement: FunctionComponent<{ item: number, color: number, activated: boolean }> = ({ item, color, activated }) => {
     const textColor = color > 125 ? 0 : 255;
     return (
-        <Box bg={actived ? `rgb(${color}, ${color}, ${color})` : "transparent"} c={actived ? `rgb(${textColor}, ${textColor}, ${textColor})` : "black"}>
+        <Box bg={activated ? `rgb(${color}, ${color}, ${color})` : "transparent"} c={activated ? `rgb(${textColor}, ${textColor}, ${textColor})` : "black"}>
             <Text sx={{ overflow: "hidden" }} fz="8px">
                 {
                     item
@@ -40,22 +38,15 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
     const [execTime, setExecTime] = useState<string>(model?.get("exec_time") ?? "");
     model?.on("execTime", (msg: string) => setExecTime(msg.slice(9, msg.length)));
 
+    const [color, setColor] = useState<string>(model?.get("column_color") ?? "");
+    model?.on("change:column_color", () => setColor(model.get("column_color")));
+
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
-    const [activedFormatting, setActiedFormatting] = useState<boolean>(false);
+    const [activatedFormatting, setActiedFormatting] = useState<boolean>(false);
     const info = JSON.parse(data.split("\n")[0]);
-    const cols = info.columns;
-    const infoByCol = cols.map((item: string | number, index: number) => {
-        return (info.data.map((item: { [x: string]: any; }) => { return (item[index]) }))
-    })
-    const maxArray = infoByCol.map((item: any[]) => {
-        if (typeof (item[0]) === "number") { return (Math.max(...item)) }
-        else { return (undefined) }
-    })
-    const minArray = infoByCol.map((item: any[]) => {
-        if (typeof (item[0]) === "number") { return (Math.min(...item)) }
-        else { return (undefined) }
-    })
+    const colorMatrix = JSON.parse(color).data;
+
     const dataLength = data.split("\n")[1] as unknown as number || 0;
     const header: string[] = info.columns;
     let timeDiff = 0;
@@ -66,8 +57,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
         JSON.parse(hist)
         :
         [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
-
-    const rows = [...Array(info.index.length).keys()].map((index) => (
+    const rows = info.index.map((index: number) => (
         <tr key={uuid()}>
             <td key={index}>{info.index[index]}</td>
             {
@@ -85,9 +75,8 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                     :
                                     <NumericElement
                                         item={item}
-                                        minItem={minArray[tdIndex]}
-                                        maxItem={maxArray[tdIndex]}
-                                        actived={activedFormatting}
+                                        color={colorMatrix[index] ? colorMatrix[index][tdIndex] : 255}
+                                        activated={activatedFormatting}
                                     />
                         }
                     </td>
@@ -158,7 +147,7 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                     >
                         <ActionIcon
                             variant="transparent"
-                            onClick={() => { setActiedFormatting(!activedFormatting) }}
+                            onClick={() => { setActiedFormatting(!activatedFormatting) }}
                         >
                             <IconFilters size={16} />
                         </ActionIcon>
