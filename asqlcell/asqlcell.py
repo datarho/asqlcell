@@ -101,12 +101,10 @@ class SqlcellWidget(DOMWidget, HasTraits):
     def set_data_grid(self):
         df = get_value(self.data_name)
         self.data_grid = str(df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format='iso')) + "\n" + str(len(df))
-        df = df[self.row_range[0] : self.row_range[1]]
-        df = df.apply(pd.to_numeric, errors='coerce').fillna(0)
+        df = df[self.row_range[0] : self.row_range[1]].astype(str).apply(pd.to_numeric, errors='coerce')
         df = 1 - (df - df.min()) / (df.max() - df.min())
         df = 150 * df + 105
         self.column_color = df.to_json(orient="split", date_format='iso')
-        print(self.column_color)
 
     @observe('dfs_button')
     def on_dfs_button(self, change):
