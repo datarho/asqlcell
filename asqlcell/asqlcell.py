@@ -5,6 +5,7 @@ import json
 import datetime
 import IPython
 import sqlparse
+import pandas as pd
 import __main__
 from .jinjasql import JinjaSql
 from .utils import get_duckdb, get_duckdb_result, get_value, get_vars, get_histogram, NoTracebackException, vega_spec
@@ -56,7 +57,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     mode = Unicode('').tag(sync=True)
 
     row_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
-    column_minmax = Tuple(Unicode(), Unicode(), default_value=('', '')).tag(sync=True)
+    column_color = Unicode('').tag(sync=True)
     column_sort = Tuple(Unicode(), Int(), default_value=('', 0)).tag(sync=True)
     title_hist = Unicode('').tag(sync=True)
     data_grid = Unicode('').tag(sync=True)
@@ -85,7 +86,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
             self.row_range = (0, self.row_range[1] - self.row_range[0])
             self.data_grid = ''
             self.title_hist = ''
-            self.column_minmax = ('', '')
+            self.column_color = ''
             self.column_sort = ('', 0)
             jsql = JinjaSql(param_style="qmark")
             res, vlist = jsql.prepare_query(sqlparse.format(sql, strip_comments=True, reindent=True), get_vars())
@@ -100,9 +101,12 @@ class SqlcellWidget(DOMWidget, HasTraits):
     def set_data_grid(self):
         df = get_value(self.data_name)
         self.data_grid = str(df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format='iso')) + "\n" + str(len(df))
-        self.column_minmax = (df[self.row_range[0] : self.row_range[1]].min().to_json(orient="split", date_format='iso'),
-                              df[self.row_range[0] : self.row_range[1]].max().to_json(orient="split", date_format='iso'))
-        print(self.column_minmax)
+        df = df[self.row_range[0] : self.row_range[1]]
+        df = df.apply(pd.to_numeric, errors='coerce').fillna(0)
+        df = 1 - (df - df.min()) / (df.max() - df.min())
+        df = 150 * df + 105
+        self.column_color = df.to_json(orient="split", date_format='iso')
+        print(self.column_color)
 
     @observe('dfs_button')
     def on_dfs_button(self, change):
