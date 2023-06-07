@@ -29,36 +29,32 @@ const NumericElement: FunctionComponent<{ item: number, color: number, activated
 
 export const DataTable: FunctionComponent = () => {
     const model = useModel();
-
-    const [data, setData] = useState(model?.get("data_grid") ?? "{}");
-    model?.on("change:data_grid", () => { setData(model.get("data_grid")) });
-
+    const [data] = useModelState("data_grid");
     const [hist] = useModelState("title_hist");
+    const [execTime] = useModelState("exec_time");
+    const [color] = useModelState("column_color");
 
-    const [execTime, setExecTime] = useState<string>(model?.get("exec_time") ?? "");
-    model?.on("execTime", (msg: string) => setExecTime(msg.slice(9, msg.length)));
-
-    const [color, setColor] = useState<string>(model?.get("column_color") ?? "");
-    model?.on("change:column_color", () => setColor(model.get("column_color")));
     const [rowNumber, setRowNumber] = useState<number>(model?.get("row_range")[1] - model?.get("row_range")[0]);
     const [page, setPage] = useState(Math.floor(model?.get("row_range")[0] / rowNumber) + 1);
-
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
     const [activatedFormatting, setActiedFormatting] = useState<boolean>(false);
-    const info = JSON.parse(data.split("\n")[0]);
-    const colorMatrix = JSON.parse(color).data;
 
+    const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
+    const colorMatrix = JSON.parse(color).data;
     const header: string[] = info.columns;
+
     let timeDiff = 0;
     if (execTime.length !== 0) {
         timeDiff = (new Date(execTime.split(",")[1]).getTime() - new Date(execTime.split(",")[0]).getTime()) / 1000;
     }
+
     const headerContent = hist ?
         JSON.parse(hist)
         :
         [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
+
     const rows = [...Array(info.index.length).keys()].map((index: number) => (
         <tr key={uuid()}>
             <td key={index}>{info.index[index]}</td>

@@ -18,6 +18,7 @@ const defaultModelProperties = {
     sql_button: "",
     mode: "",
     data_grid: "",
+    column_color: "",
     data_sql: "",
     quickv_sql: "",
     quickv_data: "",
@@ -57,6 +58,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             vis_data: undefined,
             title_hist: undefined,
             cache: undefined,
+            column_color: undefined,
         };
     }
 
