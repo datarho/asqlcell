@@ -230,11 +230,11 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
     };
 
     useEffect(() => {
-        var view = new vega.View(vega.parse(vegaLite.compile(spec as any).spec), { renderer: 'none' });
+        let view = new vega.View(vega.parse(vegaLite.compile(spec as any).spec), { renderer: 'none' });
         view
             .toCanvas()
             .then(png => {
-                var base64Image = png.toDataURL()
+                let base64Image = png.toDataURL()
                 const decode = decodeURIComponent(base64Image)
                 model?.set("png", decode.substring(22, decode.length))
                 model?.save_changes()

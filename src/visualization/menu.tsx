@@ -71,6 +71,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                                     return (
                                         <SelectDropDown
                                             index={index}
+                                            key={index}
                                             name={item.colName}
                                             seriesName={item.seriesName}
                                             colArray={colArray}
@@ -99,10 +100,10 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                                         }
                                     }}
                                     onClick={() => {
-                                        var names = colArray.map(item => { return (item.seriesName) })
-                                        var givenName = ""
+                                        let names = colArray.map(item => { return (item.seriesName) })
+                                        let givenName = ""
                                         colArray.forEach((col, index) => {
-                                            var tempoName = `Y-series-${index}`
+                                            let tempoName = `Y-series-${index}`
                                             if (!names.includes(tempoName)) {
                                                 givenName = tempoName
                                             }

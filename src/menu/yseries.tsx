@@ -85,7 +85,7 @@ export const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, se
                                     size="xs"
                                     color="blue"
                                     onClick={() => {
-                                        var array = [...cacheObject["selectedCol"]];
+                                        let array = [...cacheObject["selectedCol"]];
                                         array.splice(index, 1)
                                         setColArray([...array])
                                         sendVisSql(model, XAxis, array)
@@ -115,8 +115,8 @@ export const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, se
                                     }}
                                     onChange={(value) => {
                                         setSeriesIcon(headerWithType.filter(item => item.value === value)[0].icon)
-                                        var names = cacheObject["selectedCol"].map((item: ColItem) => item.colName);
-                                        var array = [...cacheObject["selectedCol"]];
+                                        let names = cacheObject["selectedCol"].map((item: ColItem) => item.colName);
+                                        let array = [...cacheObject["selectedCol"]];
                                         array.splice(index, 1, { seriesName: seriesNameState, colName: value!, chartType: target.chartType, yAxis: "left" })
                                         names.splice(index, 1, value!)
                                         cacheObject["selectedCol"] = [...array];
