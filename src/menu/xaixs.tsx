@@ -1,6 +1,6 @@
 import { Accordion, ActionIcon, Grid, Group, Popover, Select, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { Icon123, IconAlertSquareRounded, IconChartArrows, IconChartArrowsVertical, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
+import { Icon123, IconAlertSquareRounded, IconChartArrows, IconChartArrowsVertical } from "@tabler/icons-react";
 import React from "react";
 import { FunctionComponent, useState } from "react";
 import { useModel, useModelState } from "../hooks";
@@ -29,7 +29,7 @@ const SamplingIndicator: FunctionComponent = () => {
 
 export const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis, cacheObject, colName }) => {
     const model = useModel();
-    const [sortAsce, setSortAsce] = useState(true);
+    // const [sortAsce, setSortAsce] = useState(true);
     const [hist] = useModelState("title_hist");
     const headers = JSON.parse(hist ?? `{"columnName":"", "dtype":""}`);
     const [xAxisIcon, setXAxisIcon] = useState<JSX.Element>(<Icon123 />);
@@ -73,7 +73,7 @@ export const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis,
                 <Accordion.Item value="X-axis" >
                     <Accordion.Control>
                         <Group noWrap>
-                            <Text size={"sm"}>X-axis</Text>
+                            <Text size={"sm"}>X-Axis</Text>
                             {
                                 dataLength > 500 ?
                                     <SamplingIndicator />
@@ -105,7 +105,24 @@ export const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis,
                                 />
                             </Grid.Col>
                             <Grid.Col span={8}></Grid.Col>
-                            <Grid.Col span={2} sx={{ paddingTop: 0 }}>
+                            <Grid.Col span={1} sx={{ paddingTop: 0 }}>
+                                {/* <ActionIcon
+                                    variant="subtle"
+                                    size="xs"
+                                    onClick={() => {
+                                        setSortAsce(!sortAsce);
+                                        model?.trigger("sort-X");
+                                    }}
+                                >
+                                    {
+                                        sortAsce ?
+                                            <IconSortAscending size={16} />
+                                            :
+                                            <IconSortDescending size={16} />
+                                    }
+                                </ActionIcon> */}
+                            </Grid.Col>
+                            <Grid.Col span={3} sx={{ paddingTop: 0, display: "flex", alignItems: "center", justifyContent: "right" }}>
                                 <ActionIcon
                                     onClick={() => {
                                         if (cache.includes("chartState")) {
@@ -124,26 +141,9 @@ export const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis,
                                     }}>
                                     {
                                         orient === "vertical" ?
-                                            <IconChartArrowsVertical size={16} />
+                                            <IconChartArrowsVertical size={16} color="dimgrey" />
                                             :
-                                            <IconChartArrows size={16} />
-                                    }
-                                </ActionIcon>
-                            </Grid.Col>
-                            <Grid.Col span={2} sx={{ paddingTop: 0, display: "flex", alignItems: "center" }}>
-                                <ActionIcon
-                                    variant="subtle"
-                                    size="xs"
-                                    onClick={() => {
-                                        setSortAsce(!sortAsce);
-                                        model?.trigger("sort-X");
-                                    }}
-                                >
-                                    {
-                                        sortAsce ?
-                                            <IconSortAscending size={16} />
-                                            :
-                                            <IconSortDescending size={16} />
+                                            <IconChartArrows size={16} color="dimgrey" />
                                     }
                                 </ActionIcon>
                             </Grid.Col>

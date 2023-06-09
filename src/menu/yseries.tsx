@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { Accordion, ActionIcon, Grid, Group, Popover, Select, Text, TextInput, Transition } from "@mantine/core";
-import { Icon123, IconBorderLeft, IconBorderRight, IconCheck, IconEdit, IconMinus, IconX } from "@tabler/icons-react";
+import { Accordion, ActionIcon, Grid, Group, Select, Text, Transition } from "@mantine/core";
+import { Icon123, IconBorderLeft, IconBorderRight, IconMinus } from "@tabler/icons-react";
 import { useModel, useModelState } from "../hooks";
 import { ColItem } from "../visualization";
 import { ChartIconMap, ChartTypeList, IconMap, InitialSelectedCols, InitialSingleSelectedCol, SelectItem, sendVisSql } from "../public";
@@ -43,9 +43,10 @@ export const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, se
     const target: ColItem = cacheObject["selectedCol"].find((item: ColItem) => item.seriesName === seriesName);
     const [chartIcon, setChartIcon] = useState<JSX.Element>(ChartIconMap[target ? target.chartType : "line"]);
     const [yAxis, setYAxis] = useState(target ? target.yAxis : "left");
-    const [openRenaming, setOpenRenaming] = useState<boolean>(false);
-    const [seriesNameState, setSeriesNameState] = useState<string>(seriesName);
-    const seriesNames = cacheObject.selectedCol.map((item: ColItem) => { return (item.seriesName) });
+    // const [openRenaming, setOpenRenaming] = useState<boolean>(false);
+    // const [seriesNameState, setSeriesNameState] = useState<string>(seriesName);
+    const seriesNameState = seriesName;
+    // const seriesNames = cacheObject.selectedCol.map((item: ColItem) => { return (item.seriesName) });
     useEffect(() => {
         if (target) {
             setChartIcon(ChartIconMap[target.chartType])
@@ -134,7 +135,7 @@ export const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, se
                                     justifyContent: "center"
                                 }}
                             >
-                                <ActionIcon size="xs" color={"darkgray"}>
+                                {/* <ActionIcon size="xs" color={"darkgray"}>
                                     <Popover opened={openRenaming}>
                                         <Popover.Target>
                                             <ActionIcon onClick={() => setOpenRenaming(!openRenaming)}>
@@ -201,7 +202,7 @@ export const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, se
                                             />
                                         </Popover.Dropdown>
                                     </Popover>
-                                </ActionIcon>
+                                </ActionIcon> */}
                             </Grid.Col>
                             <Grid.Col
                                 span={2}
@@ -223,6 +224,7 @@ export const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, se
                                     icon={chartIcon}
                                     sx={{
                                         ".mantine-Select-icon": {
+                                            color: "dimgrey",
                                             alignItems: "flex-start",
                                         },
                                         ".mantine-Select-rightSection": {
@@ -267,9 +269,9 @@ export const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, se
                                 >
                                     {
                                         yAxis === "left" ?
-                                            <IconBorderLeft size={16} />
+                                            <IconBorderLeft size={16} color="dimgrey" />
                                             :
-                                            <IconBorderRight size={16} />
+                                            <IconBorderRight size={16} color="dimgrey" />
                                     }
                                 </ActionIcon>
                             </Grid.Col>

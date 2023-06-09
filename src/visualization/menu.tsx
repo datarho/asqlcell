@@ -114,7 +114,7 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                                         setCache(JSON.stringify(cacheObject))
                                     }}
                                 >
-                                    Add series
+                                    Series
                                 </Button>
                             </Grid.Col>
                         </Grid>
