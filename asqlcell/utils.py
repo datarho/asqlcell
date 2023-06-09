@@ -2,6 +2,7 @@ import duckdb
 import pandas as pd
 import numpy as np
 import __main__
+import json
 
 __DUCKDB = None
 
@@ -37,6 +38,18 @@ def is_type_numeric(dtype):
     except TypeError:
         return False
 
+def dtype_str(kind):
+    if kind == "b":
+        return"bool"
+    elif kind in ("i", "u"):
+        return "int"
+    elif kind in ("f", "c"):
+        return "float"
+    elif kind == "M":
+        return "datetime"
+    else:
+        return "string"
+
 def get_histogram(df):
     hist = []
     if isinstance(df, pd.DataFrame):
@@ -45,8 +58,9 @@ def get_histogram(df):
             if is_type_numeric(col.dtypes):
                 np_array= np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
                 y, bins = np.histogram(np_array, bins=10)
-                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name,
-                    "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} for i, count in enumerate(y)]})
+                hist.append({"columnName" : column, "dtype" : dtype_str(df.dtypes[column].kind),
+                    "bins" : [{"bin_start" : bins[i], "bin_end" : bins[i + 1], "count" : count.item()} 
+                                for i, count in enumerate(y)]})
             else:
                 col = col.astype(str)
                 unique_values, value_counts = np.unique(col, return_counts=True)
@@ -59,8 +73,21 @@ def get_histogram(df):
                     else:
                         sum += value_counts[si].item()
                 bins.append({"bin" : "other", "count" : sum})
-                hist.append({"columnName" : column, "dtype" : df.dtypes[column].name, "bins" : bins})
+                hist.append({"columnName" : column, "dtype" : dtype_str(df.dtypes[column].kind), 
+                                "bins" : bins})
     return hist
+
+def vega_spec(df, x_axis):
+    if x_axis == "index_rn1qaz2wsx":
+        xx = df.index
+    else:
+        xx = df[x_axis]
+    res = []
+    for column in df:
+        if column != x_axis:
+            for x, y in zip(xx, df[column]):
+                res.append({'x':str(x), 'y':str(y), 'type':column})
+    return str(json.dumps(res))
 
 def get_random_data(number = 10):
     return pd.DataFrame(
@@ -71,3 +98,9 @@ def get_random_data(number = 10):
         },
         index = np.arange(number)
     )
+
+class NoTracebackException(Exception):
+    def _render_traceback_(self):
+        red_text = "\033[0;31m"
+        black_text = "\033[0m"
+        return [f"{red_text}Exception{black_text}: {str(self)}"]

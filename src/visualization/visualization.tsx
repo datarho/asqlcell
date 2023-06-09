@@ -1,210 +1,296 @@
-import { ActionIcon, Box, Container, Divider, Grid, Group, Select, Stack, Tabs } from "@mantine/core";
+import { ActionIcon, Divider, Group } from "@mantine/core";
 import { useResizeObserver } from "@mantine/hooks";
-import { IconChartBar, IconChartLine, IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import React, { useEffect, useState } from "react";
 import { FunctionComponent } from "react";
-import { VegaLite } from "react-vega";
-import { useModel } from "../hooks";
+import { VegaLite, VisualizationSpec } from "react-vega";
+import { useModel, useModelState } from "../hooks";
+import { LabelWidth, MenuWidth, ViewHeight } from "./const";
+import { ColItem, VisualMenu } from "./menu";
+import { vega, vegaLite } from "vega-embed";
 
-interface menuProps {
-    chartType: number;
-    setChartType: React.Dispatch<React.SetStateAction<number>>;
-    setXAxis: React.Dispatch<React.SetStateAction<string>>;
-    setColName: React.Dispatch<React.SetStateAction<string>>;
-    colName: string;
-    header: string[];
-}
 interface previewChartProp {
-    rect: any;
-    rect2: any;
-    chartType: number;
-    XAxis: string;
-    colName: string;
+    rect: any,
+    XAxis: string,
+    open: boolean,
 }
 
-const VisualMenu: FunctionComponent<menuProps> = ({ chartType, setChartType, setXAxis, setColName, colName, header }) => {
+const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, open }) => {
     const model = useModel();
-    model?.on("change:vis_data", () => { setColName(JSON.parse(model?.get("vis_data")).columns[0] ?? "") })
-    return (
-        <Stack h="100%" sx={{ minWidth: "15rem" }}>
-            <Tabs variant="pills" defaultValue="data">
-                <Tabs.List grow>
-                    <Group noWrap>
-                        <Tabs.Tab value="data" >Data</Tabs.Tab>
-                        {/* <Tabs.Tab value="style" >Style</Tabs.Tab> */}
-                    </Group>
-                </Tabs.List>
-                <Tabs.Panel value="data" >
-                    <Grid sx={{ marginTop: "1rem" }}>
-                        <Grid.Col span={10}>
-                            <Select
-                                icon={chartType === 1 ? <IconChartLine /> : <IconChartBar />}
-                                label="Chart Type"
-                                defaultValue={"1"}
-                                data={[
-                                    { value: "1", label: "Line" },
-                                    { value: "2", label: "Bar" }
-                                ]}
-                                onChange={(value) => { setChartType(parseInt(value!)) }}
-                            />
-                        </Grid.Col>
-                        <Grid.Col span={2}></Grid.Col>
-                        <Grid.Col span={10}>
-                            <Select
-                                label="X-axis"
-                                defaultValue={"Index"}
-                                data={["Index"]}
-                                onChange={(value) => { setXAxis(value!) }}
-                            />
-                        </Grid.Col>
-                        <Grid.Col span={2} sx={{ display: "flex", alignItems: "end" }}>
-                            {/* <ActionIcon onClick={() => {
-
-                            }} >
-                                {
-                                    true ?
-                                        <IconSortAscendingLetters size={16} />
-                                        :
-                                        <IconSortDescendingLetters size={16} />
-                                }
-                            </ActionIcon> */}
-                        </Grid.Col>
-                        <Grid.Col span={10}>
-                            <Select
-                                label="Y-axis 1"
-                                value={colName}
-                                data={header.map((item) => ({
-                                    value: item.toLowerCase(), label: item
-                                }))}
-                                onChange={(value) => {
-                                    setColName(value!);
-                                    // model?.trigger("vis_sql", value)
-                                    model?.set("vis_sql", [
-                                        `select * EXCLUDE (index_rn1qaz2wsx)\nfrom \n(\nSELECT "${value}", ROW_NUMBER() OVER () AS index_rn1qaz2wsx\nFROM $$__NAME__$$\n)\nusing SAMPLE reservoir (500 rows) REPEATABLE(42)\norder by index_rn1qaz2wsx`,
-                                        new Date().toISOString()
-                                    ]);
-                                    model?.save_changes();
-                                }}
-                            />
-                        </Grid.Col>
-                    </Grid>
-                </Tabs.Panel>
-                <Tabs.Panel value="label" >
-                    <Box h="100%"></Box>
-                </Tabs.Panel>
-                <Tabs.Panel value="secondary" >
-                    <Box h="100%"></Box>
-                </Tabs.Panel>
-            </Tabs>
-        </Stack>
-    )
-}
-
-const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, rect2, chartType, XAxis, colName }) => {
-    const model = useModel();
-    const [colData, setColData] = useState<string>(model?.get("vis_data"));
-    model?.on("change:vis_data", () => {
-        setColData(model.get("vis_data"))
-    })
-    const lineData =
-        colData ?
-            JSON.parse(colData).data.map((item: number, index: number) => {
-                return ({ a: index, b: item })
-            })
-            :
-            [{ a: 0, b: 0 }]
+    const [hist] = useModelState("title_hist");
+    const headers = JSON.parse(hist ?? `{"dtype":""}`);
+    const dateCols = headers.filter((header: any) => header.dtype.includes("datetime"))
+    const dateColName = dateCols.length >= 1 ? dateCols.map((item: { columnName: string }) => item.columnName) : [""];
+    const [visData] = useModelState("vis_data");
+    const lineData = { values: JSON.parse(visData === "" ? `[{ "x": 0, "y": 0, "type": 0 }]` : visData) };
+    const [sortAsce, setSortAsce] = useState(true);
+    model?.on("sort-X", () => setSortAsce(!sortAsce));
+    const [cache] = useModelState("cache");
+    const orient = JSON.parse(cache.includes("chartState") ? cache : `{"chartState":{"orient":"vertical"}}`).chartState.orient;
+    const selectedCol =
+        JSON.parse(
+            cache.includes("selectedCol")
+                ?
+                cache
+                :
+                `{"selectedCol":[{"seriesName":"", "colName":"","chartType":"line", "yAxis":"left"}]}`).selectedCol
         ;
+    const leftCols: string[] = selectedCol.filter((item: ColItem) => { return (item.yAxis === "left") }).map((item: ColItem) => item.colName)
+    const rightCols: string[] = selectedCol.filter((item: ColItem) => { return (item.yAxis === "right") }).map((item: ColItem) => item.colName)
+    const yAxisList = (leftCols.length > 0 && rightCols.length > 0) ?
+        ["y", "y2"]
+        :
+        leftCols.length > 0 ?
+            ["y"]
+            :
+            ["y2"]
+
+    const charts = {
+        "encoding": {
+            "x": {
+                field: orient === "vertical" ? XAxis : "y",
+                axis: { labelAngle: 45 },
+                sort: null,//sortAsce ? "ascending" : "descending",
+                type: orient === "vertical" ?
+                    XAxis === "Index" ?
+                        "quantitative"
+                        :
+                        dateColName.includes(XAxis) ?
+                            "temporal"
+                            :
+                            "nominal"
+                    :
+                    "quantitative"
+            },
+            "tooltip": [
+                { "field": "x", "type": "nominal" }
+            ]
+        },
+        "layer":
+            yAxisList.map((item, index) => {
+                return (
+                    {
+                        "transform":
+                            item === "y"
+                                ?
+                                [
+                                    {
+                                        "filter": {
+                                            "field": "type",
+                                            "oneOf": leftCols
+                                        }
+                                    }
+                                ]
+                                :
+                                [
+                                    {
+                                        "filter": {
+                                            "field": "type",
+                                            "oneOf": rightCols
+                                        }
+                                    }
+                                ],
+                        "encoding": {
+                            y: {
+                                field: orient === "vertical" ? "y" : XAxis,
+                                type: orient === "vertical" ?
+                                    "quantitative"
+                                    :
+                                    dateColName.includes(XAxis) ?
+                                        "temporal"
+                                        :
+                                        "nominal",
+                                axis: {
+                                    orient: item === "y" ? "left" : "right"
+                                }
+                            },
+                            opacity: {
+                                condition: {
+                                    param: `hover_${index}`,
+                                    value: 0.8
+                                },
+                                value: 0.2
+                            },
+                        },
+                        layer: [
+                            // Chart type of visualization
+                            ...selectedCol
+                                .filter((series: ColItem) => series.chartType !== "arc")
+                                .map((series: ColItem) => {
+                                    return (
+                                        {
+                                            mark: series.chartType,
+                                            transform: [
+                                                { "filter": `datum.type==='${series.colName}'` },
+                                                { "calculate": `datum.type + "_${series.chartType ?? ""}"`, "as": "Legend" }
+                                            ],
+                                            "encoding": {
+                                                color: {
+                                                    condition: {
+                                                        param: `hover_${index}`,
+                                                        field: "Legend",
+                                                        type: "nominal",
+                                                    },
+                                                    value: "grey"
+                                                }
+                                            }
+                                        }
+                                    )
+                                }),
+
+                            // Hidden layer for interaction
+                            {
+                                params: [{
+                                    name: `hover_${index}`,
+                                    select: {
+                                        type: "point",
+                                        field: "Legend",
+                                        on: "mouseover"
+                                    }
+                                }],
+                                mark: { type: "line", strokeWidth: 8, stroke: "transparent" }
+                            },
+                        ]
+                    })
+            })
+    };
+
+    const pieCharts = selectedCol
+        .filter((series: ColItem) => series.chartType === "arc")
+        .map((series: ColItem) => {
+            return (
+                {
+                    mark: { "type": "arc", "tooltip": true },
+                    transform: [
+                        { "filter": `datum.type==='${series.colName}'` }
+                    ],
+                    encoding: {
+                        "theta": { "field": "Theta", "aggregate": "count", "type": "quantitative" },
+                        "color": { "field": "Categories", "type": "nominal" },
+                        "tooltip": [
+                            { "field": "Theta", "aggregate": "count", "type": "nominal" }
+                        ]
+                    }
+                }
+            )
+        });
+
+    const hasPieChart = selectedCol.filter((series: ColItem) => series.chartType === "arc").length > 0;
+    const hasOtherCharts = selectedCol.filter((series: ColItem) => series.chartType !== "arc").length > 0;
+    const chartSpec = hasPieChart && hasOtherCharts ?
+        {
+            "hconcat": [
+                charts,
+                ...pieCharts
+            ]
+        }
+        :
+        hasPieChart ?
+            { "hconcat": [...pieCharts] }
+            :
+            { ...charts };
+
+    const spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "description": "Google's stock price over time.",
+        "width": open ? rect.width - MenuWidth - LabelWidth : rect.width - 4 - LabelWidth,
+        "height": ViewHeight,
+        "transform": [
+            {
+                "calculate":
+                    XAxis === "Index" ?
+                        "toNumber(datum.x)"
+                        :
+                        dateColName.includes(XAxis) ?
+                            "datetime(datum.x)"
+                            :
+                            "datum.x"
+                ,
+                "as": XAxis,
+            },
+            {
+                "calculate": `datum.type`, "as": "Label",
+            },
+            {
+                "calculate": "datum.y", "as": "Theta"
+            },
+            {
+                "calculate": "datum.x", "as": "Categories"
+            }
+        ],
+        "data": { "values": lineData.values },
+        ...chartSpec,
+        resolve: {
+            scale: { "y": "independent" },
+            legend: {
+                // "color": "independent",
+                // "size": "independent"
+            }
+        }
+    };
+
+    useEffect(() => {
+        const view = new vega.View(vega.parse(vegaLite.compile(spec as any).spec), { renderer: 'none' });
+        view
+            .toCanvas()
+            .then(png => {
+                const base64Image = png.toDataURL()
+                const decode = decodeURIComponent(base64Image)
+                model?.set("png", decode.substring(22, decode.length))
+                model?.save_changes()
+            })
+            .catch(error => {
+                console.error('Error rendering chart:', error);
+            });
+    }, [lineData])
 
     return (
         <VegaLite
-            data={{ values: lineData }}
+            renderer={'svg'}
             actions={false}
-            spec={
-                {
-                    width: rect.width - rect2.width - 32,
-                    height: rect2.height,
-                    params: [{
-                        name: "industry",
-                        select: { type: "point", fields: ["series"] },
-                        bind: "legend"
-                    }],
-                    layer: [
-                        {
-                            mark: chartType === 1 ? "line" : "bar",
-                            transform: [
-                                {
-                                    calculate: "datum.a", "as": XAxis,
-                                },
-                                {
-                                    calculate: "datum.b", "as": colName,
-                                }
-                            ],
-                            encoding: {
-                                x: { field: XAxis, type: "quantitative", axis: { tickMinStep: 30 } },
-                                y: { field: colName, type: "quantitative" },
-                                opacity: {
-                                    condition: { param: "industry", value: 1 },
-                                    value: 10
-                                }
-                            },
-                            data: { name: "values" } // note: vega-lite data attribute is a plain object instead of an array
-                        }
-                    ]
-                }} />
+            spec={spec as VisualizationSpec}
+        />
     )
 }
 
 export const Visualization: FunctionComponent = () => {
     const model = useModel();
-
-    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
-    model?.on("change:title_hist", () => { setHist(model.get("title_hist")) })
-    const headerData: string[] = JSON.parse(hist ?? `{dtype:""}`).filter((header: any) => header.dtype.includes("int") || header.dtype.includes("float")).map((header: any) => header.columnName);
-
-    const quickName = JSON.parse(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[]}`).columns[0]
-    const [colName, setColName] = useState<string>(quickName === "" ? quickName : headerData[0]);
-    const [XAxis, setXAxis] = useState("index");
+    const cache = model?.get("cache");
+    const [XAxis, setXAxis] = useState(JSON.parse(cache.includes("xAxisState") && !cache.includes(`{"xAxisState":""}`) ? cache : `{"xAxisState":"Index"}`)["xAxisState"]);
     const [ref, rect] = useResizeObserver();
-    const [ref2, rect2] = useResizeObserver();
     const [open, setOpen] = useState<boolean>(true);
-    const [chartType, setChartType] = useState(1);
-    useEffect(() => {
-        model?.trigger("vis_sql", colName)
-    }, [])
 
     return (
-        <>
-            <Container ref={ref} fluid sx={{ padding: "1rem auto 2rem 1rem", margin: "auto 1rem auto 0rem", }}>
-                <Group noWrap sx={{ gap: "0" }}>
-                    <Group ref={ref2} noWrap sx={{ height: 264, alignItems: "flex-start", gap: "0", paddingRight: "1rem" }}>
-                        {
-                            open ?
-                                <VisualMenu
-                                    chartType={chartType}
-                                    setChartType={setChartType}
-                                    setXAxis={setXAxis}
-                                    setColName={setColName}
-                                    colName={colName}
-                                    header={headerData}
-                                />
-                                :
-                                <></>
-                        }
-                        <ActionIcon onClick={() => { setOpen(!open) }}>
-                            {
-                                open ?
-                                    <IconChevronLeft />
-                                    :
-                                    <IconChevronRight />
-                            }
-                        </ActionIcon>
-                        <Divider orientation="vertical" />
-                    </Group>
-                    <Stack>
-                        <VisualPreviewChart rect={rect} rect2={rect2} chartType={chartType} XAxis={XAxis} colName={colName} />
-                    </Stack>
+        <Group grow ref={ref} sx={{ margin: "auto 1rem auto 0rem" }}>
+            <Group noWrap sx={{ height: "100%", marginTop: "1rem", gap: "0", alignItems: "flex-start", justifyContent: "space-between" }}>
+                <Group noWrap sx={{ gap: "0", width: "16rem" }}>
+                    {
+                        open ?
+                            <VisualMenu
+                                XAxis={XAxis}
+                                setXAxis={setXAxis}
+                            />
+                            :
+                            <></>
+                    }
                 </Group>
-            </Container>
-        </>
+                <ActionIcon onClick={() => { setOpen(!open) }}>
+                    {
+                        open ?
+                            <IconChevronLeft />
+                            :
+                            <IconChevronRight />
+                    }
+                </ActionIcon>
+                <Divider orientation="vertical" />
+                <Group w={open ? rect.width - 256 - 28 : rect.width - 28}>
+                    <VisualPreviewChart
+                        rect={rect}
+                        XAxis={XAxis}
+                        open={open}
+                    />
+                </Group>
+            </Group>
+        </Group>
     )
 }

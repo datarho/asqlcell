@@ -1,35 +1,15 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent } from "react";
 import { VegaLite } from "react-vega";
-import { useModel } from "../hooks";
+import { useModelState } from "../hooks";
 
-export const LineChart: FunctionComponent = () => {
-    const model = useModel();
-    const [data, setData] = useState(model?.get("vis_data") !== "" ? model?.get("vis_data") : `{"columns":[],"index":[],"data":[]}`);
-    const colData = JSON.parse(data).data;
-    const colName = JSON.parse(data).columns[0];
-    model?.on("change:vis_data", (msg) => {
-        setData(model.get("vis_data"))
-    });
-
-    const lineData =
-        colData ?
-            {
-                values:
-                    colData.map((item: number, index: number) => {
-                        return ({ a: index, b: item })
-                    })
-            }
-            :
-            {
-                values: [
-                    { a: 0, b: 0 }
-                ]
-            };
+export const QuickViewChart: FunctionComponent = () => {
+    const [data] = useModelState("quickv_data");
+    const lineData = { values: JSON.parse(data === "" ? `{"columns":[],"index":[],"data":[]}` : data) };
     const dataLength = lineData.values.length;
-
     return <VegaLite
         data={lineData}
         actions={false}
+        renderer={'svg'}
         spec={
             {
                 width: 400,
@@ -43,12 +23,12 @@ export const LineChart: FunctionComponent = () => {
                     {
                         mark: "line",
                         transform: [
-                            { calculate: "datum.a", as: "index" },
-                            { calculate: "datum.b", as: colName }
+                            { calculate: "toNumber(datum.x)", as: "index" },
+                            { calculate: "datum.y", as: "y" }
                         ],
                         encoding: {
                             x: { field: "index", type: dataLength >= 10 ? "quantitative" : "ordinal", axis: { title: null } },
-                            y: { field: colName, type: "quantitative" },
+                            y: { field: "y", type: "quantitative" },
                             opacity: {
                                 condition: { param: "industry", value: 1 },
                                 value: 10

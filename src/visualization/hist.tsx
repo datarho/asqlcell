@@ -3,7 +3,7 @@ import { VegaLite } from "react-vega";
 import { Dfhead } from "../WidgetView";
 import { Group, Stack, Text } from "@mantine/core";
 
-export const BarChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }> = ({ item, headerContent }) => {
+export const HistChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }> = ({ item, headerContent }) => {
     const expo = (input: number) => { return input.toExponential(2) };
     const isScientific = (input: number) => { return (!(0.1 <= Math.abs(input) && Math.abs(input) <= 10000)) };
     const getIntervalSide = (input: number) => {
@@ -44,6 +44,7 @@ export const BarChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }>
             <VegaLite
                 data={barData}
                 actions={false}
+                renderer={'svg'}
                 spec={{
                     "background": "transparent",
                     "data": { "name": "table" },

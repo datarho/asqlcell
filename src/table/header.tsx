@@ -3,9 +3,8 @@ import { IconChartLine } from "@tabler/icons-react";
 import React, { useState } from "react";
 import { FunctionComponent } from "react";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
-import { useModel } from "../hooks";
-import { BarChart } from "../visualization/bar";
-import { LineChart } from "../visualization/line";
+import { useModel, useModelState } from "../hooks";
+import { HistChart, QuickViewChart } from "../visualization";
 import { Dfhead } from "../WidgetView";
 
 interface props {
@@ -31,11 +30,11 @@ const HeaderInfo: FunctionComponent<InfoProps> = ({ headerContent, item, dataLen
             {headerContent.filter(header => header.columnName === item && (header.dtype.includes("int") || header.dtype.includes("float"))).length !== 0 ?
                 <Group noWrap position="center" sx={{ gap: 0, alignItems: "flex-start" }}>
 
-                    <BarChart item={item} headerContent={headerContent} />
+                    <HistChart item={item} headerContent={headerContent} />
 
                     <Popover
                         onOpen={() => {
-                            model?.trigger("vis_sql", item)
+                            model?.trigger("quick_view", item)
                         }}
                     >
                         <Popover.Target>
@@ -50,7 +49,7 @@ const HeaderInfo: FunctionComponent<InfoProps> = ({ headerContent, item, dataLen
                                 left: "calc(50vw - 240px) !important",
                             }}
                         >
-                            <LineChart />
+                            <QuickViewChart />
                         </Popover.Dropdown>
                     </Popover>
 
@@ -112,9 +111,8 @@ const HeaderTitle: FunctionComponent<TitleProps> = ({ headerContent, item }) => 
         Descending: -1,
         None: 0,
     }
-    const [order, setOrder] = useState(model?.get("column_sort")[1]);
+    const [colSort, setColSort] = useModelState("column_sort");
     let currentOrder = Order.None;
-    const [col, setColName] = useState<string>(model?.get("column_sort")[0]);
     return (
         <Group position="center">
             <Button
@@ -145,11 +143,11 @@ const HeaderTitle: FunctionComponent<TitleProps> = ({ headerContent, item }) => 
                                 <></>
                         }
                         {
-                            col === item ?
-                                order === Order.Increasing ?
+                            colSort[0] === item ?
+                                colSort[1] === Order.Increasing ?
                                     <FaSortUp color="gray" size={10} />
                                     :
-                                    order === Order.Descending ?
+                                    colSort[1] === Order.Descending ?
                                         <FaSortDown color="gray" size={10} />
                                         :
                                         <FaSort color="lightgray" size={10} />
@@ -160,22 +158,21 @@ const HeaderTitle: FunctionComponent<TitleProps> = ({ headerContent, item }) => 
                 }
                 variant="subtle"
                 onClick={() => {
-                    if (col === item) {
-                        if (order === Order.Increasing) {
+                    if (colSort[0] === item) {
+                        if (colSort[1] === Order.Increasing) {
                             currentOrder = Order.Descending
-                            setOrder(Order.Descending)
+                            setColSort([colSort[0], Order.Descending])
                         }
-                        else if (order === Order.Descending) {
+                        else if (colSort[1] === Order.Descending) {
                             currentOrder = Order.None;
-                            setOrder(Order.None);
+                            setColSort([colSort[0], Order.None]);
                         } else {
                             currentOrder = Order.Increasing
-                            setOrder(Order.Increasing)
+                            setColSort([colSort[0], Order.Increasing])
                         }
                     } else {
                         currentOrder = Order.Increasing
-                        setOrder(Order.Increasing)
-                        setColName(item)
+                        setColSort([colSort[0], Order.Increasing])
                     }
                     model?.trigger("sort", [item, currentOrder])
                 }}

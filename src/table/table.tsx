@@ -1,45 +1,61 @@
-import { FunctionComponent, useState } from "react";
-import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea } from "@mantine/core"
+import { FunctionComponent, useRef, useState } from "react";
+import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea, Box, ActionIcon, Tooltip } from "@mantine/core"
 import React from "react";
 import { uuid } from "@jupyter-widgets/base";
 import { DataframeHeader } from "./header";
 import { TableElement } from "./element";
-import { useModel } from "../hooks";
+import { useModel, useModelState } from "../hooks";
+import { IconFilters } from "@tabler/icons-react";
+import { useIntersection } from "@mantine/hooks";
 
-interface prop {
-    page: number,
-    setPage: React.Dispatch<React.SetStateAction<number>>,
-    rowNumber: number,
-    setRowNumber: React.Dispatch<React.SetStateAction<number>>,
+
+const NumericElement: FunctionComponent<{ item: number, color: number, activated: boolean }> = ({ item, color, activated }) => {
+    const textColor = color > 125 ? 0 : 255;
+    const containerRef = useRef();
+    const { ref, entry } = useIntersection({
+        root: containerRef.current,
+        threshold: 1,
+    });
+    return (
+        <Box ref={ref} bg={activated && entry?.isIntersecting ? `rgb(${color}, ${color}, ${color})` : "transparent"} c={activated && entry?.isIntersecting ? `rgb(${textColor}, ${textColor}, ${textColor})` : "black"}>
+            <Text sx={{ overflow: "hidden" }} fz="8px">
+                {
+                    item
+                }
+            </Text>
+        </Box>
+    )
 }
 
-export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, setRowNumber }) => {
+export const DataTable: FunctionComponent = () => {
     const model = useModel();
+    const [data] = useModelState("data_grid");
+    const [hist] = useModelState("title_hist");
+    const [execTime] = useModelState("exec_time");
+    const [color] = useModelState("column_color");
 
-    const [data, setData] = useState(model?.get("data_grid") ?? "{}");
-    model?.on("change:data_grid", () => { setData(model.get("data_grid")) });
-
-    const [hist, setHist] = useState<string>(model?.get("title_hist") ?? "");
-    model?.on("change:title_hist", () => setHist(model?.get("title_hist")));
-
-    const [execTime, setExecTime] = useState<string>(model?.get("exec_time") ?? "");
-    model?.on("execTime", (msg: string) => setExecTime(msg.slice(9, msg.length)));
-
+    const [rowNumber, setRowNumber] = useState<number>(model?.get("row_range")[1] - model?.get("row_range")[0]);
+    const [page, setPage] = useState(Math.floor(model?.get("row_range")[0] / rowNumber) + 1);
     const [tempoIndex, setTempoIndex] = useState<number>(1);
     const [outOfRange, setOutOfRange] = useState<boolean>(false);
+    const [activatedFormatting, setActiedFormatting] = useState<boolean>(false);
+
     const info = JSON.parse(data.split("\n")[0]);
     const dataLength = data.split("\n")[1] as unknown as number || 0;
+    const colorMatrix = JSON.parse(color).data;
     const header: string[] = info.columns;
+
     let timeDiff = 0;
     if (execTime.length !== 0) {
         timeDiff = (new Date(execTime.split(",")[1]).getTime() - new Date(execTime.split(",")[0]).getTime()) / 1000;
     }
+
     const headerContent = hist ?
         JSON.parse(hist)
         :
         [{ columnName: "", dtype: "", bins: [{ bin_start: 0, bin_end: 0, count: 0 }] }];
 
-    const rows = [...Array(info.index.length).keys()].map((index) => (
+    const rows = [...Array(info.index.length).keys()].map((index: number) => (
         <tr key={uuid()}>
             <td key={index}>{info.index[index]}</td>
             {
@@ -52,10 +68,14 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                                     :
                                     "False"
                                 :
-                                typeof (item) === "string" && item.length > 30 ?
+                                typeof (item) === "string" ?
                                     <TableElement item={item} />
                                     :
-                                    item
+                                    <NumericElement
+                                        item={item}
+                                        color={colorMatrix[index] ? colorMatrix[index][tdIndex] : 255}
+                                        activated={activatedFormatting}
+                                    />
                         }
                     </td>
                 ))
@@ -119,6 +139,17 @@ export const DataTable: FunctionComponent<prop> = ({ page, setPage, rowNumber, s
                     }
                 </Group>
                 <Group align={"center"}>
+                    <Tooltip
+                        label="Conditional Formatting"
+                        withArrow
+                    >
+                        <ActionIcon
+                            variant="transparent"
+                            onClick={() => { setActiedFormatting(!activatedFormatting) }}
+                        >
+                            <IconFilters size={16} />
+                        </ActionIcon>
+                    </Tooltip>
                     <Group sx={{ gap: 0 }}>
                         <Select
                             sx={{

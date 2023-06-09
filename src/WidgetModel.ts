@@ -9,7 +9,7 @@ import { DOMWidgetView } from "@jupyter-widgets/base";
 const defaultModelProperties = {
     data_name: "",
     dfs_button: "",
-    error: "",
+    error: ["", ""],
     exec_time: "",
     output_var: "sqlcelldf",
     row_range: [0, 10],
@@ -18,10 +18,14 @@ const defaultModelProperties = {
     sql_button: "",
     mode: "",
     data_grid: "",
+    column_color: "",
     data_sql: "",
+    quickv_sql: "",
+    quickv_data: "",
     vis_sql: ["", ""],
-    vis_data: undefined,
+    vis_data: "",
     title_hist: "",
+    cache: "[{}]",
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -48,9 +52,13 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             data_name: undefined,
             data_sql: undefined,
             error: undefined,
+            quickv_var: undefined,
+            quickv_data: undefined,
             vis_sql: undefined,
             vis_data: undefined,
             title_hist: undefined,
+            cache: undefined,
+            column_color: undefined,
         };
     }
 
@@ -58,13 +66,6 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
         super.initialize(attributes, options);
         this.set("json_dump", new Date().toISOString());
         this.save_changes();
-        // this.on("all", (msg) => { console.log(msg) })
-        // this.on("change", (msg) => { console.log(msg) })
-        this.on("change:output", this.handle_update_messages, this);
-    }
-
-    handle_update_messages(msg: any) {
-        this.trigger("update_outputName", msg);
     }
     static serializers: widgets.ISerializers = {
         ...widgets.DOMWidgetModel.serializers,

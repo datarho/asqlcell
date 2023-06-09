@@ -95,7 +95,7 @@ setup_args = dict(
     install_requires=[
         "ipywidgets>=8.0.0",
         "pandas>=1.5.2",
-        "duckdb>=0.7.2.dev1623",
+        "duckdb>=0.8.0",
         "Jinja2>=3.1.2",
         "sqlparse>=0.4.3",
     ],
