@@ -98,6 +98,7 @@ setup_args = dict(
         "duckdb>=0.8.0",
         "Jinja2>=3.1.2",
         "sqlparse>=0.4.3",
+        "jupyter_packaging>=0.12.3"
     ],
     extras_require = {
         'test': [

@@ -2,7 +2,6 @@
 
 Analytical SQL cell for Jupyter.
 
-
 ## Installation
 
 You can install using `pip`:
@@ -17,7 +16,7 @@ Here's a quick example to get you started with Analytical SQL Cell in Jupyter:
 
 ```%%sql result_set
 
-SELECT 
+SELECT
     *
 FROM 'data.csv'
 LIMIT 10
@@ -39,14 +38,14 @@ With the SQL query being executed in an Analytical SQL Cell, the result set is p
 
 In case of multiple SQL statements being executed in an Analytical SQL Cell, only the result set of the last SQL statement will be presented.
 
-If the last SQL statement didn't have any result set, then only the count of executed data rows is shown. 
+If the last SQL statement didn't have any result set, then only the count of executed data rows is shown.
 
 ![sample result table](screenshot.jpg)
 
 ### Tutorial
 
- * [Introduction](examples/introduction.ipynb)
- * [World Development in Numbers](examples/gapminder.ipynb)
+- [Introduction](examples/introduction.ipynb)
+- [World Development in Numbers](examples/gapminder.ipynb)
 
 ## Development
 
@@ -56,7 +55,7 @@ Mac OS and Windows Subsystem for Linux.
 Please run the following commands to create a conda environment:
 
 ```bash
-conda create -n asqlcell -c conda-forge nodejs yarn python jupyterlab
+conda create -n asqlcell -c conda-forge nodejs=18.15 python=3.10 jupyterlab=3
 conda activate asqlcell
 ```
 
@@ -70,7 +69,7 @@ pip install -e ".[test, examples, docs]"
 
 ### Jupyter
 
-When developing your extensions, you need to manually enable your extensions with the notebook / lab frontend. 
+When developing your extensions, you need to manually enable your extensions with the notebook / lab frontend.
 
 For lab, this is done by the command:
 
@@ -78,18 +77,6 @@ For lab, this is done by the command:
 jupyter labextension develop --overwrite .
 jlpm run build
 ```
-
-For classic notebook, you need to run:
-
-```
-jupyter nbextension install --sys-prefix --symlink --overwrite --py asqlcell
-jupyter nbextension enable --sys-prefix --py asqlcell
-```
-
-Note that the `--symlink` flag doesn't work on Windows, so you will here have to run
-the `install` command every time that you rebuild your extension. For certain installations
-you might also need another flag instead of `--sys-prefix`, but we won't cover the meaning
-of those flags here.
 
 #### Typescript
 
