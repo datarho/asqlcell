@@ -100,10 +100,10 @@ export const VisualMenu: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =>
                                         }
                                     }}
                                     onClick={() => {
-                                        let names = colArray.map(item => { return (item.seriesName) })
+                                        const names = colArray.map(item => { return (item.seriesName) })
                                         let givenName = ""
                                         colArray.forEach((col, index) => {
-                                            let tempoName = `Y-series-${index}`
+                                            const tempoName = `Y-series-${index}`
                                             if (!names.includes(tempoName)) {
                                                 givenName = tempoName
                                             }
