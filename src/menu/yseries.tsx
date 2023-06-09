@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { Accordion, ActionIcon, Grid, Group, Select, Text, Transition } from "@mantine/core";
-import { Icon123, IconBorderLeft, IconBorderRight, IconMinus } from "@tabler/icons-react";
+import { IconBorderLeft, IconBorderRight, IconMinus } from "@tabler/icons-react";
 import { useModel, useModelState } from "../hooks";
 import { ColItem } from "../visualization";
 import { ChartIconMap, ChartTypeList, IconMap, InitialSelectedCols, InitialSingleSelectedCol, SelectItem, sendVisSql } from "../public";
@@ -39,7 +39,7 @@ export const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, se
                 }
             )
         });
-    const [seriesIcon, setSeriesIcon] = useState<JSX.Element>(<Icon123 />);
+    const [seriesIcon, setSeriesIcon] = useState<JSX.Element>(IconMap["int"]);
     const target: ColItem = cacheObject["selectedCol"].find((item: ColItem) => item.seriesName === seriesName);
     const [chartIcon, setChartIcon] = useState<JSX.Element>(ChartIconMap[target ? target.chartType : "line"]);
     const [yAxis, setYAxis] = useState(target ? target.yAxis : "left");

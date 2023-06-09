@@ -1,6 +1,6 @@
 import { Accordion, ActionIcon, Grid, Group, Popover, Select, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { Icon123, IconAlertSquareRounded, IconChartArrows, IconChartArrowsVertical } from "@tabler/icons-react";
+import { IconAlertSquareRounded, IconChartArrows, IconChartArrowsVertical } from "@tabler/icons-react";
 import React from "react";
 import { FunctionComponent, useState } from "react";
 import { useModel, useModelState } from "../hooks";
@@ -32,7 +32,7 @@ export const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis,
     // const [sortAsce, setSortAsce] = useState(true);
     const [hist] = useModelState("title_hist");
     const headers = JSON.parse(hist ?? `{"columnName":"", "dtype":""}`);
-    const [xAxisIcon, setXAxisIcon] = useState<JSX.Element>(<Icon123 />);
+    const [xAxisIcon, setXAxisIcon] = useState<JSX.Element>(IconMap["int"]);
     const [cache, setCache] = useModelState("cache");
     const dataLength = (model?.get("data_grid") ?? "{}").split("\n")[1] as unknown as number || 0;
     const [orient, setOrient] = useState(JSON.parse(
