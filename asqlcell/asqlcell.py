@@ -1,13 +1,12 @@
 import datetime
 import json
-from base64 import b64decode
 
 import __main__
 import IPython
 import pandas as pd
 import sqlparse
 from IPython.core.magic import needs_local_scope, register_cell_magic, register_line_magic
-from IPython.display import Image, display, update_display
+from IPython.display import clear_output, display
 from ipywidgets import DOMWidget
 from traitlets import HasTraits, Int, Tuple, Unicode, observe
 
@@ -100,9 +99,6 @@ class SqlcellWidget(DOMWidget, HasTraits):
             self.exec_time = str(time) + "," + str(datetime.datetime.now())
             self.set_data_grid()
             self.run_vis_sql()
-
-            # We should create the visual in display data for future updates.
-            display(self, display_id="special cell id")
         except Exception as r:
             raise NoTracebackException(r)
 
@@ -133,10 +129,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     @observe("row_range")
     def on_row_range(self, change):
         self.set_data_grid()
-        IPython.display.clear_output()
-        # from IPython.display import display, update_display
-        # update_display({"text/html": "New text content"},
-        #        display_id=self.handle.display_id, raw=True)
+        clear_output()
 
     @observe("column_sort")
     def on_column_sort(self, change):
@@ -176,7 +169,3 @@ class SqlcellWidget(DOMWidget, HasTraits):
         df = get_duckdb().execute(tmp).df()
         get_duckdb().unregister(self.data_name)
         self.quickv_data = vega_spec(df, "index_rn1qaz2wsx")
-
-    @observe("png")
-    def on_png(self, change):
-        update_display(Image(b64decode(self.png)), display_id="special cell id")
