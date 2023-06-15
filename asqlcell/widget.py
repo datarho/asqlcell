@@ -2,51 +2,26 @@ import datetime
 import json
 
 import __main__
-import IPython
 import pandas as pd
 import sqlparse
-from IPython.core.magic import needs_local_scope, register_cell_magic, register_line_magic
-from IPython.display import clear_output, display
+from IPython.display import clear_output
 from ipywidgets import DOMWidget
 from traitlets import HasTraits, Int, Tuple, Unicode, observe
 
-from .jinjasql import JinjaSql
-from .utils import NoTracebackException, get_duckdb, get_duckdb_result, get_histogram, get_value, get_vars, vega_spec
+from asqlcell.jinjasql import JinjaSql
+from asqlcell.utils import (
+    NoTracebackException,
+    get_cell_id,
+    get_duckdb,
+    get_duckdb_result,
+    get_histogram,
+    get_value,
+    get_vars,
+    vega_spec,
+)
 
 module_name = "asqlcell"
 module_version = "0.1.0"
-
-
-@needs_local_scope
-@register_cell_magic
-def sql(line, cell="", local_ns={}):
-    cellid = "asqlcell" + get_cell_id()
-    if get_value(cellid) == None:
-        setattr(__main__, cellid, SqlCellWidget(mode="CMD"))
-    w = get_value(cellid)
-    w.data_name = line.strip()
-    w.run_sql(cell)
-    return w
-
-
-@register_line_magic
-def sql(line=""):
-    return get_duckdb_result(line)
-
-
-def get_cell_id():
-    for i in range(20):
-        scope = IPython.get_ipython().get_local_scope(i)
-        if scope.get("cell_id") != None:
-            return scope["cell_id"].replace("-", "")
-        if "msg" in scope:
-            msg = scope.get("msg")
-            if "metadata" in msg:
-                meta = msg.get("metadata")
-                if "cellId" in meta:
-                    return meta.get("cellId").replace("-", "")
-    print("NO CELL_ID")
-    return ""
 
 
 class SqlCellWidget(DOMWidget, HasTraits):

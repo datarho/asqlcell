@@ -1,4 +1,4 @@
-from ..asqlcell import SqlCellWidget
+from ..widget import SqlCellWidget
 
 
 def test_widget_creation_blank():
