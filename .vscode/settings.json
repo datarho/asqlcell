@@ -6,5 +6,7 @@
             "source.organizeImports": true
         },
     },
-    "python.formatting.provider": "none"
+    "python.formatting.provider": "none",
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

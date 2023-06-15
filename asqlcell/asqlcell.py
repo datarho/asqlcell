@@ -22,7 +22,7 @@ module_version = "0.1.0"
 def sql(line, cell="", local_ns={}):
     cellid = "asqlcell" + get_cell_id()
     if get_value(cellid) == None:
-        setattr(__main__, cellid, SqlcellWidget(mode="CMD"))
+        setattr(__main__, cellid, SqlCellWidget(mode="CMD"))
     w = get_value(cellid)
     w.data_name = line.strip()
     w.run_sql(cell)
@@ -49,7 +49,7 @@ def get_cell_id():
     return ""
 
 
-class SqlcellWidget(DOMWidget, HasTraits):
+class SqlCellWidget(DOMWidget, HasTraits):
     _model_name = Unicode("SqlCellModel").tag(sync=True)
     _model_module = Unicode(module_name).tag(sync=True)
     _model_module_version = Unicode(module_version).tag(sync=True)
@@ -78,7 +78,7 @@ class SqlcellWidget(DOMWidget, HasTraits):
     png = Unicode("").tag(sync=True)
 
     def __init__(self, sql="", mode="UI"):
-        super(SqlcellWidget, self).__init__()
+        super(SqlCellWidget, self).__init__()
 
         self.mode = mode
 

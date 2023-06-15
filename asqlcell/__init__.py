@@ -1,5 +1,5 @@
 from ._version import __version__, version_info
-from .asqlcell import SqlcellWidget
+from .asqlcell import SqlCellWidget
 
 
 def _jupyter_labextension_paths():
