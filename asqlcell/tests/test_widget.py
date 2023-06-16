@@ -1,14 +1,11 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# Copyright (c) qizh.
-# Distributed under the terms of the Modified BSD License.
-
-import pytest
-
-from ..asqlcell import SqlcellWidget
+from ..widget import SqlCellWidget
 
 
 def test_widget_creation_blank():
-    w = SqlcellWidget()
-    assert w.value == ''
+    w = SqlCellWidget()
+    assert w._model_name == "SqlCellModel"
+    assert w._model_module == "asqlcell"
+    assert w._model_module_version == "0.1.0"
+    assert w._view_name == "SqlCellView"
+    assert w._view_module == "asqlcell"
+    assert w._view_module_version == "0.1.0"

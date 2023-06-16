@@ -1,10 +1,7 @@
-#!/usr/bin/env python
-# coding: utf-8
+from asqlcell._version import __version__, version_info
+from asqlcell.magic import sql
+from asqlcell.widget import SqlCellWidget
 
-# Copyright (c) qizh.
-# Distributed under the terms of the Modified BSD License.
-from .asqlcell import SqlcellWidget
-from ._version import __version__, version_info
 
 def _jupyter_labextension_paths():
     """Called by Jupyter Lab Server to detect if it is a valid labextension and
@@ -18,10 +15,12 @@ def _jupyter_labextension_paths():
         from `src` directory into <jupyter path>/labextensions/<dest> directory
         during widget installation
     """
-    return [{
-        'src': 'labextension',
-        'dest': 'asqlcell',
-    }]
+    return [
+        {
+            "src": "labextension",
+            "dest": "asqlcell",
+        }
+    ]
 
 
 def _jupyter_nbextension_paths():
@@ -40,9 +39,4 @@ def _jupyter_nbextension_paths():
     require: Path to importable AMD Javascript module inside the
         <jupyter path>/nbextensions/<dest> directory
     """
-    return [{
-        'section': 'notebook',
-        'src': 'nbextension',
-        'dest': 'asqlcell',
-        'require': 'asqlcell/extension'
-    }]
+    return [{"section": "notebook", "src": "nbextension", "dest": "asqlcell", "require": "asqlcell/extension"}]
