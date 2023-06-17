@@ -15,7 +15,6 @@ from asqlcell.utils import (
     get_duckdb,
     get_duckdb_result,
     get_histogram,
-    get_value,
     get_vars,
     vega_spec,
 )
@@ -57,6 +56,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         self.mode = mode
 
+    def _get_value(self, variable_name):
+        return getattr(__main__, variable_name, None)
+
     def run_sql(self, sql):
         try:
             if len(self.data_name) == 0:
@@ -70,7 +72,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             jsql = JinjaSql(param_style="qmark")
             res, vlist = jsql.prepare_query(sqlparse.format(sql, strip_comments=True, reindent=True), get_vars())
             setattr(__main__, self.data_name, get_duckdb_result(res, vlist))
-            self.title_hist = str(json.dumps(get_histogram(get_value(self.data_name))))
+            self.title_hist = str(json.dumps(get_histogram(self._get_value(self.data_name))))
             self.exec_time = str(time) + "," + str(datetime.datetime.now())
             self.set_data_grid()
             self.run_vis_sql()
@@ -78,7 +80,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             raise NoTracebackException(r)
 
     def set_data_grid(self):
-        df = get_value(self.data_name)
+        df = self._get_value(self.data_name)
         self.data_grid = (
             str(df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format="iso"))
             + "\n"
@@ -108,7 +110,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("column_sort")
     def on_column_sort(self, change):
-        df = get_value(self.data_name)
+        df = self._get_value(self.data_name)
         df.sort_index(axis=0, inplace=True)
         if self.column_sort[1] != 0:
             df.sort_values(
@@ -121,7 +123,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def run_vis_sql(self):
         try:
-            get_duckdb().register(self.data_name, get_value(self.data_name))
+            get_duckdb().register(self.data_name, self._get_value(self.data_name))
             df = get_duckdb().execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name)).df()
             get_duckdb().unregister(self.data_name)
             self.vis_data = vega_spec(df, self.vis_sql[1])
@@ -136,7 +138,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("quickv_var")
     def on_quickv_var(self, change):
-        get_duckdb().register(self.data_name, get_value(self.data_name))
+        get_duckdb().register(self.data_name, self._get_value(self.data_name))
         tmp = """select "$$__C__$$" from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM $$__NAME__$$)
                 using SAMPLE reservoir (100 rows) REPEATABLE(42)
                 order by index_rn1qaz2wsx"""

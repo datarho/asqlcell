@@ -1,4 +1,5 @@
 import json
+import logging
 
 import __main__
 import duckdb
@@ -9,7 +10,10 @@ from IPython import get_ipython
 __DUCKDB = None
 
 
-def get_cell_id():
+def get_cell_id() -> str:
+    """
+    Get cell id for the current cell.
+    """
     for i in range(20):
         scope = get_ipython().get_local_scope(i)
         if scope.get("cell_id") != None:
@@ -20,7 +24,7 @@ def get_cell_id():
                 meta = msg.get("metadata")
                 if "cellId" in meta:
                     return meta.get("cellId").replace("-", "")
-    print("NO CELL_ID")
+    logging.debug("Cell id not found")
     return ""
 
 

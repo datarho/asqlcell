@@ -1,10 +1,11 @@
 from asqlcell._version import __version__, version_info
-from asqlcell.magic import sql
+from asqlcell.magic import SqlMagics
 from asqlcell.widget import SqlCellWidget
 
 
 def _jupyter_labextension_paths():
-    """Called by Jupyter Lab Server to detect if it is a valid labextension and
+    """
+    Called by Jupyter Lab Server to detect if it is a valid labextension and
     to install the widget
     Returns
     =======
@@ -24,8 +25,8 @@ def _jupyter_labextension_paths():
 
 
 def _jupyter_nbextension_paths():
-    """Called by Jupyter Notebook Server to detect if it is a valid nbextension and
-    to install the widget
+    """
+    Called by Jupyter Notebook Server to detect if it is a valid nbextension and to install the widget
     Returns
     =======
     section: The section of the Jupyter Notebook Server to change.
@@ -40,3 +41,13 @@ def _jupyter_nbextension_paths():
         <jupyter path>/nbextensions/<dest> directory
     """
     return [{"section": "notebook", "src": "nbextension", "dest": "asqlcell", "require": "asqlcell/extension"}]
+
+
+def load_ipython_extension(ipython):
+    """
+    Any module file that define a function named `load_ipython_extension` can be loaded via
+    `%load_ext module.path` or be configured to be auto loaded by IPython via `ipython_config.py`
+    at startup time.
+    """
+    # You can register the class itself without instantiating it. IPython will call the default constructor on it.
+    ipython.register_magics(SqlMagics)
