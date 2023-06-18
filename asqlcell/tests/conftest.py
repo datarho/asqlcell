@@ -1,6 +1,16 @@
 import pytest
 from ipykernel.comm import Comm
+from IPython.core.interactiveshell import InteractiveShell
 from ipywidgets import Widget
+
+from asqlcell.magic import SqlMagics
+
+
+@pytest.fixture
+def shell() -> InteractiveShell:
+    session = InteractiveShell()
+    session.register_magics(SqlMagics(session))
+    yield session
 
 
 class MockComm(Comm):

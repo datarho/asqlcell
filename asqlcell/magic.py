@@ -1,4 +1,5 @@
 import __main__
+from IPython.core.interactiveshell import InteractiveShell
 from IPython.core.magic import Magics, cell_magic, line_magic, magics_class, needs_local_scope
 from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
 
@@ -8,6 +9,15 @@ from asqlcell.widget import SqlCellWidget
 
 @magics_class
 class SqlMagics(Magics):
+    """
+    Magic extension for analytical sql cell.
+    """
+
+    def __init__(self, shell: InteractiveShell):
+        super(SqlMagics, self).__init__(shell)
+
+        self.shell = shell
+
     @needs_local_scope
     @line_magic("sql")
     @cell_magic("sql")
@@ -23,7 +33,7 @@ class SqlMagics(Magics):
             args = parse_argstring(self.execute, line)
 
             # Ensure there is a widget created for the cell.
-            cell_id = "asqlcell" + get_cell_id()
+            cell_id = "asqlcell" + self._get_cell_id()
             if self._get_widget(cell_id) == None:
                 self._set_widget(cell_id)
             widget = self._get_widget(cell_id)
@@ -44,3 +54,18 @@ class SqlMagics(Magics):
 
     def _set_widget(self, cell_id: str) -> None:
         setattr(__main__, cell_id, SqlCellWidget(mode="CMD"))
+
+    def _get_cell_id(self) -> str:
+        """
+        Get cell id for the current cell.
+        """
+        scope = self.shell.get_local_scope(1)
+        if scope.get("cell_id") != None:
+            return scope["cell_id"].replace("-", "")
+        if "msg" in scope:
+            msg = scope.get("msg")
+            if "metadata" in msg:
+                meta = msg.get("metadata")
+                if "cellId" in meta:
+                    return meta.get("cellId").replace("-", "")
+        return ""

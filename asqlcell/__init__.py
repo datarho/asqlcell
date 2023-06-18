@@ -1,3 +1,5 @@
+from IPython.core.interactiveshell import InteractiveShell
+
 from asqlcell._version import __version__, version_info
 from asqlcell.magic import SqlMagics
 from asqlcell.widget import SqlCellWidget
@@ -43,11 +45,11 @@ def _jupyter_nbextension_paths():
     return [{"section": "notebook", "src": "nbextension", "dest": "asqlcell", "require": "asqlcell/extension"}]
 
 
-def load_ipython_extension(ipython):
+def load_ipython_extension(shell: InteractiveShell):
     """
     Any module file that define a function named `load_ipython_extension` can be loaded via
     `%load_ext module.path` or be configured to be auto loaded by IPython via `ipython_config.py`
     at startup time.
     """
     # You can register the class itself without instantiating it. IPython will call the default constructor on it.
-    ipython.register_magics(SqlMagics)
+    shell.register_magics(SqlMagics(shell))
