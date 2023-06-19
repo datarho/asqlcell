@@ -2,6 +2,7 @@ import __main__
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.core.magic import Magics, cell_magic, line_magic, magics_class, needs_local_scope
 from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
+from asqlcell import utils
 
 from asqlcell.utils import get_cell_id, get_duckdb_result
 from asqlcell.widget import SqlCellWidget
@@ -22,7 +23,8 @@ class SqlMagics(Magics):
     @line_magic("sql")
     @cell_magic("sql")
     @magic_arguments()
-    @argument("-o", "--output", help="The variable name for the result dataframe.", required=True)
+    @argument("output", nargs='?', help="The variable name for the result dataframe.")
+    @argument("--conn", nargs='?', help="The variable name for connector of database.")
     @argument("line", default="", nargs="*", type=str, help="The SQL statement.")
     def execute(self, line="", cell="", local_ns=None):
         """
@@ -39,9 +41,12 @@ class SqlMagics(Magics):
             widget = self._get_widget(cell_id)
 
             # Specify parameters and execute the sql statements.
-            widget.data_name = args.output
-            widget.run_sql(cell)
-
+            if args.output:
+                widget.data_name = args.output
+            if args.conn:
+                widget.run_sql(cell, utils.get_value(args.conn))
+            else:
+                widget.run_sql(cell)
             return widget
         else:
             # Handle line magic where line is one line of sql statement.

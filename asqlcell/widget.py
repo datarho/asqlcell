@@ -4,9 +4,9 @@ import json
 import __main__
 import pandas as pd
 import sqlparse
-from IPython.display import clear_output
 from ipywidgets import DOMWidget
 from traitlets import HasTraits, Int, Tuple, Unicode, observe
+from sqlalchemy import text
 
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import (
@@ -21,7 +21,6 @@ from asqlcell.utils import (
 
 module_name = "asqlcell"
 module_version = "0.1.0"
-
 
 class SqlCellWidget(DOMWidget, HasTraits):
     _model_name = Unicode("SqlCellModel").tag(sync=True)
@@ -59,7 +58,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def _get_value(self, variable_name):
         return getattr(__main__, variable_name, None)
 
-    def run_sql(self, sql):
+    def run_sql(self, sql, conn=None):
         try:
             if len(self.data_name) == 0:
                 self.data_name = "__" + get_cell_id()
@@ -69,9 +68,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
             self.title_hist = ""
             self.column_color = ""
             self.column_sort = ("", 0)
-            jsql = JinjaSql(param_style="qmark")
-            res, vlist = jsql.prepare_query(sqlparse.format(sql, strip_comments=True, reindent=True), get_vars())
-            setattr(__main__, self.data_name, get_duckdb_result(res, vlist))
+            if not conn:
+                jsql = JinjaSql(param_style="qmark")
+                res, vlist = jsql.prepare_query(sqlparse.format(sql, strip_comments=True, reindent=True), get_vars())
+                setattr(__main__, self.data_name, get_duckdb_result(res, vlist))
+            else:
+                setattr(__main__, self.data_name, pd.DataFrame(conn.execute(text(sql)).fetchall()))
             self.title_hist = str(json.dumps(get_histogram(self._get_value(self.data_name))))
             self.exec_time = str(time) + "," + str(datetime.datetime.now())
             self.set_data_grid()
@@ -106,7 +108,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
     @observe("row_range")
     def on_row_range(self, change):
         self.set_data_grid()
-        clear_output()
 
     @observe("column_sort")
     def on_column_sort(self, change):
