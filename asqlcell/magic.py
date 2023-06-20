@@ -35,7 +35,7 @@ class SqlMagics(Magics):
             args = parse_argstring(self.execute, line)
 
             # Ensure there is a widget created for the cell.
-            cell_id = "asqlcell" + self._get_cell_id()
+            cell_id = "asqlcell" + get_cell_id()
             if self._get_widget(cell_id) == None:
                 self._set_widget(cell_id)
             widget = self._get_widget(cell_id)
