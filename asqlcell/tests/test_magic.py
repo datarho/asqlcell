@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import cast
 
 import __main__
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.utils.io import capture_output
 from pandas import DataFrame
+from pytest import raises
 
 dir = Path(__file__).parent.resolve()
 
@@ -39,3 +39,8 @@ def test_cell_magic_with_result(shell: InteractiveShell, cell_id="076b741a-37f9-
     assert isinstance(result, DataFrame)
 
     assert result.loc[0][0] == "hello world"
+
+
+def test_cell_magic_with_undefined_con(shell: InteractiveShell):
+    with raises(NameError):
+        shell.run_cell_magic("sql", "--out result --con con", "SELECT 'hello world'")

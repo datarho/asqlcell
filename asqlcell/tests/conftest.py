@@ -12,7 +12,7 @@ def session() -> InteractiveShell:
     yield start_ipython()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def shell(session) -> InteractiveShell:
     session.run_line_magic(magic_name="load_ext", line="asqlcell")
     yield session

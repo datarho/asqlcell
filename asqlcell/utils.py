@@ -5,18 +5,18 @@ import __main__
 import duckdb
 import numpy as np
 import pandas as pd
-from IPython import get_ipython
+from IPython.core.interactiveshell import InteractiveShell
 
 __DUCKDB = None
 
 
-def get_cell_id() -> str:
+def get_cell_id(shell: InteractiveShell) -> str:
     """
-    Get cell id for the current cell.
+    Get cell id for the current cell by walking the stack.
     """
     for i in range(20):
-        scope = get_ipython().get_local_scope(i)
-        if scope.get("cell_id") != None:
+        scope = shell.get_local_scope(i)
+        if scope.get("cell_id") is not None:
             return scope["cell_id"].replace("-", "")
         if "msg" in scope:
             msg = scope.get("msg")
@@ -24,7 +24,7 @@ def get_cell_id() -> str:
                 meta = msg.get("metadata")
                 if "cellId" in meta:
                     return meta.get("cellId").replace("-", "")
-    logging.debug("Cell id not found")
+    logging.debug("cell id not found")
     return ""
 
 

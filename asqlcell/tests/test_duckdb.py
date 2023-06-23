@@ -4,7 +4,7 @@ from typing import cast
 import __main__
 from IPython.core.interactiveshell import InteractiveShell
 from pandas import DataFrame
-from sqlalchemy import Connection, create_engine, inspect
+from sqlalchemy import create_engine, inspect
 
 dir = Path(__file__).parent.resolve()
 
