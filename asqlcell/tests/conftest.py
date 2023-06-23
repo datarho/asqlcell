@@ -1,16 +1,23 @@
 import pytest
 from ipykernel.comm import Comm
 from IPython.core.interactiveshell import InteractiveShell
+from IPython.testing.globalipapp import start_ipython
 from ipywidgets import Widget
 
 from asqlcell.magic import SqlMagics
 
 
-@pytest.fixture
-def shell() -> InteractiveShell:
-    session = InteractiveShell()
-    session.register_magics(SqlMagics(session))
+@pytest.fixture(scope="session")
+def session() -> InteractiveShell:
+    yield start_ipython()
+
+
+@pytest.fixture(scope="session")
+def shell(session) -> InteractiveShell:
+    session.run_line_magic(magic_name="load_ext", line="asqlcell")
     yield session
+    session.run_line_magic(magic_name="unload_ext", line="asqlcell")
+    session.run_line_magic(magic_name="reset", line="-f")
 
 
 class MockComm(Comm):

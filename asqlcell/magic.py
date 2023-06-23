@@ -5,8 +5,7 @@ from IPython.core.interactiveshell import InteractiveShell
 from IPython.core.magic import Magics, cell_magic, line_magic, magics_class, needs_local_scope
 from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
 
-from asqlcell import utils
-from asqlcell.utils import get_cell_id, get_duckdb_result
+from asqlcell.utils import get_duckdb_result, get_value
 from asqlcell.widget import SqlCellWidget
 
 
@@ -25,13 +24,14 @@ class SqlMagics(Magics):
     @line_magic("sql")
     @cell_magic("sql")
     @magic_arguments()
-    @argument("-o", "--output", help="The variable name for the result dataframe.")
-    @argument("-c", "--conn", help="The variable name for database connection.")
+    @argument("-o", "--out", help="The variable name for the result dataframe.")
+    @argument("-c", "--con", help="The variable name for database connection.")
     @argument("line", default="", nargs="*", type=str, help="The SQL statement.")
     def execute(self, line="", cell="", local_ns=None):
         """
         Execute the magic extension. This could be a line magic or a cell magic.
         """
+
         if cell:
             # Handle cell magic where line contains parameters only.
             args = parse_argstring(self.execute, line)
@@ -44,9 +44,10 @@ class SqlMagics(Magics):
             widget = self._get_widget(cell_id)
 
             # Specify parameters and execute the sql statements.
-            widget.data_name = args.output
-            if args.conn:
-                widget.run_sql(cell, utils.get_value(args.conn))
+            widget.data_name = args.out
+            if args.con:
+                con = self.shell.user_global_ns.get(args.con)
+                widget.run_sql(cell, con)
             else:
                 widget.run_sql(cell)
             return widget
@@ -60,7 +61,7 @@ class SqlMagics(Magics):
         return var if isinstance(var, SqlCellWidget) else None
 
     def _set_widget(self, cell_id: str) -> None:
-        setattr(__main__, cell_id, SqlCellWidget(mode="CMD"))
+        setattr(__main__, cell_id, SqlCellWidget(shell=self.shell))
 
     def _get_cell_id(self) -> str:
         """

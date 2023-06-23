@@ -1,12 +1,15 @@
+import builtins
 import datetime
 import json
 
 import __main__
 import pandas as pd
 import sqlparse
+from IPython.core.interactiveshell import InteractiveShell
 from ipywidgets import DOMWidget
+from pandas import read_sql
+from sqlalchemy import Connection, text
 from traitlets import HasTraits, Int, Tuple, Unicode, observe
-from sqlalchemy import text
 
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import (
@@ -22,6 +25,7 @@ from asqlcell.utils import (
 module_name = "asqlcell"
 module_version = "0.1.0"
 
+
 class SqlCellWidget(DOMWidget, HasTraits):
     _model_name = Unicode("SqlCellModel").tag(sync=True)
     _model_module = Unicode(module_name).tag(sync=True)
@@ -34,7 +38,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
     dfs_button = Unicode("").tag(sync=True)
     dfs_result = Unicode("").tag(sync=True)
     sql_button = Unicode("").tag(sync=True)
-    mode = Unicode("").tag(sync=True)
 
     row_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
     column_color = Unicode("").tag(sync=True)
@@ -50,15 +53,15 @@ class SqlCellWidget(DOMWidget, HasTraits):
     cache = Unicode("").tag(sync=True)
     png = Unicode("").tag(sync=True)
 
-    def __init__(self, sql="", mode="UI"):
+    def __init__(self, shell: InteractiveShell, sql=""):
         super(SqlCellWidget, self).__init__()
 
-        self.mode = mode
+        self.shell = shell
 
     def _get_value(self, variable_name):
-        return getattr(__main__, variable_name, None)
+        return self.shell.user_global_ns.get(variable_name)
 
-    def run_sql(self, sql, conn=None):
+    def run_sql(self, sql: str, con: Connection = None):
         try:
             if len(self.data_name) == 0:
                 self.data_name = "__" + get_cell_id()
@@ -68,13 +71,19 @@ class SqlCellWidget(DOMWidget, HasTraits):
             self.title_hist = ""
             self.column_color = ""
             self.column_sort = ("", 0)
-            if not conn:
+
+            if con is None:
                 jsql = JinjaSql(param_style="qmark")
                 res, vlist = jsql.prepare_query(sqlparse.format(sql, strip_comments=True, reindent=True), get_vars())
-                setattr(__main__, self.data_name, get_duckdb_result(res, vlist))
+                df = get_duckdb_result(res, vlist)
+
+                self.shell.user_global_ns[self.data_name] = df
             else:
-                setattr(__main__, self.data_name, pd.DataFrame(conn.execute(text(sql)).fetchall()))
-            self.title_hist = str(json.dumps(get_histogram(self._get_value(self.data_name))))
+                df = read_sql(sql, con=con)
+
+                self.shell.user_global_ns[self.data_name] = df
+
+            self.title_hist = str(json.dumps(get_histogram(df)))
             self.exec_time = str(time) + "," + str(datetime.datetime.now())
             self.set_data_grid()
             self.run_vis_sql()
