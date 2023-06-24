@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import cast
 
-import __main__
 from IPython.core.interactiveshell import InteractiveShell
 from pandas import DataFrame
 from sqlalchemy import create_engine, inspect
