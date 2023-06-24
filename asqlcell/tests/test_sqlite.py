@@ -17,9 +17,7 @@ def test_sqlite_conn_embedded_metadata(shell: InteractiveShell):
 
 def test_sqlite_standalone_metadata(shell: InteractiveShell):
     file = Path(dir, "chinook.sqlite")
-    con = create_engine(
-        "sqlite:///{file}".format(file=file),
-    ).connect()
+    con = create_engine(f"sqlite:///{file}").connect()
 
     tables = inspect(con).get_table_names()
     chinook = [
@@ -42,9 +40,7 @@ def test_sqlite_standalone_metadata(shell: InteractiveShell):
 def test_sqlite_standalone_cell_magic(shell: InteractiveShell):
     file = Path(dir, "chinook.sqlite")
 
-    con = create_engine(
-        "sqlite:///{file}".format(file=file),
-    ).connect()
+    con = create_engine(f"sqlite:///{file}").connect()
 
     shell.user_global_ns.setdefault("con", con)
 

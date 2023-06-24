@@ -10,11 +10,7 @@ dir = Path(__file__).parent.resolve()
 
 def test_duckdb_conn_embedded_line_magic(shell: InteractiveShell):
     file = Path(dir, "gapminder.csv.gz")
-    sql = """
-        SELECT * FROM '{file}'
-    """.format(
-        file=file
-    )
+    sql = f"SELECT * FROM '{file}'"
 
     result = cast(DataFrame, shell.run_line_magic("sql", sql))
 
@@ -24,11 +20,7 @@ def test_duckdb_conn_embedded_line_magic(shell: InteractiveShell):
 
 def test_duckdb_conn_embedded_cell_magic(shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"):
     file = Path(dir, "gapminder.csv.gz")
-    sql = """
-        SELECT * FROM '{file}'
-    """.format(
-        file=file
-    )
+    sql = f"SELECT * FROM '{file}'"
 
     shell.run_cell_magic("sql", "--out out", sql)
 
@@ -40,23 +32,21 @@ def test_duckdb_conn_embedded_cell_magic(shell: InteractiveShell, cell_id="076b7
 
 def test_duckdb_conn_standalone_metadata(shell: InteractiveShell):
     file = Path(dir, "chinook.duckdb")
-    conn = create_engine(
-        "duckdb:///{file}".format(file=file),
-    ).connect()
+    conn = create_engine(f"duckdb:///{file}").connect()
 
     tables = inspect(conn).get_table_names()
     chinook = [
-        "album",
-        "artist",
-        "customer",
-        "employee",
-        "genre",
-        "invoice",
-        "invoiceline",
-        "mediatype",
-        "playlist",
-        "playlisttrack",
-        "track",
+        "Album",
+        "Artist",
+        "Customer",
+        "Employee",
+        "Genre",
+        "Invoice",
+        "InvoiceLine",
+        "MediaType",
+        "Playlist",
+        "PlaylistTrack",
+        "Track",
     ]
 
     assert sorted(tables) == chinook
@@ -65,9 +55,7 @@ def test_duckdb_conn_standalone_metadata(shell: InteractiveShell):
 def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell):
     file = Path(dir, "chinook.duckdb")
 
-    con = create_engine(
-        "duckdb:///{file}".format(file=file),
-    ).connect()
+    con = create_engine(f"duckdb:///{file}").connect()
 
     shell.user_global_ns.setdefault("con", con)
 
@@ -75,14 +63,14 @@ def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell):
         "sql",
         "--out out --con con",
         """
-        SELECT * FROM genre
+        SELECT * FROM Album
         """,
     )
 
     out = shell.user_global_ns.get("out")
 
-    assert out.columns.values.tolist() == ["GenreId", "Name"]
-    assert out.shape == (25, 2)
+    assert out.columns.values.tolist() == ["AlbumId", "Title", "ArtistId"]
+    assert out.shape == (347, 3)
 
     shell.run_cell_magic(
         "sql",
@@ -98,4 +86,4 @@ def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell):
     out = shell.user_global_ns.get("out")
 
     assert out.columns.values.tolist() == ["Name", "Albums"]
-    assert out.shape == (29, 2)
+    assert out.shape == (275, 2)
