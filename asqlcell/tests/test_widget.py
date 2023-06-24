@@ -1,4 +1,4 @@
-from ..widget import SqlCellWidget
+from asqlcell.widget import SqlCellWidget
 
 
 def test_widget_creation_blank(session):

@@ -1,8 +1,6 @@
-import builtins
-import datetime
 import json
+from datetime import datetime
 
-import __main__
 import pandas as pd
 import sqlparse
 from IPython.core.interactiveshell import InteractiveShell
@@ -65,7 +63,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         try:
             if len(self.data_name) == 0:
                 self.data_name = "__" + get_cell_id()
-            time = datetime.datetime.now()
+            time = datetime.now()
             self.row_range = (0, self.row_range[1] - self.row_range[0])
             self.data_grid = ""
             self.title_hist = ""
@@ -84,7 +82,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 self.shell.user_global_ns[self.data_name] = df
 
             self.title_hist = str(json.dumps(get_histogram(df)))
-            self.exec_time = str(time) + "," + str(datetime.datetime.now())
+            self.exec_time = str(time) + "," + str(datetime.now())
             self.set_data_grid()
             self.run_vis_sql()
         except Exception as r:

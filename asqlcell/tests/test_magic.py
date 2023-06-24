@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import __main__
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.utils.io import capture_output
 from pandas import DataFrame
