@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from time import time
 
 import pandas as pd
 import sqlparse
@@ -7,7 +7,7 @@ from IPython.core.interactiveshell import InteractiveShell
 from ipywidgets import DOMWidget
 from pandas import read_sql
 from sqlalchemy import Connection, text
-from traitlets import HasTraits, Int, Tuple, Unicode, observe
+from traitlets import Float, HasTraits, Int, Tuple, Unicode, observe
 
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import (
@@ -42,7 +42,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
     column_sort = Tuple(Unicode(), Int(), default_value=("", 0)).tag(sync=True)
     title_hist = Unicode("").tag(sync=True)
     data_grid = Unicode("").tag(sync=True)
-    exec_time = Unicode("").tag(sync=True)
+    exec_time = Float(0).tag(sync=True)
     data_name = Unicode("").tag(sync=True)
     vis_sql = Tuple(Unicode(""), Unicode(""), Unicode(""), default_value=("", "", "")).tag(sync=True)
     vis_data = Unicode("").tag(sync=True)
@@ -63,7 +63,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         try:
             if len(self.data_name) == 0:
                 self.data_name = "__" + get_cell_id()
-            time = datetime.now()
+            start = time()
             self.row_range = (0, self.row_range[1] - self.row_range[0])
             self.data_grid = ""
             self.title_hist = ""
@@ -81,10 +81,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
                 self.shell.user_global_ns[self.data_name] = df
 
+            # Calculate time elapsed for running the sql queries.
+            self.exec_time = time() - start
+
             self.title_hist = str(json.dumps(get_histogram(df)))
-            self.exec_time = str(time) + "," + str(datetime.now())
             self.set_data_grid()
             self.run_vis_sql()
+
         except Exception as r:
             raise NoTracebackException(r)
 
