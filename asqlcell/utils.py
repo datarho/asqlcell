@@ -4,6 +4,7 @@ import duckdb
 import numpy as np
 import pandas as pd
 from IPython.core.interactiveshell import InteractiveShell
+from pandas import DataFrame
 
 __DUCKDB = None
 
@@ -18,7 +19,7 @@ def get_cell_id(shell: InteractiveShell) -> str:
         if scope.get("cell_id") is not None:
             return scope["cell_id"].replace("-", "")
         if "msg" in scope:
-            msg = scope.get("msg")
+            msg = scope["msg"]
             if "metadata" in msg:
                 meta = msg.get("metadata")
                 if "cellId" in meta:
@@ -53,7 +54,7 @@ def set_value(shell: InteractiveShell, variable_name, var):
 def get_vars(shell: InteractiveShell, is_df=False):
     vars = {}
     for v in dir(shell.user_global_ns):
-        if not is_df or not v.startswith("_") and isinstance(get_value(shell, v), pd.DataFrame):
+        if not is_df or not v.startswith("_") and type(get_value(shell, v)) is DataFrame:
             vars[v] = get_value(shell, v)
     return vars
 
@@ -82,7 +83,7 @@ def dtype_str(kind):
 
 def get_histogram(df):
     hist = []
-    if isinstance(df, pd.DataFrame):
+    if type(df) is DataFrame:
         for column in df:
             col = df[column]
             if is_type_numeric(col.dtypes):
@@ -91,7 +92,7 @@ def get_histogram(df):
                 hist.append(
                     {
                         "columnName": column,
-                        "dtype": dtype_str(df.dtypes[column].kind),
+                        "dtype": dtype_str(df.dtypes.get(column).kind),
                         "bins": [
                             {
                                 "bin_start": bins[i],

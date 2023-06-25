@@ -11,5 +11,5 @@
     "python.testing.pytestEnabled": true,
     "python.formatting.blackArgs": ["--line-length", "120"],
     "git.ignoreLimitWarning": true,
-    "python.analysis.typeCheckingMode": "off"
+    "python.analysis.typeCheckingMode": "basic"
 }

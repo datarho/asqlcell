@@ -21,12 +21,7 @@ class SqlMagics(Magics):
     @line_magic("sql")
     @cell_magic("sql")
     @magic_arguments()
-    @argument(
-        "output",
-        nargs="?",
-        type=str,
-        help="The variable name for the result dataframe.",
-    )
+    @argument("output", nargs="?", type=str, help="The variable name for the result dataframe.")
     @argument("-o", "--out", type=str, help="The variable name for the result dataframe.")
     @argument("-c", "--con", type=str, help="The variable name for database connection.")
     @argument("line", default="", nargs="*", type=str, help="The SQL statement.")
@@ -58,6 +53,9 @@ class SqlMagics(Magics):
             self._set_widget(cell_id)
         widget = self._get_widget(cell_id)
 
+        if widget is None:
+            raise NameError("Failed to find widget with given cell id")
+
         # Specify parameters and execute the sql statements.
         if args.output:
             widget.data_name = args.output
@@ -70,12 +68,13 @@ class SqlMagics(Magics):
             widget.run_sql(cell)
         return widget
 
-    def _get_widget(self, var_name: str) -> SqlCellWidget:
+    def _get_widget(self, var_name: str) -> SqlCellWidget | None:
         """
         Get sql cell widget variable by the given name and type. None will be returned if type is incorrect.
         """
         var = self.shell.user_global_ns.get(var_name)
-        return var if isinstance(var, SqlCellWidget) else None
+
+        return var if type(var) is SqlCellWidget else None
 
     def _set_widget(self, cell_id: str) -> None:
         """
@@ -88,6 +87,6 @@ class SqlMagics(Magics):
         Get sql alchemy connection by the given name. Error will be thrown if type is incorrect.
         """
         var = self.shell.user_global_ns.get(var_name)
-        if not isinstance(var, Connection):
+        if type(var) is not Connection:
             raise NameError("Failed to find connection variable")
         return var

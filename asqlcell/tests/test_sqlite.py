@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from IPython.core.interactiveshell import InteractiveShell
+from pandas import DataFrame
 from sqlalchemy import create_engine, inspect
 
 dir = Path(__file__).parent.resolve()
@@ -53,6 +54,8 @@ def test_sqlite_standalone_cell_magic(shell: InteractiveShell, cell_id="076b741a
 
     out = shell.user_global_ns.get("out")
 
+    assert type(out) is DataFrame
+
     assert out.columns.values.tolist() == ["GenreId", "Name"]
     assert out.shape == (25, 2)
 
@@ -68,6 +71,8 @@ def test_sqlite_standalone_cell_magic(shell: InteractiveShell, cell_id="076b741a
     )
 
     out = shell.user_global_ns.get("out")
+
+    assert type(out) is DataFrame
 
     assert out.columns.values.tolist() == ["Name", "Albums"]
     assert out.shape == (275, 2)

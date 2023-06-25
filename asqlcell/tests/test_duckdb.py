@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import cast
 
 from IPython.core.interactiveshell import InteractiveShell
 from pandas import DataFrame
@@ -12,7 +11,9 @@ def test_duckdb_conn_embedded_line_magic(shell: InteractiveShell):
     file = Path(dir, "gapminder.csv.gz")
     sql = f"SELECT * FROM '{file}'"
 
-    result = cast(DataFrame, shell.run_line_magic("sql", sql))
+    result = shell.run_line_magic("sql", sql)
+
+    assert type(result) is DataFrame
 
     assert list(result.columns) == [
         "country",
@@ -31,7 +32,9 @@ def test_duckdb_conn_embedded_cell_magic(shell: InteractiveShell, cell_id="076b7
 
     shell.run_cell_magic("sql", "--out out", sql)
 
-    out = cast(DataFrame, shell.user_global_ns.get("out"))
+    out = shell.user_global_ns.get("out")
+
+    assert type(out) is DataFrame
 
     assert list(out.columns) == [
         "country",
@@ -82,6 +85,8 @@ def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell, cell_id="076
 
     out = shell.user_global_ns.get("out")
 
+    assert type(out) is DataFrame
+
     assert out.columns.values.tolist() == ["AlbumId", "Title", "ArtistId"]
     assert out.shape == (347, 3)
 
@@ -97,6 +102,8 @@ def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell, cell_id="076
     )
 
     out = shell.user_global_ns.get("out")
+
+    assert type(out) is DataFrame
 
     assert out.columns.values.tolist() == ["Name", "Albums"]
     assert out.shape == (275, 2)
