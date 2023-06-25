@@ -24,7 +24,7 @@ def test_duckdb_conn_embedded_cell_magic(shell: InteractiveShell, cell_id="076b7
 
     shell.run_cell_magic("sql", "--out out", sql)
 
-    out = shell.user_global_ns.get("out")
+    out = cast(DataFrame, shell.user_global_ns.get("out"))
 
     assert list(out.columns) == ["country", "year", "population", "continent", "life_exp", "gdp_cap"]
     assert out.shape == (1704, 6)
@@ -54,10 +54,9 @@ def test_duckdb_conn_standalone_metadata(shell: InteractiveShell):
 
 def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell):
     file = Path(dir, "chinook.duckdb")
-
     con = create_engine(f"duckdb:///{file}").connect()
 
-    shell.user_global_ns.setdefault("con", con)
+    shell.user_global_ns["con"] = con
 
     shell.run_cell_magic(
         "sql",

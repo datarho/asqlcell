@@ -39,10 +39,9 @@ def test_sqlite_standalone_metadata(shell: InteractiveShell):
 
 def test_sqlite_standalone_cell_magic(shell: InteractiveShell):
     file = Path(dir, "chinook.sqlite")
-
     con = create_engine(f"sqlite:///{file}").connect()
 
-    shell.user_global_ns.setdefault("con", con)
+    shell.user_global_ns["con"] = con
 
     shell.run_cell_magic(
         "sql",
