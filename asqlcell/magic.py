@@ -21,8 +21,18 @@ class SqlMagics(Magics):
     @line_magic("sql")
     @cell_magic("sql")
     @magic_arguments()
-    @argument("-o", "--out", help="The variable name for the result dataframe.")
-    @argument("-c", "--con", help="The variable name for database connection.")
+    @argument(
+        "output",
+        nargs="?",
+        type=str,
+        help="The variable name for the result dataframe.",
+    )
+    @argument(
+        "-o", "--out", type=str, help="The variable name for the result dataframe."
+    )
+    @argument(
+        "-c", "--con", type=str, help="The variable name for database connection."
+    )
     @argument("line", default="", nargs="*", type=str, help="The SQL statement.")
     def execute(self, line="", cell=""):
         """
@@ -53,7 +63,10 @@ class SqlMagics(Magics):
         widget = self._get_widget(cell_id)
 
         # Specify parameters and execute the sql statements.
-        widget.data_name = args.out
+        if args.output:
+            widget.data_name = args.output
+        if args.out:
+            widget.data_name = args.out
         if args.con:
             con = self._get_con(args.con)
 

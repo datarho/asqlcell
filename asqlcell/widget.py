@@ -44,7 +44,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
     data_grid = Unicode("").tag(sync=True)
     exec_time = Float(0).tag(sync=True)
     data_name = Unicode("").tag(sync=True)
-    vis_sql = Tuple(Unicode(""), Unicode(""), Unicode(""), default_value=("", "", "")).tag(sync=True)
+    vis_sql = Tuple(
+        Unicode(""), Unicode(""), Unicode(""), default_value=("", "", "")
+    ).tag(sync=True)
     vis_data = Unicode("").tag(sync=True)
     quickv_var = Tuple(Unicode(""), Unicode(""), default_value=("", "")).tag(sync=True)
     quickv_data = Unicode("").tag(sync=True)
@@ -62,7 +64,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def run_sql(self, sql: str, con: Connection = None):
         try:
             if len(self.data_name) == 0:
-                self.data_name = "__" + get_cell_id()
+                self.data_name = "__" + get_cell_id(self.shell)
             start = time()
             self.row_range = (0, self.row_range[1] - self.row_range[0])
             self.data_grid = ""
@@ -72,7 +74,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
             if con is None:
                 jsql = JinjaSql(param_style="qmark")
-                res, vlist = jsql.prepare_query(sqlparse.format(sql, strip_comments=True, reindent=True), get_vars())
+                res, vlist = jsql.prepare_query(
+                    sqlparse.format(sql, strip_comments=True, reindent=True), get_vars()
+                )
                 df = get_duckdb_result(res, vlist)
 
                 self.shell.user_global_ns[self.data_name] = df
@@ -94,11 +98,19 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def set_data_grid(self):
         df = self._get_value(self.data_name)
         self.data_grid = (
-            str(df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format="iso"))
+            str(
+                df[self.row_range[0] : self.row_range[1]].to_json(
+                    orient="split", date_format="iso"
+                )
+            )
             + "\n"
             + str(len(df))
         )
-        df = df[self.row_range[0] : self.row_range[1]].astype(str).apply(pd.to_numeric, errors="coerce")
+        df = (
+            df[self.row_range[0] : self.row_range[1]]
+            .astype(str)
+            .apply(pd.to_numeric, errors="coerce")
+        )
         df = 1 - (df - df.min()) / (df.max() - df.min())
         df = 150 * df + 105
         self.column_color = df.to_json(orient="split", date_format="iso")
@@ -135,7 +147,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def run_vis_sql(self):
         try:
             get_duckdb().register(self.data_name, self._get_value(self.data_name))
-            df = get_duckdb().execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name)).df()
+            df = (
+                get_duckdb()
+                .execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name))
+                .df()
+            )
             get_duckdb().unregister(self.data_name)
             self.vis_data = vega_spec(df, self.vis_sql[1])
         except Exception as r:
@@ -153,7 +169,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
         tmp = """select "$$__C__$$" from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM $$__NAME__$$)
                 using SAMPLE reservoir (100 rows) REPEATABLE(42)
                 order by index_rn1qaz2wsx"""
-        tmp = tmp.replace("$$__NAME__$$", self.data_name).replace("$$__C__$$", change.new[0])
+        tmp = tmp.replace("$$__NAME__$$", self.data_name).replace(
+            "$$__C__$$", change.new[0]
+        )
         df = get_duckdb().execute(tmp).df()
         get_duckdb().unregister(self.data_name)
         self.quickv_data = vega_spec(df, "index_rn1qaz2wsx")
