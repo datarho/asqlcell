@@ -1,7 +1,6 @@
 import json
 import logging
 
-import __main__
 import duckdb
 import numpy as np
 import pandas as pd
@@ -14,7 +13,7 @@ def get_cell_id(shell: InteractiveShell) -> str:
     """
     Get cell id for the current cell by walking the stack.
     """
-    for i in range(20):
+    for i in range(25):
         scope = shell.get_local_scope(i)
         if scope.get("cell_id") is not None:
             return scope["cell_id"].replace("-", "")
@@ -24,8 +23,7 @@ def get_cell_id(shell: InteractiveShell) -> str:
                 meta = msg.get("metadata")
                 if "cellId" in meta:
                     return meta.get("cellId").replace("-", "")
-    logging.debug("cell id not found")
-    return ""
+    raise NameError("cell id not found")
 
 
 def get_duckdb():
@@ -35,24 +33,32 @@ def get_duckdb():
     return __DUCKDB
 
 
-def get_duckdb_result(sql, vlist=[]):
-    for k, v in get_vars(is_df=True).items():
+def get_duckdb_result(shell: InteractiveShell, sql, vlist=[]):
+    for k, v in get_vars(shell, is_df=True).items():
         get_duckdb().register(k, v)
     df = get_duckdb().execute(sql, vlist).df()
-    for k, v in get_vars(is_df=True).items():
+    for k, v in get_vars(shell, is_df=True).items():
         get_duckdb().unregister(k)
     return df
 
 
-def get_value(variable_name):
-    return getattr(__main__, variable_name, None)
+def get_value(shell: InteractiveShell, variable_name):
+    return shell.user_global_ns.get(variable_name)
 
 
-def get_vars(is_df=False):
+def set_value(shell: InteractiveShell, variable_name, var):
+    shell.user_global_ns[variable_name] = var
+
+
+def get_vars(shell: InteractiveShell, is_df=False):
     vars = {}
-    for v in dir(__main__):
-        if not is_df or not v.startswith("_") and isinstance(get_value(v), pd.DataFrame):
-            vars[v] = get_value(v)
+    for v in dir(shell.user_global_ns):
+        if (
+            not is_df
+            or not v.startswith("_")
+            and isinstance(get_value(shell, v), pd.DataFrame)
+        ):
+            vars[v] = get_value(shell, v)
     return vars
 
 
@@ -91,7 +97,11 @@ def get_histogram(df):
                         "columnName": column,
                         "dtype": dtype_str(df.dtypes[column].kind),
                         "bins": [
-                            {"bin_start": bins[i], "bin_end": bins[i + 1], "count": count.item()}
+                            {
+                                "bin_start": bins[i],
+                                "bin_end": bins[i + 1],
+                                "count": count.item(),
+                            }
                             for i, count in enumerate(y)
                         ],
                     }
@@ -104,11 +114,22 @@ def get_histogram(df):
                 sum = 0
                 for i, si in enumerate(sorted_indexes):
                     if i < 3:
-                        bins.append({"bin": str(unique_values[si]), "count": value_counts[si].item()})
+                        bins.append(
+                            {
+                                "bin": str(unique_values[si]),
+                                "count": value_counts[si].item(),
+                            }
+                        )
                     else:
                         sum += value_counts[si].item()
                 bins.append({"bin": "other", "count": sum})
-                hist.append({"columnName": column, "dtype": dtype_str(df.dtypes[column].kind), "bins": bins})
+                hist.append(
+                    {
+                        "columnName": column,
+                        "dtype": dtype_str(df.dtypes[column].kind),
+                        "bins": bins,
+                    }
+                )
     return hist
 
 
@@ -127,7 +148,11 @@ def vega_spec(df, x_axis):
 
 def get_random_data(number=10):
     return pd.DataFrame(
-        data={"id": np.arange(number), "price": [i for i in range(number)], "normal": [True for i in range(number)]},
+        data={
+            "id": np.arange(number),
+            "price": [i for i in range(number)],
+            "normal": [True for i in range(number)],
+        },
         index=np.arange(number),
     )
 

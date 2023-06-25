@@ -1,6 +1,7 @@
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
 from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
+from pandas import DataFrame
 from sqlalchemy import Connection
 
 from asqlcell.utils import get_cell_id, get_duckdb_result
@@ -15,7 +16,6 @@ class SqlMagics(Magics):
 
     def __init__(self, shell: InteractiveShell):
         super(SqlMagics, self).__init__(shell)
-
         self.shell = shell
 
     @line_magic("sql")
@@ -43,11 +43,11 @@ class SqlMagics(Magics):
         else:
             return self._handle_line_magic(line)
 
-    def _handle_line_magic(self, line: str) -> SqlCellWidget:
+    def _handle_line_magic(self, line: str) -> DataFrame:
         """
         Handle line magic.
         """
-        return get_duckdb_result(line)
+        return get_duckdb_result(self.shell, line)
 
     def _handle_cell_magic(self, line: str, cell: str) -> SqlCellWidget:
         """
@@ -69,7 +69,6 @@ class SqlMagics(Magics):
             widget.data_name = args.out
         if args.con:
             con = self._get_con(args.con)
-
             widget.run_sql(cell, con)
         else:
             widget.run_sql(cell)

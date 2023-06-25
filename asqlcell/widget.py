@@ -12,8 +12,10 @@ from traitlets import Float, HasTraits, Int, Tuple, Unicode, observe
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import (
     NoTracebackException,
-    get_cell_id,
+    set_value,
+    get_value,
     get_duckdb,
+    get_cell_id,
     get_duckdb_result,
     get_histogram,
     get_vars,
@@ -33,9 +35,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
     _view_module_version = Unicode(module_version).tag(sync=True)
 
     output_var = Unicode("sqlcelldf").tag(sync=True)
-    dfs_button = Unicode("").tag(sync=True)
-    dfs_result = Unicode("").tag(sync=True)
-    sql_button = Unicode("").tag(sync=True)
+    # dfs_button = Unicode("").tag(sync=True)
+    # dfs_result = Unicode("").tag(sync=True)
+    # sql_button = Unicode("").tag(sync=True)
 
     row_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
     column_color = Unicode("").tag(sync=True)
@@ -51,15 +53,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
     quickv_var = Tuple(Unicode(""), Unicode(""), default_value=("", "")).tag(sync=True)
     quickv_data = Unicode("").tag(sync=True)
     cache = Unicode("").tag(sync=True)
-    png = Unicode("").tag(sync=True)
 
     def __init__(self, shell: InteractiveShell, sql=""):
         super(SqlCellWidget, self).__init__()
-
         self.shell = shell
-
-    def _get_value(self, variable_name):
-        return self.shell.user_global_ns.get(variable_name)
 
     def run_sql(self, sql: str, con: Connection = None):
         try:
@@ -71,32 +68,31 @@ class SqlCellWidget(DOMWidget, HasTraits):
             self.title_hist = ""
             self.column_color = ""
             self.column_sort = ("", 0)
-
             if con is None:
                 jsql = JinjaSql(param_style="qmark")
                 res, vlist = jsql.prepare_query(
-                    sqlparse.format(sql, strip_comments=True, reindent=True), get_vars()
+                    sqlparse.format(sql, strip_comments=True, reindent=True),
+                    get_vars(self.shell),
                 )
-                df = get_duckdb_result(res, vlist)
-
-                self.shell.user_global_ns[self.data_name] = df
+                set_value(
+                    self.shell,
+                    self.data_name,
+                    get_duckdb_result(self.shell, res, vlist),
+                )
             else:
-                df = read_sql(sql, con=con)
-
-                self.shell.user_global_ns[self.data_name] = df
-
+                set_value(self.shell, self.data_name, read_sql(sql, con=con))
             # Calculate time elapsed for running the sql queries.
             self.exec_time = time() - start
-
-            self.title_hist = str(json.dumps(get_histogram(df)))
+            self.title_hist = str(
+                json.dumps(get_histogram(get_value(self.shell, self.data_name)))
+            )
             self.set_data_grid()
             self.run_vis_sql()
-
         except Exception as r:
             raise NoTracebackException(r)
 
     def set_data_grid(self):
-        df = self._get_value(self.data_name)
+        df = get_value(self.shell, self.data_name)
         self.data_grid = (
             str(
                 df[self.row_range[0] : self.row_range[1]].to_json(
@@ -115,17 +111,17 @@ class SqlCellWidget(DOMWidget, HasTraits):
         df = 150 * df + 105
         self.column_color = df.to_json(orient="split", date_format="iso")
 
-    @observe("dfs_button")
-    def on_dfs_button(self, change):
-        result = ""
-        for k, v in get_vars(is_df=True).items():
-            result += k + "\t" + str(v.shape) + "\n"
-        self.dfs_result = result
+    # @observe("dfs_button")
+    # def on_dfs_button(self, change):
+    #     result = ""
+    #     for k, v in get_vars(is_df=True).items():
+    #         result += k + "\t" + str(v.shape) + "\n"
+    #     self.dfs_result = result
 
-    @observe("sql_button")
-    def on_sql_button(self, change):
-        self.data_name = self.output_var
-        self.run_sql()
+    # @observe("sql_button")
+    # def on_sql_button(self, change):
+    #     self.data_name = self.output_var
+    #     self.run_sql()
 
     @observe("row_range")
     def on_row_range(self, change):
@@ -133,7 +129,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("column_sort")
     def on_column_sort(self, change):
-        df = self._get_value(self.data_name)
+        df = get_value(self.shell, self.data_name)
         df.sort_index(axis=0, inplace=True)
         if self.column_sort[1] != 0:
             df.sort_values(
@@ -146,7 +142,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def run_vis_sql(self):
         try:
-            get_duckdb().register(self.data_name, self._get_value(self.data_name))
+            get_duckdb().register(self.data_name, get_value(self.shell, self.data_name))
             df = (
                 get_duckdb()
                 .execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name))
@@ -165,7 +161,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("quickv_var")
     def on_quickv_var(self, change):
-        get_duckdb().register(self.data_name, self._get_value(self.data_name))
+        get_duckdb().register(self.data_name, get_value(self.shell, self.data_name))
         tmp = """select "$$__C__$$" from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM $$__NAME__$$)
                 using SAMPLE reservoir (100 rows) REPEATABLE(42)
                 order by index_rn1qaz2wsx"""
