@@ -1,22 +1,85 @@
-import __main__
-from IPython.core.magic import needs_local_scope, register_cell_magic, register_line_magic
+from IPython.core.interactiveshell import InteractiveShell
+from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
+from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
+from sqlalchemy import Connection
 
-from asqlcell.utils import get_cell_id, get_duckdb_result, get_value
+from asqlcell.utils import get_cell_id, get_duckdb_result
 from asqlcell.widget import SqlCellWidget
 
 
-@needs_local_scope
-@register_cell_magic
-def sql(line, cell="", local_ns={}):
-    cell_id = "asqlcell" + get_cell_id()
-    if get_value(cell_id) == None:
-        setattr(__main__, cell_id, SqlCellWidget(mode="CMD"))
-    w = get_value(cell_id)
-    w.data_name = line.strip()
-    w.run_sql(cell)
-    return w
+@magics_class
+class SqlMagics(Magics):
+    """
+    Magic extension for analytical sql cell.
+    """
 
+    def __init__(self, shell: InteractiveShell):
+        super(SqlMagics, self).__init__(shell)
 
-@register_line_magic
-def sql(line=""):
-    return get_duckdb_result(line)
+        self.shell = shell
+
+    @line_magic("sql")
+    @cell_magic("sql")
+    @magic_arguments()
+    @argument("-o", "--out", help="The variable name for the result dataframe.")
+    @argument("-c", "--con", help="The variable name for database connection.")
+    @argument("line", default="", nargs="*", type=str, help="The SQL statement.")
+    def execute(self, line="", cell=""):
+        """
+        Execute the magic extension. This could be a line magic or a cell magic.
+        """
+        if cell:
+            return self._handle_cell_magic(line, cell)
+        else:
+            return self._handle_line_magic(line)
+
+    def _handle_line_magic(self, line: str) -> SqlCellWidget:
+        """
+        Handle line magic.
+        """
+        return get_duckdb_result(line)
+
+    def _handle_cell_magic(self, line: str, cell: str) -> SqlCellWidget:
+        """
+        Handle cell magic. Line contains parameters only.
+        """
+        args = parse_argstring(self.execute, line)
+
+        # Ensure there is a widget created for the cell.
+        cell_id = "asqlcell" + get_cell_id(self.shell)
+
+        if self._get_widget(cell_id) is None:
+            self._set_widget(cell_id)
+        widget = self._get_widget(cell_id)
+
+        # Specify parameters and execute the sql statements.
+        widget.data_name = args.out
+        if args.con:
+            con = self._get_con(args.con)
+
+            widget.run_sql(cell, con)
+        else:
+            widget.run_sql(cell)
+        return widget
+
+    def _get_widget(self, var_name: str) -> SqlCellWidget:
+        """
+        Get sql cell widget variable by the given name and type. None will be returned if type is incorrect.
+        """
+        var = self.shell.user_global_ns.get(var_name)
+        return var if isinstance(var, SqlCellWidget) else None
+
+    def _set_widget(self, cell_id: str) -> None:
+        """
+        Set new sql cell widget with the given name.
+        """
+        self.shell.user_global_ns[cell_id] = SqlCellWidget(shell=self.shell)
+
+    def _get_con(self, var_name: str) -> Connection:
+        """
+        Get sql alchemy connection by the given name. Error will be thrown if type is incorrect.
+        """
+        var = self.shell.user_global_ns.get(var_name)
+        if not isinstance(var, Connection):
+            raise NameError("Failed to find connection variable")
+        return var

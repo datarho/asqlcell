@@ -1,8 +1,8 @@
-from ..widget import SqlCellWidget
+from asqlcell.widget import SqlCellWidget
 
 
-def test_widget_creation_blank():
-    w = SqlCellWidget()
+def test_widget_creation_blank(session):
+    w = SqlCellWidget(session)
     assert w._model_name == "SqlCellModel"
     assert w._model_module == "asqlcell"
     assert w._model_module_version == "0.1.0"

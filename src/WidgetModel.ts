@@ -10,7 +10,7 @@ const defaultModelProperties = {
     data_name: "",
     dfs_button: "",
     error: ["", ""],
-    exec_time: "",
+    exec_time: 0,
     output_var: "sqlcelldf",
     row_range: [0, 10],
     column_sort: ["", 0], // default value: ("",0), orientation:(-1,0,1)
@@ -47,7 +47,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             dfs_result: undefined,
             sql_button: undefined,
             mode: undefined,
-            exec_time: "",
+            exec_time: 0,
             data_grid: undefined,
             data_name: undefined,
             data_sql: undefined,

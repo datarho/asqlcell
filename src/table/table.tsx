@@ -45,11 +45,6 @@ export const DataTable: FunctionComponent = () => {
     const colorMatrix = JSON.parse(color).data;
     const header: string[] = info.columns;
 
-    let timeDiff = 0;
-    if (execTime.length !== 0) {
-        timeDiff = (new Date(execTime.split(",")[1]).getTime() - new Date(execTime.split(",")[0]).getTime()) / 1000;
-    }
-
     const headerContent = hist ?
         JSON.parse(hist)
         :
@@ -132,8 +127,8 @@ export const DataTable: FunctionComponent = () => {
                 <Group>
                     <Text color="#8d8d8d">{dataLength} rows</Text>
                     {
-                        timeDiff !== 0 ?
-                            <Text color="#8d8d8d">{timeDiff} s</Text>
+                        execTime > 0 ?
+                            <Text color="#8d8d8d">{execTime.toFixed(4)} s</Text>
                             :
                             <></>
                     }
