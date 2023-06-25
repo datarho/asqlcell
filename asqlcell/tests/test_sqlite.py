@@ -37,9 +37,7 @@ def test_sqlite_standalone_metadata(shell: InteractiveShell):
     assert sorted(tables) == chinook
 
 
-def test_sqlite_standalone_cell_magic(
-    shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"
-):
+def test_sqlite_standalone_cell_magic(shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"):
     file = Path(dir, "chinook.sqlite")
     con = create_engine(f"sqlite:///{file}").connect()
 

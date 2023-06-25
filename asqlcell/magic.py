@@ -27,12 +27,8 @@ class SqlMagics(Magics):
         type=str,
         help="The variable name for the result dataframe.",
     )
-    @argument(
-        "-o", "--out", type=str, help="The variable name for the result dataframe."
-    )
-    @argument(
-        "-c", "--con", type=str, help="The variable name for database connection."
-    )
+    @argument("-o", "--out", type=str, help="The variable name for the result dataframe.")
+    @argument("-c", "--con", type=str, help="The variable name for database connection.")
     @argument("line", default="", nargs="*", type=str, help="The SQL statement.")
     def execute(self, line="", cell=""):
         """

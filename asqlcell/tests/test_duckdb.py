@@ -25,9 +25,7 @@ def test_duckdb_conn_embedded_line_magic(shell: InteractiveShell):
     assert result.shape == (1704, 6)
 
 
-def test_duckdb_conn_embedded_cell_magic(
-    shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"
-):
+def test_duckdb_conn_embedded_cell_magic(shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"):
     file = Path(dir, "gapminder.csv.gz")
     sql = f"SELECT * FROM '{file}'"
 
@@ -68,9 +66,7 @@ def test_duckdb_conn_standalone_metadata(shell: InteractiveShell):
     assert sorted(tables) == chinook
 
 
-def test_duckdb_conn_standalone_cell_magic(
-    shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"
-):
+def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"):
     file = Path(dir, "chinook.duckdb")
     con = create_engine(f"duckdb:///{file}").connect()
 

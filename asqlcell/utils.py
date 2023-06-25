@@ -1,5 +1,4 @@
 import json
-import logging
 
 import duckdb
 import numpy as np
@@ -13,7 +12,8 @@ def get_cell_id(shell: InteractiveShell) -> str:
     """
     Get cell id for the current cell by walking the stack.
     """
-    for i in range(25):
+    i = 0
+    while True:
         scope = shell.get_local_scope(i)
         if scope.get("cell_id") is not None:
             return scope["cell_id"].replace("-", "")
@@ -23,7 +23,7 @@ def get_cell_id(shell: InteractiveShell) -> str:
                 meta = msg.get("metadata")
                 if "cellId" in meta:
                     return meta.get("cellId").replace("-", "")
-    raise NameError("cell id not found")
+        i += 1
 
 
 def get_duckdb():
@@ -53,11 +53,7 @@ def set_value(shell: InteractiveShell, variable_name, var):
 def get_vars(shell: InteractiveShell, is_df=False):
     vars = {}
     for v in dir(shell.user_global_ns):
-        if (
-            not is_df
-            or not v.startswith("_")
-            and isinstance(get_value(shell, v), pd.DataFrame)
-        ):
+        if not is_df or not v.startswith("_") and isinstance(get_value(shell, v), pd.DataFrame):
             vars[v] = get_value(shell, v)
     return vars
 
