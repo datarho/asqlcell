@@ -4,6 +4,7 @@ from IPython.core.magic_arguments import argument, magic_arguments, parse_argstr
 from pandas import DataFrame
 from sqlalchemy import Connection
 
+
 from asqlcell.utils import get_cell_id, get_duckdb_result
 from asqlcell.widget import SqlCellWidget
 

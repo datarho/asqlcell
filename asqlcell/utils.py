@@ -81,52 +81,53 @@ def dtype_str(kind):
         return "string"
 
 
-def get_histogram(df):
+def get_histogram(df: DataFrame):
     hist = []
-    if type(df) is DataFrame:
-        for column in df:
-            col = df[column]
-            if is_type_numeric(col.dtypes):
-                np_array = np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
-                y, bins = np.histogram(np_array, bins=10)
-                hist.append(
-                    {
-                        "columnName": column,
-                        "dtype": dtype_str(df.dtypes.get(column).kind),
-                        "bins": [
-                            {
-                                "bin_start": bins[i],
-                                "bin_end": bins[i + 1],
-                                "count": count.item(),
-                            }
-                            for i, count in enumerate(y)
-                        ],
-                    }
-                )
-            else:
-                col = col.astype(str)
-                unique_values, value_counts = np.unique(col, return_counts=True)
-                sorted_indexes = np.flip(np.argsort(value_counts))
-                bins = []
-                sum = 0
-                for i, si in enumerate(sorted_indexes):
-                    if i < 3:
-                        bins.append(
-                            {
-                                "bin": str(unique_values[si]),
-                                "count": value_counts[si].item(),
-                            }
-                        )
-                    else:
-                        sum += value_counts[si].item()
-                bins.append({"bin": "other", "count": sum})
-                hist.append(
-                    {
-                        "columnName": column,
-                        "dtype": dtype_str(df.dtypes[column].kind),
-                        "bins": bins,
-                    }
-                )
+
+    for column in df:
+        col = df[column]
+        if is_type_numeric(col.dtypes):
+            np_array = np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
+            y, bins = np.histogram(np_array, bins=10)
+            hist.append(
+                {
+                    "columnName": column,
+                    "dtype": dtype_str(df.dtypes[str(column)].kind),
+                    "bins": [
+                        {
+                            "bin_start": bins[i],
+                            "bin_end": bins[i + 1],
+                            "count": count.item(),
+                        }
+                        for i, count in enumerate(y)
+                    ],
+                }
+            )
+        else:
+            col = col.astype(str)
+            unique_values, value_counts = np.unique(col, return_counts=True)
+            sorted_indexes = np.flip(np.argsort(value_counts))
+            bins = []
+            sum = 0
+            for i, si in enumerate(sorted_indexes):
+                if i < 3:
+                    bins.append(
+                        {
+                            "bin": str(unique_values[si]),
+                            "count": value_counts[si].item(),
+                        }
+                    )
+                else:
+                    sum += value_counts[si].item()
+            bins.append({"bin": "other", "count": sum})
+            hist.append(
+                {
+                    "columnName": column,
+                    "dtype": dtype_str(df.dtypes[str(column)].kind),
+                    "bins": bins,
+                }
+            )
+
     return hist
 
 

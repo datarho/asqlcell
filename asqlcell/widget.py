@@ -1,13 +1,14 @@
 import json
 from time import time
 
+from typing import Optional
 import pandas as pd
 import sqlparse
 from IPython.core.interactiveshell import InteractiveShell
 from ipywidgets import DOMWidget
-from pandas import read_sql
+from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
-from traitlets import Float, HasTraits, Int, Tuple, Unicode, observe
+from traitlets import Float, HasTraits, Int, Sentinel, Tuple, Unicode, observe
 
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import (
@@ -27,36 +28,48 @@ module_version = "0.1.0"
 
 
 class SqlCellWidget(DOMWidget, HasTraits):
-    _model_name = Unicode("SqlCellModel").tag(sync=True)
-    _model_module = Unicode(module_name).tag(sync=True)
-    _model_module_version = Unicode(module_version).tag(sync=True)
-    _view_name = Unicode("SqlCellView").tag(sync=True)
-    _view_module = Unicode(module_name).tag(sync=True)
-    _view_module_version = Unicode(module_version).tag(sync=True)
+    _model_name = Unicode().tag(sync=True)
+    _model_module = Unicode().tag(sync=True)
+    _model_module_version = Unicode().tag(sync=True)
+    _view_name = Unicode().tag(sync=True)
+    _view_module = Unicode().tag(sync=True)
+    _view_module_version = Unicode().tag(sync=True)
 
-    output_var = Unicode("sqlcelldf").tag(sync=True)
+    output_var = Unicode().tag(sync=True)
     # dfs_button = Unicode("").tag(sync=True)
     # dfs_result = Unicode("").tag(sync=True)
     # sql_button = Unicode("").tag(sync=True)
 
     row_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
-    column_color = Unicode("").tag(sync=True)
+    column_color = Unicode().tag(sync=True)
     column_sort = Tuple(Unicode(), Int(), default_value=("", 0)).tag(sync=True)
-    title_hist = Unicode("").tag(sync=True)
-    data_grid = Unicode("").tag(sync=True)
-    exec_time = Float(0).tag(sync=True)
-    data_name = Unicode("").tag(sync=True)
-    vis_sql = Tuple(Unicode(""), Unicode(""), Unicode(""), default_value=("", "", "")).tag(sync=True)
-    vis_data = Unicode("").tag(sync=True)
-    quickv_var = Tuple(Unicode(""), Unicode(""), default_value=("", "")).tag(sync=True)
-    quickv_data = Unicode("").tag(sync=True)
-    cache = Unicode("").tag(sync=True)
+    title_hist = Unicode().tag(sync=True)
+    data_grid = Unicode().tag(sync=True)
+    exec_time = Float().tag(sync=True)
+    data_name = Unicode().tag(sync=True)
+    vis_sql = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)
+    vis_data = Unicode().tag(sync=True)
+    quickv_var = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
+    quickv_data = Unicode().tag(sync=True)
+    cache = Unicode().tag(sync=True)
 
     def __init__(self, shell: InteractiveShell, sql=""):
         super(SqlCellWidget, self).__init__()
         self.shell = shell
 
-    def run_sql(self, sql: str, con: Connection = None):
+        self._model_name = "SqlCellModel"
+        self._model_module = module_name
+        self._model_module_version = module_version
+        self._view_name = "SqlCellView"
+        self._view_module = module_name
+        self._view_module_version = module_version
+
+        self.output_var = "sqlcelldf"
+
+    def run_sql(self, sql: str, con: Optional[Connection] = None):
+        assert type(self.data_name) is str
+        assert type(self.row_range) is tuple
+
         try:
             if len(self.data_name) == 0:
                 self.data_name = "__" + get_cell_id(self.shell)
@@ -81,14 +94,24 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 set_value(self.shell, self.data_name, read_sql(sql, con=con))
             # Calculate time elapsed for running the sql queries.
             self.exec_time = time() - start
-            self.title_hist = str(json.dumps(get_histogram(get_value(self.shell, self.data_name))))
+
+            df = get_value(self.shell, self.data_name)
+
+            assert type(df) is DataFrame
+
+            self.title_hist = str(json.dumps(get_histogram(df)))
             self.set_data_grid()
             self.run_vis_sql()
         except Exception as r:
             raise NoTracebackException(r)
 
     def set_data_grid(self):
+        assert type(self.row_range) is tuple
+
         df = get_value(self.shell, self.data_name)
+
+        assert type(df) is DataFrame
+
         self.data_grid = (
             str(df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format="iso"))
             + "\n"
@@ -117,7 +140,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("column_sort")
     def on_column_sort(self, change):
+        assert type(self.column_sort) is tuple
+
         df = get_value(self.shell, self.data_name)
+
+        assert type(df) is DataFrame
+
         df.sort_index(axis=0, inplace=True)
         if self.column_sort[1] != 0:
             df.sort_values(
@@ -129,6 +157,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self.set_data_grid()
 
     def run_vis_sql(self):
+        assert type(self.data_name) is str
+        assert type(self.vis_sql) is tuple
+
         try:
             get_duckdb().register(self.data_name, get_value(self.shell, self.data_name))
             df = get_duckdb().execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name)).df()
@@ -145,6 +176,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("quickv_var")
     def on_quickv_var(self, change):
+        assert type(self.data_name) is str
+
         get_duckdb().register(self.data_name, get_value(self.shell, self.data_name))
         tmp = """select "$$__C__$$" from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM $$__NAME__$$)
                 using SAMPLE reservoir (100 rows) REPEATABLE(42)
