@@ -64,7 +64,6 @@ export const WidgetInputArea: FunctionComponent<prop> = ({ setPage }) => {
                     onClick={() => {
                         model?.set("sql_button", new Date().toISOString());
                         model?.set("data_sql", sqlContent);
-                        model?.set("error", "");
                         model?.save_changes();
                         setPage(1);
                     }}

@@ -9,7 +9,6 @@ import { DOMWidgetView } from "@jupyter-widgets/base";
 const defaultModelProperties = {
     data_name: "",
     dfs_button: "",
-    error: ["", ""],
     exec_time: 0,
     output_var: "sqlcelldf",
     row_range: [0, 10],
@@ -51,7 +50,6 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             data_grid: undefined,
             data_name: undefined,
             data_sql: undefined,
-            error: undefined,
             quickv_var: undefined,
             quickv_data: undefined,
             vis_sql: undefined,

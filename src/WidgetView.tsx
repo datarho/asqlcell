@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { WidgetModel } from "@jupyter-widgets/base";
 import { useModel, useModelState, WidgetModelContext } from "./hooks";
-import { Box, Group, Stack, Tabs, Text } from "@mantine/core";
+import { Box, Group, Stack, Tabs } from "@mantine/core";
 import { DataTable } from "./table";
 import { Visualization } from "./visualization";
 import { IconChartBar, IconTable } from "@tabler/icons-react";
@@ -20,19 +20,14 @@ export interface Dfhead {
 const ReactWidget = () => {
     const model = useModel();
     const [data, setData] = useState(model?.get("data_grid"))
-    const [error, setError] = useState(model?.get("error") ? model?.get("error")[0] : "")
+
     const [cache, setCache] = useModelState("cache");
     const cacheObject = JSON.parse(cache === "" ? "{ }" : cache);
     const [tabValue, setTabValue] = useState(cacheObject.tabValue ?? "table");
 
     // Receive event from Model
-    model?.on("change:error", () => {
-        setError(model?.get("error") ? model?.get("error")[0] : "");
-        setData("")
-    })
     model?.on("change:data_grid", () => {
         setData(model?.get("data_grid"));
-        setError("");
     })
     model?.on("sort", (msg) => {
         model?.set("column_sort", msg, "");
@@ -71,15 +66,6 @@ const ReactWidget = () => {
             <Stack
                 spacing={0}
                 align="center">
-                {
-                    error !== "" ?
-                        <Group position="left">
-                            <Text color="red">Error:</Text>
-                            <Text>{error}</Text>
-                        </Group>
-                        :
-                        <></>
-                }
                 {
                     data !== "" ?
                         <Group
