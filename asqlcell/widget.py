@@ -47,7 +47,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
     data_grid = Unicode().tag(sync=True)
     exec_time = Float().tag(sync=True)
     data_name = Unicode().tag(sync=True)
-    vis_sql = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)
+    vis_sql = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(
+        sync=True
+    )
     vis_data = Unicode().tag(sync=True)
     quickv_var = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
     quickv_data = Unicode().tag(sync=True)
@@ -96,9 +98,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             self.exec_time = time() - start
 
             df = get_value(self.shell, self.data_name)
-
             assert type(df) is DataFrame
-
             self.title_hist = str(json.dumps(get_histogram(df)))
             self.set_data_grid()
             self.run_vis_sql()
@@ -113,11 +113,19 @@ class SqlCellWidget(DOMWidget, HasTraits):
         assert type(df) is DataFrame
 
         self.data_grid = (
-            str(df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format="iso"))
+            str(
+                df[self.row_range[0] : self.row_range[1]].to_json(
+                    orient="split", date_format="iso"
+                )
+            )
             + "\n"
             + str(len(df))
         )
-        df = df[self.row_range[0] : self.row_range[1]].astype(str).apply(pd.to_numeric, errors="coerce")
+        df = (
+            df[self.row_range[0] : self.row_range[1]]
+            .astype(str)
+            .apply(pd.to_numeric, errors="coerce")
+        )
         df = 1 - (df - df.min()) / (df.max() - df.min())
         df = 150 * df + 105
         self.column_color = df.to_json(orient="split", date_format="iso")
@@ -162,7 +170,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         try:
             get_duckdb().register(self.data_name, get_value(self.shell, self.data_name))
-            df = get_duckdb().execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name)).df()
+            df = (
+                get_duckdb()
+                .execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name))
+                .df()
+            )
             get_duckdb().unregister(self.data_name)
             self.vis_data = vega_spec(df, self.vis_sql[1])
         except Exception as r:
@@ -182,7 +194,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
         tmp = """select "$$__C__$$" from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM $$__NAME__$$)
                 using SAMPLE reservoir (100 rows) REPEATABLE(42)
                 order by index_rn1qaz2wsx"""
-        tmp = tmp.replace("$$__NAME__$$", self.data_name).replace("$$__C__$$", change.new[0])
+        tmp = tmp.replace("$$__NAME__$$", self.data_name).replace(
+            "$$__C__$$", change.new[0]
+        )
         df = get_duckdb().execute(tmp).df()
         get_duckdb().unregister(self.data_name)
         self.quickv_data = vega_spec(df, "index_rn1qaz2wsx")

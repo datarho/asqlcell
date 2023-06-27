@@ -53,8 +53,12 @@ def set_value(shell: InteractiveShell, variable_name, var):
 
 def get_vars(shell: InteractiveShell, is_df=False):
     vars = {}
-    for v in dir(shell.user_global_ns):
-        if not is_df or not v.startswith("_") and type(get_value(shell, v)) is DataFrame:
+    for v in shell.user_global_ns:
+        if (
+            not is_df
+            or not v.startswith("_")
+            and type(get_value(shell, v)) is DataFrame
+        ):
             vars[v] = get_value(shell, v)
     return vars
 
