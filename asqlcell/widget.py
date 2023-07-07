@@ -163,7 +163,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if chart_config["type"].find("100") >= 0:
             config["y"] = config["y"].stack("normalize")
         self.chart = chart.encode(**config)
-        self.chart_to_dict = json.dumps(chart.to_dict())
+        self.chart_to_dict = json.dumps(self.chart.to_dict())
 
     @observe("row_range")
     def on_row_range(self):
