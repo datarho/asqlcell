@@ -39,9 +39,7 @@ data_files_spec = [
 ]
 
 
-cmdclass = create_cmdclass(
-    "jsdeps", package_data_spec=package_data_spec, data_files_spec=data_files_spec
-)
+cmdclass = create_cmdclass("jsdeps", package_data_spec=package_data_spec, data_files_spec=data_files_spec)
 npm_install = combine_commands(
     install_npm(HERE, build_cmd="build:prod"),
     ensure_targets(jstargets),
@@ -78,6 +76,7 @@ setup_args = dict(
     include_package_data=True,
     python_requires=">=3.8",
     install_requires=[
+        "altair>=5.0.1",
         "duckdb>=0.8.0",
         "duckdb-engine>=0.7.3",
         "fastparquet>=2023.4.0",

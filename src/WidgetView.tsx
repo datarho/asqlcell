@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { WidgetModel } from "@jupyter-widgets/base";
 import { useModel, useModelState, WidgetModelContext } from "./hooks";
-import { Box, Group, Stack, Tabs } from "@mantine/core";
+import { Box, Tabs } from "@mantine/core";
 import { DataTable } from "./table";
 import { Visualization } from "./visualization";
 import { IconChartBar, IconTable } from "@tabler/icons-react";
@@ -62,43 +62,31 @@ const ReactWidget = () => {
     })
 
     return (
-        <div className="Widget" >
-            <Stack
-                spacing={0}
-                align="center">
-                {
-                    data !== "" ?
-                        <Group
-                            sx={{ marginBottom: "1rem", width: "95%" }}
-                            position="center"
-                        >
-                            <Tabs
-                                defaultValue="table"
-                                value={tabValue}
-                                sx={{ width: "100%" }}
-                                onTabChange={(value) => {
-                                    cacheObject["tabValue"] = value!;
-                                    setCache(JSON.stringify(cacheObject));
-                                    setTabValue(value!)
-                                }}>
-                                <Tabs.List>
-                                    <Tabs.Tab value="table" icon={<IconTable size="0.8rem" />}>Table</Tabs.Tab>
-                                    <Tabs.Tab value="visualization" icon={<IconChartBar size="0.8rem" />}>Visualization</Tabs.Tab>
-                                </Tabs.List>
-                                <Tabs.Panel value="table" >
-                                    <DataTable />
-                                </Tabs.Panel>
+        data ?
+            <Tabs
+                defaultValue="table"
+                value={tabValue}
+                sx={{ width: "100%" }}
+                onTabChange={(value) => {
+                    cacheObject["tabValue"] = value!;
+                    setCache(JSON.stringify(cacheObject));
+                    setTabValue(value!)
+                }}>
+                <Tabs.List>
+                    <Tabs.Tab value="table" icon={<IconTable size="0.8rem" />}>Table</Tabs.Tab>
+                    <Tabs.Tab value="visualization" icon={<IconChartBar size="0.8rem" />}>Visualization</Tabs.Tab>
+                </Tabs.List>
 
-                                <Tabs.Panel value="visualization" >
-                                    <Visualization />
-                                </Tabs.Panel>
-                            </Tabs>
-                        </Group>
-                        :
-                        <Box sx={{ height: "60px" }} />
-                }
-            </Stack>
-        </div>
+                <Tabs.Panel value="table" >
+                    <DataTable />
+                </Tabs.Panel>
+
+                <Tabs.Panel value="visualization" >
+                    <Visualization />
+                </Tabs.Panel>
+            </Tabs>
+            :
+            <Box sx={{ height: "60px" }} />
     );
 }
 

@@ -1,21 +1,18 @@
-import { ActionIcon, Divider, Group } from "@mantine/core";
-import { useResizeObserver } from "@mantine/hooks";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { Divider, Group } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { FunctionComponent } from "react";
 import { VegaLite, VisualizationSpec } from "react-vega";
 import { useModel, useModelState } from "../hooks";
-import { LabelWidth, MenuWidth, ViewHeight } from "./const";
-import { ColItem, VisualMenu } from "./menu";
+import { ViewHeight } from "./const";
+import { ColItem, VisualConfig } from "./menu";
 import { vega, vegaLite } from "vega-embed";
 
 interface previewChartProp {
-    rect: any,
     XAxis: string,
     open: boolean,
 }
 
-const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, open }) => {
+const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ XAxis, open }) => {
     const model = useModel();
     const [hist] = useModelState("title_hist");
     const headers = JSON.parse(hist ?? `{"dtype":""}`);
@@ -193,7 +190,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ rect, XAxis, 
     const spec = {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "description": "Google's stock price over time.",
-        "width": open ? rect.width - MenuWidth - LabelWidth : rect.width - 4 - LabelWidth,
+        "width": 800,
         "height": ViewHeight,
         "transform": [
             {
@@ -257,40 +254,20 @@ export const Visualization: FunctionComponent = () => {
     const model = useModel();
     const cache = model?.get("cache");
     const [XAxis, setXAxis] = useState(JSON.parse(cache.includes("xAxisState") && !cache.includes(`{"xAxisState":""}`) ? cache : `{"xAxisState":"Index"}`)["xAxisState"]);
-    const [ref, rect] = useResizeObserver();
-    const [open, setOpen] = useState<boolean>(true);
 
     return (
-        <Group grow ref={ref} sx={{ margin: "auto 1rem auto 0rem" }}>
-            <Group noWrap sx={{ height: "100%", marginTop: "1rem", gap: "0", alignItems: "flex-start", justifyContent: "space-between" }}>
-                <Group noWrap sx={{ gap: "0", width: "16rem" }}>
-                    {
-                        open ?
-                            <VisualMenu
-                                XAxis={XAxis}
-                                setXAxis={setXAxis}
-                            />
-                            :
-                            <></>
-                    }
-                </Group>
-                <ActionIcon onClick={() => { setOpen(!open) }}>
-                    {
-                        open ?
-                            <IconChevronLeft />
-                            :
-                            <IconChevronRight />
-                    }
-                </ActionIcon>
-                <Divider orientation="vertical" />
-                <Group w={open ? rect.width - 256 - 28 : rect.width - 28}>
-                    <VisualPreviewChart
-                        rect={rect}
-                        XAxis={XAxis}
-                        open={open}
-                    />
-                </Group>
-            </Group>
-        </Group>
+        <Group noWrap sx={{ height: "100%", marginTop: "1rem", gap: "0", alignItems: "flex-start", justifyContent: "space-between" }}>
+            <VisualConfig
+                XAxis={XAxis}
+                setXAxis={setXAxis}
+            />
+
+            <Divider orientation="vertical" />
+
+            <VisualPreviewChart
+                XAxis={XAxis}
+                open={true}
+            />
+        </Group >
     )
 }
