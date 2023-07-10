@@ -141,15 +141,18 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("chart_config")
     def on_chart_config(self):
+        config = {}
+        chart = alt.Chart(get_value(self.shell, self.data_name))
         assert type(self.chart_config) is str
         chart_config = json.loads(self.chart_config)
-        config = {}
-        config["x"] = chart_config["x"]
-        config["y"] = alt.Y(chart_config["y"])
         if len(chart_config["color"]) > 0:
             config["color"] = chart_config["color"]
+        if chart_config["type"].find("pie") < 0:
+            config["x"] = chart_config["x"]
+            config["y"] = alt.Y(chart_config["y"])
+        else:
+            config["theta"] = chart_config["theta"]
 
-        chart = alt.Chart(get_value(self.shell, self.data_name))
         if chart_config["type"].find("bar") >= 0:
             chart = chart.mark_bar()
         elif chart_config["type"].find("line") >= 0:
@@ -161,9 +164,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         if chart_config["type"].find("grouped") >= 0:
             config["column"] = chart_config["x"]
-
         if chart_config["type"].find("100") >= 0:
             config["y"] = config["y"].stack("normalize")
+
         self.chart = chart.encode(**config)
         self.chart_to_dict = json.dumps(self.chart.to_dict())
 
