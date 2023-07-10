@@ -9,7 +9,7 @@ from IPython.core.interactiveshell import InteractiveShell
 from ipywidgets import DOMWidget
 from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
-from traitlets import Float, HasTraits, Int, Tuple, Unicode, observe, Bool
+from traitlets import Float, HasTraits, Int, Tuple, Unicode, observe, Bool, Sentinel
 
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import (
@@ -116,9 +116,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         assert type(df) is DataFrame
 
         self.data_grid = (
-            str(df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format="iso"))
-            + "\n"
-            + str(len(df))
+            df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format="iso") + "\n" + str(len(df))
         )
         df = df[self.row_range[0] : self.row_range[1]].astype(str).apply(pd.to_numeric, errors="coerce")
         df = 1 - (df - df.min()) / (df.max() - df.min())
@@ -126,8 +124,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self.column_color = df.to_json(orient="split", date_format="iso")
 
     @observe("x_color")
-    def on_x_color(self) -> bool:
+    def on_x_color(self):
         name = self.data_name
+        assert type(self.x_color) is tuple
         x = self.x_color[0]
         color = self.x_color[1]
         if len(color) == 0:
@@ -142,6 +141,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("chart_config")
     def on_chart_config(self):
+        assert type(self.chart_config) is str
         chart_config = json.loads(self.chart_config)
         config = {}
         config["x"] = chart_config["x"]
@@ -156,6 +156,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
             chart = chart.mark_line()
         elif chart_config["type"].find("area") >= 0:
             chart = chart.mark_area()
+        elif chart_config["type"].find("pie") >= 0:
+            chart = chart.mark_arc()
 
         if chart_config["type"].find("grouped") >= 0:
             config["column"] = chart_config["x"]
