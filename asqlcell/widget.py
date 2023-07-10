@@ -161,6 +161,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
             chart = chart.mark_area()
         elif chart_config["type"].find("pie") >= 0:
             chart = chart.mark_arc()
+        elif chart_config["type"].find("scatter") >= 0:
+            chart = chart.mark_point()
 
         if chart_config["type"].find("grouped") >= 0:
             config["column"] = chart_config["x"]
