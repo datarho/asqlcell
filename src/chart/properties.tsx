@@ -19,7 +19,7 @@ const HorizontalAxis: FunctionComponent = () => {
 
     return (
         <Select
-            label="Column"
+            label="X axis"
             data={headers(hist)}
             onChange={(value) => {
                 const updated = {
@@ -38,7 +38,7 @@ const VerticalAxis: FunctionComponent = () => {
 
     return (
         <Select
-            label="Row"
+            label="Y axis"
             data={headers(hist)}
             onChange={(value) => {
                 const updated = {
