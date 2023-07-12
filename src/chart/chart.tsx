@@ -4,7 +4,7 @@ import { FunctionComponent } from "react";
 import { VegaLite, VisualizationSpec } from "react-vega";
 import { useModel, useModelState } from "../hooks";
 import { ViewHeight } from "./const";
-import { ColItem, ChartConfig } from "./menu";
+import { ColItem, ChartConfig } from "./config";
 import { vega, vegaLite } from "vega-embed";
 
 interface previewChartProp {
@@ -250,7 +250,7 @@ const VisualPreviewChart: FunctionComponent<previewChartProp> = ({ XAxis, open }
     )
 }
 
-export const Visualization: FunctionComponent = () => {
+export const Chart: FunctionComponent = () => {
     const model = useModel();
     const cache = model?.get("cache");
     const [XAxis, setXAxis] = useState(JSON.parse(cache.includes("xAxisState") && !cache.includes(`{"xAxisState":""}`) ? cache : `{"xAxisState":"Index"}`)["xAxisState"]);

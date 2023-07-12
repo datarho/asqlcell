@@ -1,7 +1,7 @@
 import * as widgets from "@jupyter-widgets/base";
 import React from "react";
 import ReactDOM from "react-dom";
-import ReactWidget from "./WidgetView";
+import ReactWidget from "./view";
 import "../css/widget.css";
 import { MODULE_NAME, MODULE_VERSION } from "./version";
 import { DOMWidgetView } from "@jupyter-widgets/base";

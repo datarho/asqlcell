@@ -1,9 +1,8 @@
-import React, { FunctionComponent, useState } from "react";
 import { Button, Grid, Stack } from "@mantine/core";
 import { IconPlus, } from "@tabler/icons-react";
+import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
-import { XAxisSelection } from "../menu";
-import { SelectDropDown } from "../menu";
+import { SelectDropDown, XAxisSelection } from "../menu";
 import { InitialSelectedCols } from "../public";
 import { ChartType } from "./type";
 
@@ -11,6 +10,7 @@ interface menuProps {
     XAxis: string,
     setXAxis: React.Dispatch<React.SetStateAction<string>>,
 }
+
 export interface ColItem {
     seriesName: string;
     colName: string;

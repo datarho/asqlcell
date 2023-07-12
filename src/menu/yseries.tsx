@@ -2,7 +2,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { Accordion, ActionIcon, Grid, Group, Select, Text, Transition } from "@mantine/core";
 import { IconBorderLeft, IconBorderRight, IconMinus } from "@tabler/icons-react";
 import { useModel, useModelState } from "../hooks";
-import { ColItem } from "../visualization";
+import { ColItem } from "../chart";
 import { ChartIconMap, ChartTypeList, IconMap, InitialSelectedCols, InitialSingleSelectedCol, SelectItem, sendVisSql } from "../public";
 import React from "react";
 

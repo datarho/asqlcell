@@ -1,1 +1,1 @@
-export * from "./WidgetModel";
+export * from "./model";

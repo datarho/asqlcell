@@ -1,5 +1,5 @@
-import React, { FunctionComponent } from "react";
 import { Select } from "@mantine/core";
+import React, { FunctionComponent } from "react";
 import { useModelState } from "../hooks";
 
 
@@ -17,8 +17,6 @@ export const ChartType: FunctionComponent = () => {
                 const config = JSON.parse(chartConfig);
                 config["type"] = value;
                 setChartConfig(JSON.stringify(config));
-                console.log(config)
-
             }}
         />
     )

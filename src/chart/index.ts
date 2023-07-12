@@ -1,5 +1,5 @@
 export * from "./hist";
 export * from "./quickview";
-export * from "./menu";
-export * from "./visualization";
+export * from "./config";
+export * from "./chart";
 export * from "./const";

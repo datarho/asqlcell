@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from "react";
 import { VegaLite } from "react-vega";
-import { Dfhead } from "../WidgetView";
+import { Dfhead } from "../view";
 import { Group, Stack, Text } from "@mantine/core";
 
 export const HistChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }> = ({ item, headerContent }) => {

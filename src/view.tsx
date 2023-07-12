@@ -3,12 +3,13 @@ import { WidgetModel } from "@jupyter-widgets/base";
 import { useModel, useModelState, WidgetModelContext } from "./hooks";
 import { Box, Tabs } from "@mantine/core";
 import { DataTable } from "./table";
-import { Visualization } from "./visualization";
+import { Chart } from "./chart";
 import { IconChartBar, IconTable } from "@tabler/icons-react";
 
 interface WidgetProps {
     model: WidgetModel;
 }
+
 export interface Dfhead {
     columnName: string,
     dtype: string,
@@ -28,15 +29,17 @@ const ReactWidget = () => {
     // Receive event from Model
     model?.on("change:data_grid", () => {
         setData(model?.get("data_grid"));
-    })
+    });
+
     model?.on("sort", (msg) => {
         model?.set("column_sort", msg, "");
         model?.save_changes();
-    })
+    });
+
     model?.on("setRange", (msg) => {
         model?.set("row_range", msg, "");
         model?.save_changes();
-    })
+    });
 
     model?.on("quick_view", (col_name) => {
         model?.set("quickv_var", [
@@ -44,22 +47,22 @@ const ReactWidget = () => {
             new Date().toISOString()
         ]);
         model?.save_changes();
-    })
+    });
 
     model?.on("output_var", (outputName) => {
         model?.set("output_var", outputName);
         model?.save_changes();
-    })
+    });
 
     model?.on("dfs_button", () => {
         model?.set("dfs_button", new Date().toISOString());
         model?.save_changes();
-    })
+    });
 
     model?.on("data_sql", (sqlContent) => {
         model?.set("data_sql", sqlContent);
         model?.save_changes();
-    })
+    });
 
     return (
         data ?
@@ -74,15 +77,15 @@ const ReactWidget = () => {
                 }}>
                 <Tabs.List>
                     <Tabs.Tab value="table" icon={<IconTable size="0.8rem" />}>Table</Tabs.Tab>
-                    <Tabs.Tab value="visualization" icon={<IconChartBar size="0.8rem" />}>Visualization</Tabs.Tab>
+                    <Tabs.Tab value="chart" icon={<IconChartBar size="0.8rem" />}>Chart</Tabs.Tab>
                 </Tabs.List>
 
                 <Tabs.Panel value="table" >
                     <DataTable />
                 </Tabs.Panel>
 
-                <Tabs.Panel value="visualization" >
-                    <Visualization />
+                <Tabs.Panel value="chart" >
+                    <Chart />
                 </Tabs.Panel>
             </Tabs>
             :

@@ -1,4 +1,4 @@
-import { ColItem } from "../visualization";
+import { ColItem } from "../chart";
 
 // The reason why we pass model as a parameter into this function is 
 // it would cause an error if we get model by useModel here. 

@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { FunctionComponent } from "react";
 import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 import { useModel, useModelState } from "../hooks";
-import { HistChart, QuickViewChart } from "../visualization";
-import { Dfhead } from "../WidgetView";
+import { HistChart, QuickViewChart } from "../chart";
+import { Dfhead } from "../view";
 
 interface props {
     headerContent: Dfhead[];

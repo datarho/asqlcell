@@ -1,6 +1,6 @@
 import { WidgetModel } from "@jupyter-widgets/base";
 import { createContext, DependencyList, useContext, useEffect, useState } from "react";
-import { WidgetModelState } from "./WidgetModel";
+import { WidgetModelState } from "./model";
 
 export const WidgetModelContext = createContext<WidgetModel | undefined>(
     undefined
