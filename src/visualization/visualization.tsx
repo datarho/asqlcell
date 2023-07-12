@@ -4,7 +4,7 @@ import { FunctionComponent } from "react";
 import { VegaLite, VisualizationSpec } from "react-vega";
 import { useModel, useModelState } from "../hooks";
 import { ViewHeight } from "./const";
-import { ColItem, VisualConfig } from "./menu";
+import { ColItem, ChartConfig } from "./menu";
 import { vega, vegaLite } from "vega-embed";
 
 interface previewChartProp {
@@ -257,7 +257,7 @@ export const Visualization: FunctionComponent = () => {
 
     return (
         <Group noWrap sx={{ height: "100%", marginTop: "1rem", gap: "0", alignItems: "flex-start", justifyContent: "space-between" }}>
-            <VisualConfig
+            <ChartConfig
                 XAxis={XAxis}
                 setXAxis={setXAxis}
             />

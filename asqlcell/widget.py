@@ -6,10 +6,12 @@ import pandas as pd
 import sqlparse
 import altair as alt
 from IPython.core.interactiveshell import InteractiveShell
+from IPython.display import display
 from ipywidgets import DOMWidget
 from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
 from traitlets import Float, HasTraits, Int, Tuple, Unicode, observe, Bool, Sentinel
+from asqlcell.chart import ChartType, SubChartType
 
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import (
@@ -36,27 +38,26 @@ class SqlCellWidget(DOMWidget, HasTraits):
     _view_module = Unicode().tag(sync=True)
     _view_module_version = Unicode().tag(sync=True)
 
-    output_var = Unicode("").tag(sync=True)
+    output_var = Unicode().tag(sync=True)
 
     row_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
-    column_color = Unicode("").tag(sync=True)
+    column_color = Unicode().tag(sync=True)
     column_sort = Tuple(Unicode(), Int(), default_value=("", 0)).tag(sync=True)
-    title_hist = Unicode("").tag(sync=True)
-    data_grid = Unicode("").tag(sync=True)
+    title_hist = Unicode().tag(sync=True)
+    data_grid = Unicode().tag(sync=True)
     exec_time = Float().tag(sync=True)
-    data_name = Unicode("").tag(sync=True)
+    data_name = Unicode().tag(sync=True)
     vis_sql = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)
-    vis_data = Unicode("").tag(sync=True)
+    vis_data = Unicode().tag(sync=True)
     quickv_var = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
-    quickv_data = Unicode("").tag(sync=True)
-    cache = Unicode("").tag(sync=True)
+    quickv_data = Unicode().tag(sync=True)
+    cache = Unicode().tag(sync=True)
 
-    # chart_type = Unicode("line").tag(sync=True)
     x_color = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)
-    need_aggr = Bool(False).tag(sync=True)
-    chart_to_dict = Unicode("").tag(sync=True)
-    chart_config = Unicode("").tag(sync=True)
-    pin_button = Unicode("").tag(sync=True)
+    need_aggr = Bool().tag(sync=True)
+    chart_to_dict = Unicode().tag(sync=True)
+    chart_config = Unicode().tag(sync=True)
+    pin_button = Unicode().tag(sync=True)
 
     def __init__(self, shell: InteractiveShell, sql=""):
         super(SqlCellWidget, self).__init__()
@@ -70,6 +71,16 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self._view_module_version = module_version
 
         self.output_var = "sqlcelldf"
+        self.chart_config = json.dumps(
+            {
+                "type": None,
+                "x": None,
+                "y": None,
+                "color": None,
+                "theta": None,
+                "subtype": [],
+            }
+        )
 
     def run_sql(self, sql: str, con: Optional[Connection] = None):
         assert type(self.data_name) is str
@@ -140,7 +151,19 @@ class SqlCellWidget(DOMWidget, HasTraits):
         display(self.chart)
 
     @observe("chart_config")
-    def on_chart_config(self):
+    def on_chart_config(self, change):
+        assert type(self.chart_config) is str
+
+        chart_config = json.loads(self.chart_config)
+
+        # Check if we have sufficient config to generate the chart.
+
+        if chart_config["type"] is None:
+            self.chart_to_dict = ""
+            return
+
+        # Let's generate the vega spec.
+
         config = {}
         chart = alt.Chart(get_value(self.shell, self.data_name))
         assert type(self.chart_config) is str
@@ -153,20 +176,20 @@ class SqlCellWidget(DOMWidget, HasTraits):
         else:
             config["theta"] = chart_config["theta"]
 
-        if chart_config["type"].find("bar") >= 0:
-            chart = chart.mark_bar()
-        elif chart_config["type"].find("line") >= 0:
-            chart = chart.mark_line()
-        elif chart_config["type"].find("area") >= 0:
-            chart = chart.mark_area()
-        elif chart_config["type"].find("pie") >= 0:
-            chart = chart.mark_arc()
-        elif chart_config["type"].find("scatter") >= 0:
-            chart = chart.mark_point()
+        mapping = {
+            ChartType.BAR: chart.mark_bar(),
+            ChartType.LINE: chart.mark_line(),
+            ChartType.AREA: chart.mark_area(),
+            ChartType.PIE: chart.mark_arc(),
+            ChartType.SCATTER: chart.mark_point(),
+        }
 
-        if chart_config["type"].find("grouped") >= 0:
+        chart_type = chart_config["type"]
+        chart = mapping[chart_type]
+
+        if SubChartType.GROUPED in chart_config["subtype"]:
             config["column"] = chart_config["x"]
-        if chart_config["type"].find("100") >= 0:
+        if SubChartType.PERCENT in chart_config["subtype"]:
             config["y"] = config["y"].stack("normalize")
 
         self.chart = chart.encode(**config)

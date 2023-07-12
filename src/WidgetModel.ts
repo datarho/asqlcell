@@ -25,6 +25,7 @@ const defaultModelProperties = {
     vis_data: "",
     title_hist: "",
     cache: "[{}]",
+    chart_config: "{}",
 }
 
 export type WidgetModelState = typeof defaultModelProperties
@@ -57,6 +58,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             title_hist: undefined,
             cache: undefined,
             column_color: undefined,
+            chart_config: undefined,
         };
     }
 
