@@ -54,7 +54,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
     quickv_data = Unicode().tag(sync=True)
     cache = Unicode().tag(sync=True)
 
-    x_color = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)
     need_aggr = Bool().tag(sync=True)
     vega_spec = Unicode().tag(sync=True)
     chart_config = Unicode().tag(sync=True)
@@ -118,7 +117,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             assert type(df) is DataFrame
             self.title_hist = json.dumps(get_histogram(df))
             self.set_data_grid()
-            self.run_vis_sql()
+            # self.run_vis_sql()
         except Exception as r:
             raise NoTracebackException(r)
 
@@ -139,24 +138,55 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def _generate_bar(self, config: ChartConfig) -> Optional[Chart]:
         if config["x"] is None or config["y"] is None:
-            self.vega_spec = "{}"
             return None
+        d = {"x": config["x"], "y": Y(config["y"])}
+        if config["color"] != None:
+            d["color"] = config["color"]
+        if SubChartType.GROUPED in config["subtype"]:
+            d["column"] = config["x"]
+        if SubChartType.PERCENT in config["subtype"]:
+            d["y"] = d["y"].stack("normalize")
+        self.chart = Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**d)
+        return self.chart
 
-        df = get_value(self.shell, self.data_name)
-        chart = Chart(df).mark_bar()
+    def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
+        if config["x"] is None or config["y"] is None:
+            return None
+        d = {"x": config["x"], "y": Y(config["y"])}
+        if config["color"] != None:
+            d["color"] = config["color"]
+        if SubChartType.PERCENT in config["subtype"]:
+            d["y"] = d["y"].stack("normalize")
+        self.chart = Chart(get_value(self.shell, self.data_name)).mark_area().encode(**d)
+        return self.chart
 
-        return chart.encode(x=config["x"], y=Y(config["y"]))
+    def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
+        if config["x"] is None or config["y"] is None:
+            return None
+        d = {"x": config["x"], "y": Y(config["y"])}
+        if config["color"] != None:
+            d["color"] = config["color"]
+        return Chart(get_value(self.shell, self.data_name)).mark_line().encode(**d)
 
-    @observe("x_color")
-    def on_x_color(self):
+    def _generate_point(self, config: ChartConfig) -> Optional[Chart]:
+        if config["x"] is None or config["y"] is None:
+            return None
+        d = {"x": config["x"], "y": Y(config["y"])}
+        if config["color"] != None:
+            d["color"] = config["color"]
+        return Chart(get_value(self.shell, self.data_name)).mark_point().encode(**d)
+
+    def _generate_arc(self, config: ChartConfig) -> Optional[Chart]:
+        if config["theta"] is None or config["color"] is None:
+            return None
+        d = {"theta": config["theta"], "color": Y(config["color"])}
+        return Chart(get_value(self.shell, self.data_name)).mark_arc().encode(**d)
+
+    def check_duplicate(self, *args):
+        select = ",".join(args)
+        group = ",".join([str(i + 1) for i in range(len(args))])
         name = self.data_name
-        assert type(self.x_color) is tuple
-        x = self.x_color[0]
-        color = self.x_color[1]
-        if len(color) == 0:
-            tmp = get_duckdb_result(self.shell, f"select {x} from {name} group by 1 having count(*) > 1")
-        else:
-            tmp = get_duckdb_result(self.shell, f"select {x}, {color} from {name} group by 1, 2 having count(*) > 1")
+        tmp = get_duckdb_result(self.shell, f"select {select} from {name} group by {group} having count(*) > 1")
         self.need_aggr = len(tmp) > 0
 
     @observe("pin_button")
@@ -168,62 +198,25 @@ class SqlCellWidget(DOMWidget, HasTraits):
         assert type(self.chart_config) is str
 
         chart_config: ChartConfig = json.loads(self.chart_config)
-        chart_type = chart_config["type"]
 
         # Check the type of the chart is specified.
-
-        if chart_type is None:
+        if chart_config["type"] is None:
             return
 
         # Try to generate vega spec based on config.
-
         mapping = {
             ChartType.BAR: self._generate_bar,
-            # ChartType.LINE: chart.mark_line,
-            # ChartType.AREA: chart.mark_area,
-            # ChartType.PIE: chart.mark_arc,
-            # ChartType.SCATTER: chart.mark_point,
+            ChartType.LINE: self._generate_line,
+            ChartType.AREA: self._generate_area,
+            ChartType.PIE: self._generate_arc,
+            ChartType.SCATTER: self._generate_point,
         }
 
-        self.chart = mapping[chart_type](chart_config)
-
+        self.chart = mapping[chart_config["type"]](chart_config)
         if self.chart is None:
+            self.vega_spec = "{}"
             return
-
         self.vega_spec = json.dumps(self.chart.to_dict())
-
-        # config = {}
-        # chart = alt.Chart(get_value(self.shell, self.data_name))
-
-        # if chart_config.get("color"):
-        #     config["color"] = chart_config["color"]
-        # if chart_config["type"] == ChartType.PIE:
-        #     config["x"] = chart_config["x"]
-        #     config["y"] = alt.Y(chart_config["y"])
-        # else:
-        #     config["theta"] = chart_config["theta"]
-
-        # mapping = {
-        #     ChartType.BAR: chart.mark_bar,
-        #     ChartType.LINE: chart.mark_line,
-        #     ChartType.AREA: chart.mark_area,
-        #     ChartType.PIE: chart.mark_arc,
-        #     ChartType.SCATTER: chart.mark_point,
-        # }
-
-        # chart_type = chart_config["type"]
-
-        # assert chart_type is not None
-
-        # chart = mapping[chart_type]()
-
-        # if SubChartType.GROUPED in chart_config["subtype"]:
-        #     config["column"] = chart_config["x"]
-        # if SubChartType.PERCENT in chart_config["subtype"]:
-        #     config["y"] = config["y"].stack("normalize")
-
-        # self.chart = chart.encode(**config)
-        # self.chart_to_dict = json.dumps(self.chart.to_dict())
 
     @observe("row_range")
     def on_row_range(self):
@@ -247,23 +240,23 @@ class SqlCellWidget(DOMWidget, HasTraits):
             )
         self.set_data_grid()
 
-    def run_vis_sql(self):
-        assert type(self.data_name) is str
-        assert type(self.vis_sql) is tuple
+    # def run_vis_sql(self):
+    #     assert type(self.data_name) is str
+    #     assert type(self.vis_sql) is tuple
 
-        try:
-            get_duckdb().register(self.data_name, get_value(self.shell, self.data_name))
-            df = get_duckdb().execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name)).df()
-            get_duckdb().unregister(self.data_name)
-            self.vis_data = vega_spec(df, self.vis_sql[1])
-        except Exception as r:
-            self.cache = ""
-            self.vis_data = ""
-            self.vis_sql = ("", "", "")
+    #     try:
+    #         get_duckdb().register(self.data_name, get_value(self.shell, self.data_name))
+    #         df = get_duckdb().execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name)).df()
+    #         get_duckdb().unregister(self.data_name)
+    #         self.vis_data = vega_spec(df, self.vis_sql[1])
+    #     except Exception as r:
+    #         self.cache = ""
+    #         self.vis_data = ""
+    #         self.vis_sql = ("", "", "")
 
-    @observe("vis_sql")
-    def on_vis_sql(self, change):
-        self.run_vis_sql()
+    # @observe("vis_sql")
+    # def on_vis_sql(self, change):
+    #     self.run_vis_sql()
 
     @observe("quickv_var")
     def on_quickv_var(self, change):
