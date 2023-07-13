@@ -1,6 +1,8 @@
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
 from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
+from IPython.core.display import HTML
+from IPython.display import display
 from pandas import DataFrame
 from sqlalchemy import Connection
 
@@ -67,6 +69,7 @@ class SqlMagics(Magics):
             widget.run_sql(cell, con)
         else:
             widget.run_sql(cell)
+        display(HTML(""), display_id=widget.cellid)
         return widget
 
     def _get_widget(self, var_name: str) -> SqlCellWidget | None:
@@ -81,7 +84,7 @@ class SqlMagics(Magics):
         """
         Set new sql cell widget with the given name.
         """
-        self.shell.user_global_ns[cell_id] = SqlCellWidget(shell=self.shell)
+        self.shell.user_global_ns[cell_id] = SqlCellWidget(shell=self.shell, cellid=cell_id)
 
     def _get_con(self, var_name: str) -> Connection:
         """

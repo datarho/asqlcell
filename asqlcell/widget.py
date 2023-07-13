@@ -4,11 +4,9 @@ from time import time
 from typing import Optional
 import pandas as pd
 import sqlparse
-import altair as alt
 from altair import Chart, Y
 from IPython.core.interactiveshell import InteractiveShell
-
-# from IPython.display import display
+from IPython.display import display
 from ipywidgets import DOMWidget
 from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
@@ -18,14 +16,11 @@ from asqlcell.chart import ChartConfig, ChartType, SubChartType
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import (
     NoTracebackException,
-    get_cell_id,
-    get_duckdb,
     get_duckdb_result,
     get_histogram,
     get_value,
     get_vars,
     set_value,
-    vega_spec,
 )
 
 module_name = "asqlcell"
@@ -60,10 +55,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
     chart_config = Unicode().tag(sync=True)
     pin_button = Unicode().tag(sync=True)
 
-    def __init__(self, shell: InteractiveShell, sql=""):
+    def __init__(self, shell: InteractiveShell, cellid="", sql=""):
         super(SqlCellWidget, self).__init__()
         self.shell = shell
-
+        self.cellid = cellid
         self._model_name = "SqlCellModel"
         self._model_module = module_name
         self._model_module_version = module_version
@@ -91,7 +86,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         try:
             if len(self.data_name) == 0:
-                self.data_name = "__" + get_cell_id(self.shell)
+                self.data_name = self.cellid + "result"
             start = time()
             self.row_range = (0, self.row_range[1] - self.row_range[0])
             self.data_grid = ""
@@ -241,24 +236,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
             )
         self.set_data_grid()
 
-    # def run_vis_sql(self):
-    #     assert type(self.data_name) is str
-    #     assert type(self.vis_sql) is tuple
-
-    #     try:
-    #         get_duckdb().register(self.data_name, get_value(self.shell, self.data_name))
-    #         df = get_duckdb().execute(self.vis_sql[0].replace("$$__NAME__$$", self.data_name)).df()
-    #         get_duckdb().unregister(self.data_name)
-    #         self.vis_data = vega_spec(df, self.vis_sql[1])
-    #     except Exception as r:
-    #         self.cache = ""
-    #         self.vis_data = ""
-    #         self.vis_sql = ("", "", "")
-
-    # @observe("vis_sql")
-    # def on_vis_sql(self, change):
-    #     self.run_vis_sql()
-
     @observe("quickv_var")
     def on_quickv_var(self, change):
         assert type(self.quickv_var) is tuple
@@ -270,9 +247,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         )
         df = df.reset_index()
         self.quickv_data = json.dumps(Chart(df).mark_line().encode(x="index", y=select).to_dict())
-        from IPython.display import display
-
         display(
-            {"application/vnd.vegalite.v3+json": Chart(df).mark_line().encode(x="index", y=select).to_dict()}, raw=True
+            {"application/vnd.vegalite.v3+json": Chart(df).mark_line().encode(x="index", y=select).to_dict()},
+            raw=True,
+            display_id=self.cellid,
         )
-        display(Chart(df).mark_line().encode(x="index", y=select))
