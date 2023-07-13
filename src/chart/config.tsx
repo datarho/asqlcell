@@ -7,7 +7,7 @@ import { ChartType } from "./type";
 
 
 const ConfigCommand: FunctionComponent = () => {
-    const [spec] = useModelState("vega_spec");
+    const [spec] = useModelState("preview_vega");
     const [, setPersistVega] = useModelState("persist_vega");
 
     return (

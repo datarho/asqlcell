@@ -39,12 +39,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
     data_name = Unicode().tag(sync=True)
     vis_sql = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)
     vis_data = Unicode().tag(sync=True)
-    quickv_var = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
-    quickv_data = Unicode().tag(sync=True)
+    quickview_var = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
+    quickview_vega = Unicode().tag(sync=True)
     cache = Unicode().tag(sync=True)
 
     need_aggr = Bool().tag(sync=True)
-    vega_spec = Unicode().tag(sync=True)
+    preview_vega = Unicode().tag(sync=True)
     chart_config = Unicode().tag(sync=True)
     persist_vega = Unicode().tag(sync=True)
 
@@ -60,7 +60,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self._view_module_version = module_version
 
         self.output_var = "sqlcelldf"
-        self.vega_spec = "{}"
+        self.preview_vega = "{}"
 
         config: ChartConfig = {
             "type": None,
@@ -209,9 +209,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         self.chart = mapping[chart_config["type"]](chart_config)
         if self.chart is None:
-            self.vega_spec = "{}"
+            self.preview_vega = "{}"
             return
-        self.vega_spec = json.dumps(self.chart.to_dict())
+        self.preview_vega = json.dumps(self.chart.to_dict())
 
     @observe("row_range")
     def on_row_range(self, _):
@@ -235,19 +235,14 @@ class SqlCellWidget(DOMWidget, HasTraits):
             )
         self.set_data_grid()
 
-    @observe("quickv_var")
-    def on_quickv_var(self, _):
-        assert type(self.quickv_var) is tuple
-        select = self.quickv_var[0]
+    @observe("quickview_var")
+    def on_quickview_var(self, _):
+        assert type(self.quickview_var) is tuple
+        select = self.quickview_var[0]
         name = self.data_name
         df = get_duckdb_result(
             self.shell,
             f"select {select} from (SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM {name}) using SAMPLE reservoir (100 rows) REPEATABLE(42) order by index_rn1qaz2wsx",
         )
         df = df.reset_index()
-        self.quickv_data = json.dumps(Chart(df).mark_line().encode(x="index", y=select).to_dict())
-        display(
-            {"application/vnd.vegalite.v3+json": Chart(df).mark_line().encode(x="index", y=select).to_dict()},
-            raw=True,
-            display_id=self.cell_id,
-        )
+        self.quickview_vega = json.dumps(Chart(df).mark_line().encode(x="index", y=select).to_dict())

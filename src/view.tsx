@@ -42,7 +42,7 @@ const ReactWidget = () => {
     });
 
     model?.on("quick_view", (col_name) => {
-        model?.set("quickv_var", [
+        model?.set("quickview_var", [
             col_name,
             new Date().toISOString()
         ]);

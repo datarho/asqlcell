@@ -19,14 +19,13 @@ export type WidgetModelState = {
     data_grid: string;
     column_color: string;
     data_sql: string;
-    quickv_sql: string;
-    quickv_data: string;
+    quickview_vega: string;
     vis_sql: [string, string],
     vis_data: string;
     title_hist: string;
     cache: string;
     chart_config: string;
-    vega_spec: string;
+    preview_vega: string;
     persist_vega: string;
 }
 
@@ -52,15 +51,15 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             data_grid: "",
             column_color: "",
             data_sql: "",
-            quickv_sql: "",
-            quickv_var: ["", ""],
-            quickv_data: "",
+            quickview_vega: "{}",
+            quickview_var: ["", ""],
+            quickview_data: "",
             vis_sql: ["", ""],
             vis_data: "",
             title_hist: "",
             cache: "[{}]",
             chart_config: "{}",
-            vega_spec: "{}",
+            preview_vega: "{}",
             persist_vega: "",
         };
     }
