@@ -1,8 +1,28 @@
-import { ScrollArea, Stack, Tabs } from "@mantine/core";
+import { Button, Group, ScrollArea, Stack, Tabs } from "@mantine/core";
+import { IconSettings } from "@tabler/icons-react";
 import React, { FunctionComponent } from "react";
+import { useModelState } from "../hooks";
 import { ChartProperties } from "./properties";
 import { ChartType } from "./type";
-import { IconSettings } from "@tabler/icons-react";
+
+
+const ConfigCommand: FunctionComponent = () => {
+    const [spec] = useModelState("vega_spec");
+    const [, setPersistVega] = useModelState("persist_vega");
+
+    return (
+        <Group>
+            <Button
+                compact
+                onClick={() => setPersistVega(new Date().toString())}
+                disabled={spec === "{}"}
+            >
+                Save
+            </Button>
+        </Group>
+    )
+}
+
 
 export const ChartConfig: FunctionComponent = () => {
     return (
@@ -20,9 +40,11 @@ export const ChartConfig: FunctionComponent = () => {
                         <ChartType />
 
                         <ChartProperties />
+
+                        <ConfigCommand />
                     </Stack>
                 </ScrollArea>
             </Tabs.Panel>
-        </Tabs>
+        </Tabs >
     )
 }

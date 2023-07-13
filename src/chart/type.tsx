@@ -37,7 +37,6 @@ export const ChartType: FunctionComponent = () => {
     return (
         <Select
             label="Chart type"
-            placeholder="Pick one"
             itemComponent={IconItem}
             data={data}
             icon={<ItemIcon icon={icon} />}

@@ -1,27 +1,20 @@
 import json
 from time import time
-
 from typing import Optional
+
 import pandas as pd
 import sqlparse
 from altair import Chart, Y
 from IPython.core.interactiveshell import InteractiveShell
-from IPython.display import display
+from IPython.display import display, update_display
 from ipywidgets import DOMWidget
 from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
-from traitlets import Float, HasTraits, Int, Tuple, Unicode, observe, Bool, Sentinel
-from asqlcell.chart import ChartConfig, ChartType, SubChartType
+from traitlets import Bool, Float, HasTraits, Int, Sentinel, Tuple, Unicode, observe
 
+from asqlcell.chart import ChartConfig, ChartType, SubChartType
 from asqlcell.jinjasql import JinjaSql
-from asqlcell.utils import (
-    NoTracebackException,
-    get_duckdb_result,
-    get_histogram,
-    get_value,
-    get_vars,
-    set_value,
-)
+from asqlcell.utils import NoTracebackException, get_duckdb_result, get_histogram, get_value, get_vars, set_value
 
 module_name = "asqlcell"
 module_version = "0.1.0"
@@ -53,12 +46,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
     need_aggr = Bool().tag(sync=True)
     vega_spec = Unicode().tag(sync=True)
     chart_config = Unicode().tag(sync=True)
-    pin_button = Unicode().tag(sync=True)
+    persist_vega = Unicode().tag(sync=True)
 
-    def __init__(self, shell: InteractiveShell, cellid="", sql=""):
+    def __init__(self, shell: InteractiveShell, cell_id="", sql=""):
         super(SqlCellWidget, self).__init__()
         self.shell = shell
-        self.cellid = cellid
+        self.cell_id = cell_id
         self._model_name = "SqlCellModel"
         self._model_module = module_name
         self._model_module_version = module_version
@@ -86,7 +79,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         try:
             if len(self.data_name) == 0:
-                self.data_name = self.cellid + "result"
+                self.data_name = self.cell_id + "result"
             start = time()
             self.row_range = (0, self.row_range[1] - self.row_range[0])
             self.data_grid = ""
@@ -185,12 +178,18 @@ class SqlCellWidget(DOMWidget, HasTraits):
         tmp = get_duckdb_result(self.shell, f"select {select} from {name} group by {group} having count(*) > 1")
         self.need_aggr = len(tmp) > 0
 
-    @observe("pin_button")
-    def on_pin_button(self):
-        display(self.chart)
+    @observe("persist_vega")
+    def on_persist_vega(self, _):
+        if self.chart is None:
+            return
+
+        update_display(
+            self.chart,
+            display_id=self.cell_id,
+        )
 
     @observe("chart_config")
-    def on_chart_config(self, change):
+    def on_chart_config(self, _):
         assert type(self.chart_config) is str
 
         chart_config: ChartConfig = json.loads(self.chart_config)
@@ -215,11 +214,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self.vega_spec = json.dumps(self.chart.to_dict())
 
     @observe("row_range")
-    def on_row_range(self):
+    def on_row_range(self, _):
         self.set_data_grid()
 
     @observe("column_sort")
-    def on_column_sort(self):
+    def on_column_sort(self, _):
         assert type(self.column_sort) is tuple
 
         df = get_value(self.shell, self.data_name)
@@ -237,7 +236,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self.set_data_grid()
 
     @observe("quickv_var")
-    def on_quickv_var(self, change):
+    def on_quickv_var(self, _):
         assert type(self.quickv_var) is tuple
         select = self.quickv_var[0]
         name = self.data_name
@@ -250,5 +249,5 @@ class SqlCellWidget(DOMWidget, HasTraits):
         display(
             {"application/vnd.vegalite.v3+json": Chart(df).mark_line().encode(x="index", y=select).to_dict()},
             raw=True,
-            display_id=self.cellid,
+            display_id=self.cell_id,
         )

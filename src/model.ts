@@ -27,6 +27,7 @@ export type WidgetModelState = {
     cache: string;
     chart_config: string;
     vega_spec: string;
+    persist_vega: string;
 }
 
 export class SqlCellModel extends widgets.DOMWidgetModel {
@@ -60,6 +61,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             cache: "[{}]",
             chart_config: "{}",
             vega_spec: "{}",
+            persist_vega: "",
         };
     }
 
