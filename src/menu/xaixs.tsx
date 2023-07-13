@@ -4,7 +4,7 @@ import { IconAlertSquareRounded, IconChartArrows, IconChartArrowsVertical } from
 import React from "react";
 import { FunctionComponent, useState } from "react";
 import { useModel, useModelState } from "../hooks";
-import { IconMap, SelectItem, sendVisSql } from "../public";
+import { DataTypeIcon, SelectItem, sendVisSql } from "../public";
 
 interface XAxisProps {
     XAxis: string,
@@ -32,7 +32,7 @@ export const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis,
     // const [sortAsce, setSortAsce] = useState(true);
     const [hist] = useModelState("title_hist");
     const headers = JSON.parse(hist ?? `{"columnName":"", "dtype":""}`);
-    const [xAxisIcon, setXAxisIcon] = useState<JSX.Element>(IconMap["int"]);
+    const [xAxisIcon, setXAxisIcon] = useState<JSX.Element>(DataTypeIcon["int"]);
     const [cache, setCache] = useModelState("cache");
     const dataLength = (model?.get("data_grid") ?? "{}").split("\n")[1] as unknown as number || 0;
     const [orient, setOrient] = useState(JSON.parse(
@@ -48,7 +48,7 @@ export const XAxisSelection: FunctionComponent<XAxisProps> = ({ XAxis, setXAxis,
         .map((header: { columnName: string, dtype: string }) => {
             return (
                 {
-                    value: header.columnName === "Index(Default)" ? "Index" : header.columnName, label: header.columnName, icon: IconMap[header.dtype]
+                    value: header.columnName === "Index(Default)" ? "Index" : header.columnName, label: header.columnName, icon: DataTypeIcon[header.dtype]
                 }
             )
         });

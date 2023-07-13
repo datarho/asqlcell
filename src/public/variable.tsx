@@ -13,7 +13,7 @@ export const ChartIconMap: Record<string, JSX.Element> = {
     "arc": <IconChartPie size={16} />
 }
 
-export const IconMap: Record<string, JSX.Element> = {
+export const DataTypeIcon: Record<string, JSX.Element> = {
     "int": <Icon123 size={16} />,
     "float": <Icon123 size={16} />,
     "string": <IconAbc size={16} />,

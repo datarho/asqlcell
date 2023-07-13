@@ -5,6 +5,7 @@ import { useModelState } from "../hooks";
 import { SelectDropDown, XAxisSelection } from "../menu";
 import { InitialSelectedCols } from "../public";
 import { ChartType } from "./type";
+import { ChartProperties } from "./properties";
 
 interface menuProps {
     XAxis: string,
@@ -35,7 +36,7 @@ export const ChartConfig: FunctionComponent<menuProps> = ({ XAxis, setXAxis }) =
         <Stack>
             <ChartType />
 
-
+            <ChartProperties />
 
             <Grid sx={{
                 direction: "ltr",

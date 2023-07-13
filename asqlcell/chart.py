@@ -1,7 +1,8 @@
-from enum import Enum
+from typing import Optional, TypedDict
+from strenum import StrEnum
 
 
-class ChartType(Enum):
+class ChartType(StrEnum):
     BAR = "bar"
     LINE = "line"
     AREA = "area"
@@ -9,6 +10,15 @@ class ChartType(Enum):
     SCATTER = "point"
 
 
-class SubChartType(Enum):
+class SubChartType(StrEnum):
     GROUPED = "grouped"
     PERCENT = "100"
+
+
+class ChartConfig(TypedDict):
+    type: Optional[ChartType]
+    x: Optional[str]
+    y: Optional[str]
+    color: Optional[str]
+    theta: Optional[str]
+    subtype: list[str]

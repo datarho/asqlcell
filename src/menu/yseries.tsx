@@ -3,7 +3,7 @@ import { Accordion, ActionIcon, Grid, Group, Select, Text, Transition } from "@m
 import { IconBorderLeft, IconBorderRight, IconMinus } from "@tabler/icons-react";
 import { useModel, useModelState } from "../hooks";
 import { ColItem } from "../chart";
-import { ChartIconMap, ChartTypeList, IconMap, InitialSelectedCols, InitialSingleSelectedCol, SelectItem, sendVisSql } from "../public";
+import { ChartIconMap, ChartTypeList, DataTypeIcon, InitialSelectedCols, InitialSingleSelectedCol, SelectItem, sendVisSql } from "../public";
 import React from "react";
 
 interface SelectProps {
@@ -35,11 +35,11 @@ export const SelectDropDown: FunctionComponent<SelectProps> = ({ index, name, se
         .map((header: { columnName: string, dtype: string }) => {
             return (
                 {
-                    value: header.columnName === "Index(Default)" ? "Index" : header.columnName, label: header.columnName, icon: IconMap[header.dtype]
+                    value: header.columnName === "Index(Default)" ? "Index" : header.columnName, label: header.columnName, icon: DataTypeIcon[header.dtype]
                 }
             )
         });
-    const [seriesIcon, setSeriesIcon] = useState<JSX.Element>(IconMap["int"]);
+    const [seriesIcon, setSeriesIcon] = useState<JSX.Element>(DataTypeIcon["int"]);
     const target: ColItem = cacheObject["selectedCol"].find((item: ColItem) => item.seriesName === seriesName);
     const [chartIcon, setChartIcon] = useState<JSX.Element>(ChartIconMap[target ? target.chartType : "line"]);
     const [yAxis, setYAxis] = useState(target ? target.yAxis : "left");

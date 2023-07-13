@@ -5,13 +5,14 @@ from typing import Optional
 import pandas as pd
 import sqlparse
 import altair as alt
+from altair import Chart, Y
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import display
 from ipywidgets import DOMWidget
 from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
 from traitlets import Float, HasTraits, Int, Tuple, Unicode, observe, Bool, Sentinel
-from asqlcell.chart import ChartType, SubChartType
+from asqlcell.chart import ChartConfig, ChartType, SubChartType
 
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import (
@@ -55,7 +56,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     x_color = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)
     need_aggr = Bool().tag(sync=True)
-    chart_to_dict = Unicode().tag(sync=True)
+    vega_spec = Unicode().tag(sync=True)
     chart_config = Unicode().tag(sync=True)
     pin_button = Unicode().tag(sync=True)
 
@@ -71,16 +72,18 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self._view_module_version = module_version
 
         self.output_var = "sqlcelldf"
-        self.chart_config = json.dumps(
-            {
-                "type": None,
-                "x": None,
-                "y": None,
-                "color": None,
-                "theta": None,
-                "subtype": [],
-            }
-        )
+        self.vega_spec = "{}"
+
+        config: ChartConfig = {
+            "type": None,
+            "x": None,
+            "y": None,
+            "color": None,
+            "theta": None,
+            "subtype": [],
+        }
+
+        self.chart_config = json.dumps(config)
 
     def run_sql(self, sql: str, con: Optional[Connection] = None):
         assert type(self.data_name) is str
@@ -134,6 +137,16 @@ class SqlCellWidget(DOMWidget, HasTraits):
         df = 150 * df + 105
         self.column_color = df.to_json(orient="split", date_format="iso")
 
+    def _generate_bar(self, config: ChartConfig) -> Optional[Chart]:
+        if config["x"] is None or config["y"] is None:
+            self.vega_spec = "{}"
+            return None
+
+        df = get_value(self.shell, self.data_name)
+        chart = Chart(df).mark_bar()
+
+        return chart.encode(x=config["x"], y=Y(config["y"]))
+
     @observe("x_color")
     def on_x_color(self):
         name = self.data_name
@@ -154,46 +167,63 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def on_chart_config(self, change):
         assert type(self.chart_config) is str
 
-        chart_config = json.loads(self.chart_config)
+        chart_config: ChartConfig = json.loads(self.chart_config)
+        chart_type = chart_config["type"]
 
-        # Check if we have sufficient config to generate the chart.
+        # Check the type of the chart is specified.
 
-        if chart_config["type"] is None:
-            self.chart_to_dict = ""
+        if chart_type is None:
             return
 
-        # Let's generate the vega spec.
-
-        config = {}
-        chart = alt.Chart(get_value(self.shell, self.data_name))
-        assert type(self.chart_config) is str
-        chart_config = json.loads(self.chart_config)
-        if len(chart_config["color"]) > 0:
-            config["color"] = chart_config["color"]
-        if chart_config["type"].find("pie") < 0:
-            config["x"] = chart_config["x"]
-            config["y"] = alt.Y(chart_config["y"])
-        else:
-            config["theta"] = chart_config["theta"]
+        # Try to generate vega spec based on config.
 
         mapping = {
-            ChartType.BAR: chart.mark_bar(),
-            ChartType.LINE: chart.mark_line(),
-            ChartType.AREA: chart.mark_area(),
-            ChartType.PIE: chart.mark_arc(),
-            ChartType.SCATTER: chart.mark_point(),
+            ChartType.BAR: self._generate_bar,
+            # ChartType.LINE: chart.mark_line,
+            # ChartType.AREA: chart.mark_area,
+            # ChartType.PIE: chart.mark_arc,
+            # ChartType.SCATTER: chart.mark_point,
         }
 
-        chart_type = chart_config["type"]
-        chart = mapping[chart_type]
+        self.chart = mapping[chart_type](chart_config)
 
-        if SubChartType.GROUPED in chart_config["subtype"]:
-            config["column"] = chart_config["x"]
-        if SubChartType.PERCENT in chart_config["subtype"]:
-            config["y"] = config["y"].stack("normalize")
+        if self.chart is None:
+            return
 
-        self.chart = chart.encode(**config)
-        self.chart_to_dict = json.dumps(self.chart.to_dict())
+        self.vega_spec = json.dumps(self.chart.to_dict())
+
+        # config = {}
+        # chart = alt.Chart(get_value(self.shell, self.data_name))
+
+        # if chart_config.get("color"):
+        #     config["color"] = chart_config["color"]
+        # if chart_config["type"] == ChartType.PIE:
+        #     config["x"] = chart_config["x"]
+        #     config["y"] = alt.Y(chart_config["y"])
+        # else:
+        #     config["theta"] = chart_config["theta"]
+
+        # mapping = {
+        #     ChartType.BAR: chart.mark_bar,
+        #     ChartType.LINE: chart.mark_line,
+        #     ChartType.AREA: chart.mark_area,
+        #     ChartType.PIE: chart.mark_arc,
+        #     ChartType.SCATTER: chart.mark_point,
+        # }
+
+        # chart_type = chart_config["type"]
+
+        # assert chart_type is not None
+
+        # chart = mapping[chart_type]()
+
+        # if SubChartType.GROUPED in chart_config["subtype"]:
+        #     config["column"] = chart_config["x"]
+        # if SubChartType.PERCENT in chart_config["subtype"]:
+        #     config["y"] = config["y"].stack("normalize")
+
+        # self.chart = chart.encode(**config)
+        # self.chart_to_dict = json.dumps(self.chart.to_dict())
 
     @observe("row_range")
     def on_row_range(self):

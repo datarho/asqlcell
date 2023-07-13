@@ -83,6 +83,7 @@ setup_args = dict(
         "ipywidgets>=8.0.0",
         "jinja2>=3.1.2",
         "pandas>=1.5.2",
+        "StrEnum>=0.4.15",
         "sqlparse>=0.4.3",
         "sqlalchemy>=2.0.16",
     ],

@@ -4,7 +4,7 @@ import { useModelState } from "../hooks";
 
 
 export const ChartType: FunctionComponent = () => {
-    const [chartConfig, setChartConfig] = useModelState("chart_config");
+    const [config, setConfig] = useModelState("chart_config");
 
     return (
         <Select
@@ -14,9 +14,11 @@ export const ChartType: FunctionComponent = () => {
                 { value: "bar", label: "Bar" },
             ]}
             onChange={(value) => {
-                const config = JSON.parse(chartConfig);
-                config["type"] = value;
-                setChartConfig(JSON.stringify(config));
+                const updated = {
+                    ...JSON.parse(config),
+                    type: value,
+                };
+                setConfig(JSON.stringify(updated));
             }}
         />
     )
