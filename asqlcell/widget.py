@@ -7,7 +7,8 @@ import sqlparse
 import altair as alt
 from altair import Chart, Y
 from IPython.core.interactiveshell import InteractiveShell
-from IPython.display import display
+
+# from IPython.display import display
 from ipywidgets import DOMWidget
 from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
@@ -260,13 +261,18 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("quickv_var")
     def on_quickv_var(self, change):
-        assert type(self.data_name) is str
+        assert type(self.quickv_var) is tuple
+        select = self.quickv_var[0]
+        name = self.data_name
+        df = get_duckdb_result(
+            self.shell,
+            f"select {select} from (SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM {name}) using SAMPLE reservoir (100 rows) REPEATABLE(42) order by index_rn1qaz2wsx",
+        )
+        df = df.reset_index()
+        self.quickv_data = json.dumps(Chart(df).mark_line().encode(x="index", y=select).to_dict())
+        from IPython.display import display
 
-        get_duckdb().register(self.data_name, get_value(self.shell, self.data_name))
-        tmp = """select "$$__C__$$" from(SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM $$__NAME__$$)
-                using SAMPLE reservoir (100 rows) REPEATABLE(42)
-                order by index_rn1qaz2wsx"""
-        tmp = tmp.replace("$$__NAME__$$", self.data_name).replace("$$__C__$$", change.new[0])
-        df = get_duckdb().execute(tmp).df()
-        get_duckdb().unregister(self.data_name)
-        self.quickv_data = vega_spec(df, "index_rn1qaz2wsx")
+        display(
+            {"application/vnd.vegalite.v3+json": Chart(df).mark_line().encode(x="index", y=select).to_dict()}, raw=True
+        )
+        display(Chart(df).mark_line().encode(x="index", y=select))
