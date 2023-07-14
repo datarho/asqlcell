@@ -1,15 +1,16 @@
 import { Select, Stack } from "@mantine/core";
 import React, { FunctionComponent } from "react";
 import { useModelState } from "../hooks";
-import { DataTypeIcon } from "../public";
+import { DataType, DataTypeIcon } from "./const";
+import { IconItem, ItemIcon } from "./item";
 
-const headers = (hist: string) => {
-    const columns = JSON.parse(hist ?? "{}");
+const columns = (hist: string) => {
+    const columns = JSON.parse(hist);
 
-    return [...columns].map((header: { columnName: string, dtype: string }) => ({
+    return [...columns].map((header: { columnName: string, dtype: DataType }) => ({
         value: header.columnName,
         label: header.columnName,
-        icon: DataTypeIcon[header.dtype]
+        icon: DataTypeIcon[header.dtype],
     }))
 }
 
@@ -17,10 +18,17 @@ const HorizontalAxis: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
+    const items = columns(hist);
+    const selected = JSON.parse(config)["x"];
+    const icon = items.find((entry) => entry.value === selected)?.icon;
+
     return (
         <Select
             label="X axis"
-            data={headers(hist)}
+            data={items}
+            icon={<ItemIcon icon={icon} />}
+            value={selected}
+            itemComponent={IconItem}
             onChange={(value) => {
                 const updated = {
                     ...JSON.parse(config),
@@ -36,10 +44,17 @@ const VerticalAxis: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
+    const items = columns(hist);
+    const selected = JSON.parse(config)["y"];
+    const icon = items.find((entry) => entry.value === selected)?.icon;
+
     return (
         <Select
             label="Y axis"
-            data={headers(hist)}
+            data={items}
+            icon={<ItemIcon icon={icon} />}
+            value={selected}
+            itemComponent={IconItem}
             onChange={(value) => {
                 const updated = {
                     ...JSON.parse(config),
