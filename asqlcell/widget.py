@@ -4,13 +4,13 @@ from typing import Optional
 
 import pandas as pd
 import sqlparse
-from altair import Chart, Y
+from altair import Chart, X, Y
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import display, update_display
 from ipywidgets import DOMWidget
 from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
-from traitlets import Bool, Float, HasTraits, Int, Sentinel, Tuple, Unicode, observe
+from traitlets import Bool, Float, HasTraits, Int, Tuple, Unicode, observe
 
 from asqlcell.chart import ChartConfig, ChartType, SubChartType
 from asqlcell.jinjasql import JinjaSql
@@ -128,14 +128,23 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def _generate_bar(self, config: ChartConfig) -> Optional[Chart]:
         if config["x"] is None or config["y"] is None:
             return None
-        d = {"x": config["x"], "y": Y(config["y"])}
-        if config["color"] != None:
-            d["color"] = config["color"]
-        if SubChartType.GROUPED in config["subtype"]:
-            d["column"] = config["x"]
+
+        params = {"x": X(config["x"], sort=None)}
+
         if SubChartType.PERCENT in config["subtype"]:
-            d["y"] = d["y"].stack("normalize")
-        self.chart = Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**d)
+            params |= {"y": Y(config["y"]).stack("normalize")}
+        else:
+            params |= {"y": Y(config["y"])}
+
+        if SubChartType.GROUPED in config["subtype"]:
+            params |= {"column": config["x"]}
+
+        if config["color"] is not None:
+            params |= {"color": config["color"]}
+
+        df = get_value(self.shell, self.data_name)
+        self.chart = Chart(df).mark_bar().encode(**params)
+
         return self.chart
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
