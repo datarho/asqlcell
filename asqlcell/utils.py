@@ -131,19 +131,6 @@ def get_histogram(df: DataFrame):
     return hist
 
 
-def vega_spec(df, x_axis):
-    if x_axis == "index_rn1qaz2wsx":
-        xx = df.index
-    else:
-        xx = df[x_axis]
-    res = []
-    for column in df:
-        if column != x_axis:
-            for x, y in zip(xx, df[column]):
-                res.append({"x": str(x), "y": str(y), "type": column})
-    return str(json.dumps(res))
-
-
 def get_random_data(number=10):
     return pd.DataFrame(
         data={
