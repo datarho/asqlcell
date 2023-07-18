@@ -129,7 +129,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["x"] is None or config["y"] is None:
             return None
 
-        params = {"x": X(config["x"], sort=None)}
+        params = {"x": X(config["x"], sort=None), "tooltip": [config["x"], config["y"]]}
 
         if SubChartType.PERCENT in config["subtype"]:
             params |= {"y": Y(config["y"]).stack("normalize")}
@@ -147,7 +147,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
         if config["x"] is None or config["y"] is None:
             return None
-        d = {"x": config["x"], "y": Y(config["y"])}
+        d = {"x": config["x"], "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
         if config["color"] != None:
             d["color"] = config["color"]
         if SubChartType.PERCENT in config["subtype"]:
@@ -157,7 +157,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
         if config["x"] is None or config["y"] is None:
             return None
-        d = {"x": config["x"], "y": Y(config["y"])}
+        d = {"x": config["x"], "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
         if config["color"] != None:
             d["color"] = config["color"]
         return Chart(get_value(self.shell, self.data_name)).mark_line().encode(**d)
@@ -173,14 +173,18 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def _generate_arc(self, config: ChartConfig) -> Optional[Chart]:
         if config["theta"] is None or config["color"] is None:
             return None
-        d = {"color": Color(config["color"], sort=None), "theta": Theta(config["theta"], sort="color")}
+        d = {
+            "color": Color(config["color"], sort=None),
+            "theta": Theta(config["theta"], sort="color"),
+            "tooltip": [config["color"], config["theta"]],
+        }
         return Chart(get_value(self.shell, self.data_name)).mark_arc().encode(**d)
 
     def check_duplicate(self, *args):
         li = [item for item in args if item != None]
         if len(li) == 0:
             return
-        select = ",".join(li)
+        select = ",".join([f"'{item}'" for item in li])
         group = ",".join([str(i + 1) for i in range(len(li))])
         name = self.data_name
         tmp = get_duckdb_result(self.shell, f"select {select} from {name} group by {group} having count(*) > 1")
@@ -199,15 +203,17 @@ class SqlCellWidget(DOMWidget, HasTraits):
     @observe("chart_config")
     def on_chart_config(self, _):
         assert type(self.chart_config) is str
+        ordinal_config: ChartConfig = json.loads(self.chart_config)
         chart_config: ChartConfig = json.loads(self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)"))
 
         # Check the type of the chart is specified.
         if chart_config["type"] is None:
             return
-        if chart_config["type"] in (ChartType.BAR, ChartType.AREA, ChartType.LINE, ChartType.SCATTER):
-            self.check_duplicate(chart_config["x"], chart_config["y"], chart_config["color"])
         if chart_config["aggr"] != None:
+            self.need_aggr = False
             chart_config["y"] = chart_config["aggr"] + "(" + chart_config["y"] + ")"  # type: ignore
+        elif chart_config["type"] in (ChartType.BAR, ChartType.AREA, ChartType.LINE, ChartType.SCATTER):
+            self.check_duplicate(ordinal_config["x"], ordinal_config["y"], ordinal_config["color"])
         # Try to generate vega spec based on config.
         mapping = {
             ChartType.BAR: self._generate_bar,
