@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 import sqlparse
-from altair import Chart, X, Y
+from altair import Chart, X, Y, Theta, Color
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import update_display
 from ipywidgets import DOMWidget
@@ -173,7 +173,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def _generate_arc(self, config: ChartConfig) -> Optional[Chart]:
         if config["theta"] is None or config["color"] is None:
             return None
-        d = {"theta": config["theta"], "color": Y(config["color"], sort=None)}
+        d = {"color": Color(config["color"], sort=None), "theta": Theta(config["theta"], sort="color")}
         return Chart(get_value(self.shell, self.data_name)).mark_arc().encode(**d)
 
     def check_duplicate(self, *args):
@@ -205,12 +205,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # Check the type of the chart is specified.
         if chart_config["type"] is None:
             return
-
-        if chart_config["aggr"] != None:
-            chart_config["y"] = chart_config["aggr"] + "(" + chart_config["y"] + ")"  # type: ignore
-
         if chart_config["type"] in (ChartType.BAR, ChartType.AREA, ChartType.LINE, ChartType.SCATTER):
             self.check_duplicate(chart_config["x"], chart_config["y"], chart_config["color"])
+        if chart_config["aggr"] != None:
+            chart_config["y"] = chart_config["aggr"] + "(" + chart_config["y"] + ")"  # type: ignore
         # Try to generate vega spec based on config.
         mapping = {
             ChartType.BAR: self._generate_bar,
