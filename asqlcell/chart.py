@@ -21,4 +21,5 @@ class ChartConfig(TypedDict):
     y: Optional[str]
     color: Optional[str]
     theta: Optional[str]
+    aggr: Optional[str]
     subtype: list[str]

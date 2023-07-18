@@ -6,7 +6,7 @@ import pandas as pd
 import sqlparse
 from altair import Chart, X, Y
 from IPython.core.interactiveshell import InteractiveShell
-from IPython.display import display, update_display
+from IPython.display import update_display
 from ipywidgets import DOMWidget
 from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
@@ -68,6 +68,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "y": None,
             "color": None,
             "theta": None,
+            "aggr": None,
             "subtype": [],
         }
 
@@ -106,7 +107,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
             assert type(df) is DataFrame
             self.title_hist = json.dumps(get_histogram(df))
             self.set_data_grid()
-            # self.run_vis_sql()
         except Exception as r:
             raise NoTracebackException(r)
 
@@ -136,16 +136,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
         else:
             params |= {"y": Y(config["y"])}
 
-        if SubChartType.GROUPED in config["subtype"]:
-            params |= {"column": config["x"]}
+        # if SubChartType.GROUPED in config["subtype"]:
+        #     params |= {"column": config["x"]}
 
         if config["color"] is not None:
             params |= {"color": config["color"]}
 
-        df = get_value(self.shell, self.data_name)
-        self.chart = Chart(df).mark_bar().encode(**params)
-
-        return self.chart
+        return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
         if config["x"] is None or config["y"] is None:
@@ -155,8 +152,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             d["color"] = config["color"]
         if SubChartType.PERCENT in config["subtype"]:
             d["y"] = d["y"].stack("normalize")
-        self.chart = Chart(get_value(self.shell, self.data_name)).mark_area().encode(**d)
-        return self.chart
+        return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**d)
 
     def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
         if config["x"] is None or config["y"] is None:
@@ -177,12 +173,15 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def _generate_arc(self, config: ChartConfig) -> Optional[Chart]:
         if config["theta"] is None or config["color"] is None:
             return None
-        d = {"theta": config["theta"], "color": Y(config["color"])}
+        d = {"theta": config["theta"], "color": Y(config["color"], sort=None)}
         return Chart(get_value(self.shell, self.data_name)).mark_arc().encode(**d)
 
     def check_duplicate(self, *args):
-        select = ",".join(args)
-        group = ",".join([str(i + 1) for i in range(len(args))])
+        li = [item for item in args if item != None]
+        if len(li) == 0:
+            return
+        select = ",".join(li)
+        group = ",".join([str(i + 1) for i in range(len(li))])
         name = self.data_name
         tmp = get_duckdb_result(self.shell, f"select {select} from {name} group by {group} having count(*) > 1")
         self.need_aggr = len(tmp) > 0
@@ -201,12 +200,17 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def on_chart_config(self, _):
         assert type(self.chart_config) is str
 
-        chart_config: ChartConfig = json.loads(self.chart_config)
+        chart_config: ChartConfig = json.loads(self.chart_config.replace("(", "\\(").replace(")", "\\)"))
 
         # Check the type of the chart is specified.
         if chart_config["type"] is None:
             return
 
+        if chart_config["aggr"] != None:
+            chart_config["y"] = chart_config["aggr"] + "(" + chart_config["y"] + ")"  # type: ignore
+
+        if chart_config["type"] in (ChartType.BAR, ChartType.AREA, ChartType.LINE, ChartType.SCATTER):
+            self.check_duplicate(chart_config["x"], chart_config["y"], chart_config["color"])
         # Try to generate vega spec based on config.
         mapping = {
             ChartType.BAR: self._generate_bar,
@@ -231,7 +235,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         assert type(self.column_sort) is tuple
 
         df = get_value(self.shell, self.data_name)
-
+        # print(self.column_sort)
+        # return
         assert type(df) is DataFrame
 
         df.sort_index(axis=0, inplace=True)
