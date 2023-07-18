@@ -126,28 +126,32 @@ class SqlCellWidget(DOMWidget, HasTraits):
         df = 150 * df + 105
         self.column_color = df.to_json(orient="split", date_format="iso")
 
-    def _generate_column(self, config: ChartConfig) -> Optional[Chart]:
-        # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None:
-            return None
-
-        return None
-
     def _generate_bar(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
             return None
 
         # Generate vega spec for the chart.
-        params = {"x": X(config["x"], sort=None), "tooltip": [config["x"], config["y"]]}
+        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
         if SubChartType.PERCENT in config["subtype"]:
-            params |= {"y": Y(config["y"]).stack("normalize")}
-        else:
-            params |= {"y": Y(config["y"])}
+            params["y"] = params["y"].stack("normalize")
 
-        # if SubChartType.GROUPED in config["subtype"]:
-        #     params |= {"column": config["x"]}
+        if config["color"] is not None:
+            params |= {"color": config["color"]}
+
+        return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
+
+    def _generate_column(self, config: ChartConfig) -> Optional[Chart]:
+        # Ensure parameters are presented.
+        if config["x"] is None or config["y"] is None:
+            return None
+
+        # Generate vega spec for the chart.
+        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
+
+        if SubChartType.PERCENT in config["subtype"]:
+            params["y"] = params["y"].stack("normalize")
 
         if config["color"] is not None:
             params |= {"color": config["color"]}
@@ -236,7 +240,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         ordinal_config: ChartConfig = json.loads(self.chart_config)
         chart_config: ChartConfig = json.loads(self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)"))
-
+        print(ordinal_config)
         # Check the type of the chart is specified.
         if chart_config["type"] is None:
             return
