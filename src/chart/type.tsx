@@ -1,5 +1,5 @@
 import { Select } from "@mantine/core";
-import { IconChartAreaLine, IconChartBar, IconChartDots, IconChartLine } from "@tabler/icons-react";
+import { IconChartAreaLine, IconChartBar, IconChartDots, IconChartLine, IconChartPie } from "@tabler/icons-react";
 import React, { FunctionComponent } from "react";
 import { useModelState } from "../hooks";
 import { IconItem, ItemIcon } from "./item";
@@ -26,6 +26,11 @@ const data = [
         value: "point",
         label: "Scatter"
     },
+    {
+        icon: IconChartPie,
+        value: "pie",
+        label: "Pie"
+    }
 ]
 
 export const ChartType: FunctionComponent = () => {

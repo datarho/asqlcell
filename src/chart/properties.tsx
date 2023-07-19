@@ -66,15 +66,88 @@ const VerticalAxis: FunctionComponent = () => {
     )
 }
 
+const ThetaAxis: FunctionComponent = () => {
+    const [config, setConfig] = useModelState("chart_config");
+    const [hist] = useModelState("title_hist");
 
+    const items = columns(hist);
+    const selected = JSON.parse(config)["theta"];
+    const icon = items.find((entry) => entry.value === selected)?.icon;
+
+    return (
+        <Select
+            label="Size"
+            data={items}
+            icon={<ItemIcon icon={icon} />}
+            value={selected}
+            itemComponent={IconItem}
+            onChange={(value) => {
+                const updated = {
+                    ...JSON.parse(config),
+                    theta: value,
+                };
+                setConfig(JSON.stringify(updated));
+            }}
+        />
+    )
+}
+
+const ColorAxis: FunctionComponent = () => {
+    const [config, setConfig] = useModelState("chart_config");
+    const [hist] = useModelState("title_hist");
+
+    const items = columns(hist);
+    const selected = JSON.parse(config)["color"];
+    const icon = items.find((entry) => entry.value === selected)?.icon;
+
+    return (
+        <Select
+            label="Color"
+            data={items}
+            icon={<ItemIcon icon={icon} />}
+            value={selected}
+            itemComponent={IconItem}
+            onChange={(value) => {
+                const updated = {
+                    ...JSON.parse(config),
+                    color: value,
+                };
+                setConfig(JSON.stringify(updated));
+            }}
+        />
+    )
+}
 
 export const ChartProperties: FunctionComponent = () => {
+    const [config] = useModelState("chart_config");
+
+    const type: string = JSON.parse(config)["type"];
+
+    const render = () => {
+        switch (type) {
+            case "bar":
+                return (
+                    <>
+                        <HorizontalAxis />
+                        <VerticalAxis />
+                    </>
+                )
+
+            case "pie":
+                return (
+                    <>
+                        <ColorAxis />
+                        <ThetaAxis />
+                    </>
+                )
+        }
+    }
 
     return (
         <Stack>
-            <HorizontalAxis />
-
-            <VerticalAxis />
+            {
+                render()
+            }
         </Stack>
     )
 }
