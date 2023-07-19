@@ -1,8 +1,9 @@
-import { Select, Stack } from "@mantine/core";
+import { ActionIcon, Group, Select, Stack } from "@mantine/core";
 import React, { FunctionComponent } from "react";
 import { useModelState } from "../hooks";
 import { DataType, DataTypeIcon } from "./const";
 import { IconItem, ItemIcon } from "./item";
+import { IconSettings } from "@tabler/icons-react";
 
 const columns = (hist: string) => {
     const columns = JSON.parse(hist);
@@ -23,22 +24,30 @@ const HorizontalAxis: FunctionComponent = () => {
     const icon = items.find((entry) => entry.value === selected)?.icon;
 
     return (
-        <Select
-            label="X axis"
-            data={items}
-            icon={<ItemIcon icon={icon} />}
-            value={selected}
-            itemComponent={IconItem}
-            onChange={(value) => {
-                const updated = {
-                    ...JSON.parse(config),
-                    x: value,
-                };
-                setConfig(JSON.stringify(updated));
-            }}
-        />
+        <Group noWrap spacing="xs">
+            <Select
+                label="X axis"
+                data={items}
+                icon={<ItemIcon icon={icon} />}
+                value={selected}
+                itemComponent={IconItem}
+                onChange={(value) => {
+                    const updated = {
+                        ...JSON.parse(config),
+                        x: value,
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+                sx={{ width: 240 }}
+            />
+            <ActionIcon mt="xl" variant="transparent">
+                <IconSettings size={16} />
+            </ActionIcon>
+
+        </Group>
     )
 }
+
 
 const VerticalAxis: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
@@ -49,19 +58,58 @@ const VerticalAxis: FunctionComponent = () => {
     const icon = items.find((entry) => entry.value === selected)?.icon;
 
     return (
+        <Stack>
+            <Group noWrap spacing="xs">
+                <Select
+                    label="Y axis"
+                    data={items}
+                    icon={<ItemIcon icon={icon} />}
+                    value={selected}
+                    itemComponent={IconItem}
+                    onChange={(value) => {
+                        const updated = {
+                            ...JSON.parse(config),
+                            y: value,
+                        };
+                        setConfig(JSON.stringify(updated));
+                    }}
+                    sx={{ width: 240 }}
+                />
+                <ActionIcon mt="xl" variant="transparent">
+                    <IconSettings size={16} />
+                </ActionIcon>
+            </Group>
+
+            <VerticalAxisAggr />
+        </Stack>
+    )
+}
+
+const VerticalAxisAggr: FunctionComponent = () => {
+    const [config, setConfig] = useModelState("chart_config");
+
+    const selected = JSON.parse(config)["aggr"];
+
+    return (
         <Select
-            label="Y axis"
-            data={items}
-            icon={<ItemIcon icon={icon} />}
+            label="Aggregation"
+            data={[
+                { value: "count", label: "count" },
+                { value: "max", label: "max" },
+                { value: "mean", label: "mean" },
+                { value: "median", label: "median" },
+                { value: "min", label: "min" },
+                { value: "sum", label: "sum" },
+            ]}
             value={selected}
-            itemComponent={IconItem}
             onChange={(value) => {
                 const updated = {
                     ...JSON.parse(config),
-                    y: value,
+                    aggr: value,
                 };
                 setConfig(JSON.stringify(updated));
             }}
+            sx={{ width: 240 }}
         />
     )
 }

@@ -1,6 +1,7 @@
 import React, { FunctionComponent } from "react";
 import { VegaLite, VisualizationSpec } from "react-vega";
 import { useModelState } from "../hooks";
+import { ScrollArea } from "@mantine/core";
 
 export const ChartPreview: FunctionComponent = () => {
     const [spec] = useModelState("preview_vega");
@@ -9,11 +10,15 @@ export const ChartPreview: FunctionComponent = () => {
 
     return (
         vega ?
-            <VegaLite
-                renderer="svg"
-                actions={{ export: true, source: false, compiled: false, editor: false }}
-                spec={vega}
-            />
+            <ScrollArea
+                style={{ width: "100%" }}
+            >
+                <VegaLite
+                    renderer="svg"
+                    actions={{ export: true, source: false, compiled: false, editor: false }}
+                    spec={vega}
+                />
+            </ScrollArea>
             :
             <></>
     )

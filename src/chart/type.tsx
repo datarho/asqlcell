@@ -53,6 +53,7 @@ export const ChartType: FunctionComponent = () => {
                 };
                 setConfig(JSON.stringify(updated));
             }}
+            sx={{ width: 240 }}
         />
     )
 }
