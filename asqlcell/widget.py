@@ -126,6 +126,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
         df = 150 * df + 105
         self.column_color = df.to_json(orient="split", date_format="iso")
 
+    def _generate_column(self, config: ChartConfig) -> Optional[Chart]:
+        # Ensure parameters are presented.
+        if config["x"] is None or config["y"] is None:
+            return None
+
+        return None
+
     def _generate_bar(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
@@ -243,6 +250,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         # Try to generate vega spec based on config.
         mapping = {
+            ChartType.COLUMN: self._generate_column,
             ChartType.BAR: self._generate_bar,
             ChartType.LINE: self._generate_line,
             ChartType.AREA: self._generate_area,

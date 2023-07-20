@@ -5,6 +5,7 @@ from strenum import StrEnum
 
 class ChartType(StrEnum):
     BAR = "bar"
+    COLUMN = "column"
     LINE = "line"
     AREA = "area"
     PIE = "pie"

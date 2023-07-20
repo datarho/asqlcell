@@ -2,11 +2,12 @@ import { ActionIcon, Group, Menu, Select, Stack, Text } from "@mantine/core";
 import { IconCheck, IconSettings, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
-import { DataType, DataTypeIcon } from "./const";
-import { IconItem, ItemIcon } from "./item";
+import { DataType, DataTypeIcons } from "./const";
+import { IconItem } from "./item";
 
 enum ChartType {
     Bar = "bar",
+    Column = "column",
     Line = "line",
     Area = "area",
     Scatter = "scatter",
@@ -24,7 +25,7 @@ const columns = (hist: string) => {
     return [...columns].map((header: { columnName: string, dtype: DataType }) => ({
         value: header.columnName,
         label: header.columnName,
-        icon: DataTypeIcon[header.dtype],
+        icon: DataTypeIcons[header.dtype],
     }))
 }
 
@@ -41,7 +42,7 @@ const HorizontalAxis: FunctionComponent = () => {
             <Select
                 label="X-Axis"
                 data={items}
-                icon={<ItemIcon icon={icon} />}
+                icon={icon}
                 value={selected}
                 itemComponent={IconItem}
                 onChange={(value) => {
@@ -53,10 +54,10 @@ const HorizontalAxis: FunctionComponent = () => {
                 }}
                 sx={{ width: 240 }}
             />
+
             <ActionIcon mt="xl" variant="transparent">
                 <IconSettings size={16} />
             </ActionIcon>
-
         </Group>
     )
 }
@@ -118,7 +119,7 @@ const VerticalAxis: FunctionComponent = () => {
                 <Select
                     label="Y-Axis"
                     data={items}
-                    icon={<ItemIcon icon={icon} />}
+                    icon={icon}
                     value={selected}
                     itemComponent={IconItem}
                     onChange={(value) => {
@@ -185,7 +186,7 @@ const ThetaAxis: FunctionComponent = () => {
         <Select
             label="Size"
             data={items}
-            icon={<ItemIcon icon={icon} />}
+            icon={icon}
             value={selected}
             itemComponent={IconItem}
             onChange={(value) => {
@@ -211,7 +212,7 @@ const ColorAxis: FunctionComponent = () => {
         <Select
             label="Color"
             data={items}
-            icon={<ItemIcon icon={icon} />}
+            icon={icon}
             value={selected}
             itemComponent={IconItem}
             onChange={(value) => {
@@ -232,6 +233,14 @@ export const ChartProperties: FunctionComponent = () => {
 
     const render = () => {
         switch (type) {
+            case ChartType.Column:
+                return (
+                    <>
+                        <HorizontalAxis />
+                        <VerticalAxis />
+                    </>
+                );
+
             case ChartType.Bar:
                 return (
                     <>
