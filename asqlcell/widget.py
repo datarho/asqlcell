@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 import sqlparse
-from altair import Chart, X, Y, Theta, Color
+from altair import Chart, Color, Theta, X, Y
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import update_display
 from ipywidgets import DOMWidget
@@ -68,8 +68,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "y": None,
             "color": None,
             "theta": None,
-            "aggr": None,
+            "aggregation": "sum",
             "subtype": [],
+            "sort": None,
         }
 
         self.chart_config = json.dumps(config)
@@ -126,9 +127,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self.column_color = df.to_json(orient="split", date_format="iso")
 
     def _generate_bar(self, config: ChartConfig) -> Optional[Chart]:
+        # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
             return None
 
+        # Generate vega spec for the chart.
         params = {"x": X(config["x"], sort=None), "tooltip": [config["x"], config["y"]]}
 
         if SubChartType.PERCENT in config["subtype"]:
@@ -145,43 +148,63 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
+        # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
             return None
-        d = {"x": config["x"], "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
-        if config["color"] != None:
-            d["color"] = config["color"]
+
+        # Generate vega spec for the chart.
+        params = {"x": X(config["x"], sort=None), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
+
+        if config["color"] is not None:
+            params |= {"color": config["color"]}
+
         if SubChartType.PERCENT in config["subtype"]:
-            d["y"] = d["y"].stack("normalize")
-        return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**d)
+            params["y"] = params["y"].stack("normalize")
+
+        return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**params)
 
     def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
+        # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
             return None
-        d = {"x": config["x"], "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
-        if config["color"] != None:
-            d["color"] = config["color"]
-        return Chart(get_value(self.shell, self.data_name)).mark_line().encode(**d)
 
-    def _generate_point(self, config: ChartConfig) -> Optional[Chart]:
+        # Generate vega spec for the chart.
+        params = {"x": X(config["x"], sort=None), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
+
+        if config["color"] is not None:
+            params |= {"color": config["color"]}
+
+        return Chart(get_value(self.shell, self.data_name)).mark_line().encode(**params)
+
+    def _generate_scatter(self, config: ChartConfig) -> Optional[Chart]:
+        # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
             return None
-        d = {"x": config["x"], "y": Y(config["y"])}
-        if config["color"] != None:
-            d["color"] = config["color"]
-        return Chart(get_value(self.shell, self.data_name)).mark_point().encode(**d)
+
+        # Generate vega spec for the chart.
+        params = {"x": X(config["x"], sort=None), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
+
+        if config["color"] is not None:
+            params |= {"color": config["color"]}
+
+        return Chart(get_value(self.shell, self.data_name)).mark_point().encode(**params)
 
     def _generate_arc(self, config: ChartConfig) -> Optional[Chart]:
+        # Ensure parameters are presented.
         if config["theta"] is None or config["color"] is None:
             return None
-        d = {
+
+        # Generate vega spec for the chart.
+        params = {
             "color": Color(config["color"], sort=None),
             "theta": Theta(config["theta"], sort="color"),
             "tooltip": [config["color"], config["theta"]],
         }
-        return Chart(get_value(self.shell, self.data_name)).mark_arc().encode(**d)
+
+        return Chart(get_value(self.shell, self.data_name)).mark_arc().encode(**params)
 
     def check_duplicate(self, *args):
-        li = [item for item in args if item != None]
+        li = [item for item in args if item is not None]
         if len(li) == 0:
             return
         select = ",".join([f"'{item}'" for item in li])
@@ -203,24 +226,28 @@ class SqlCellWidget(DOMWidget, HasTraits):
     @observe("chart_config")
     def on_chart_config(self, _):
         assert type(self.chart_config) is str
+
         ordinal_config: ChartConfig = json.loads(self.chart_config)
         chart_config: ChartConfig = json.loads(self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)"))
 
         # Check the type of the chart is specified.
         if chart_config["type"] is None:
             return
-        if chart_config["aggr"] != None:
+
+        # Build aggregation expression when appropriate.
+        if chart_config["y"] and chart_config["aggregation"]:
             self.need_aggr = False
-            chart_config["y"] = chart_config["aggr"] + "(" + chart_config["y"] + ")"  # type: ignore
+            chart_config["y"] = chart_config["aggregation"] + "(" + chart_config["y"] + ")"
         elif chart_config["type"] in (ChartType.BAR, ChartType.AREA, ChartType.LINE, ChartType.SCATTER):
             self.check_duplicate(ordinal_config["x"], ordinal_config["y"], ordinal_config["color"])
+
         # Try to generate vega spec based on config.
         mapping = {
             ChartType.BAR: self._generate_bar,
             ChartType.LINE: self._generate_line,
             ChartType.AREA: self._generate_area,
             ChartType.PIE: self._generate_arc,
-            ChartType.SCATTER: self._generate_point,
+            ChartType.SCATTER: self._generate_scatter,
         }
 
         self.chart = mapping[chart_config["type"]](chart_config)

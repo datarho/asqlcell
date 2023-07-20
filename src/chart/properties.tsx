@@ -1,9 +1,22 @@
-import { ActionIcon, Group, Select, Stack } from "@mantine/core";
-import React, { FunctionComponent } from "react";
+import { ActionIcon, Group, Menu, Select, Stack, Text } from "@mantine/core";
+import { IconCheck, IconSettings, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
+import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
 import { DataType, DataTypeIcon } from "./const";
 import { IconItem, ItemIcon } from "./item";
-import { IconSettings } from "@tabler/icons-react";
+
+enum ChartType {
+    Bar = "bar",
+    Line = "line",
+    Area = "area",
+    Scatter = "scatter",
+    Pie = "pie",
+}
+
+enum SortType {
+    Ascending = "ascending",
+    Descending = "descending",
+}
 
 const columns = (hist: string) => {
     const columns = JSON.parse(hist);
@@ -26,7 +39,7 @@ const HorizontalAxis: FunctionComponent = () => {
     return (
         <Group noWrap spacing="xs">
             <Select
-                label="X axis"
+                label="X-Axis"
                 data={items}
                 icon={<ItemIcon icon={icon} />}
                 value={selected}
@@ -48,20 +61,62 @@ const HorizontalAxis: FunctionComponent = () => {
     )
 }
 
-
 const VerticalAxis: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
+    const [opened, setOpened] = useState(false);
+
     const items = columns(hist);
+
     const selected = JSON.parse(config)["y"];
+    const aggregation = JSON.parse(config)["aggregation"];
     const icon = items.find((entry) => entry.value === selected)?.icon;
+
+    const aggregationItem = (name: string) => {
+        return (
+            <Menu.Item
+                onClick={() => {
+                    const updated = {
+                        ...JSON.parse(config),
+                        aggregation: name,
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+                icon={<IconCheck color={aggregation === name ? undefined : ""} size={12} />}
+            >
+                <Text tt="capitalize">{name}</Text>
+            </Menu.Item>
+        )
+    }
+
+    const sortItem = (name: SortType) => {
+        const Icon = {
+            [SortType.Ascending]: IconSortAscending,
+            [SortType.Descending]: IconSortDescending,
+        }[name];
+
+        return (
+            <Menu.Item
+                onClick={() => {
+                    const updated = {
+                        ...JSON.parse(config),
+                        sort: name,
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+                icon={<Icon size={12} />}
+            >
+                Sort {name}
+            </Menu.Item>
+        )
+    }
 
     return (
         <Stack>
             <Group noWrap spacing="xs">
                 <Select
-                    label="Y axis"
+                    label="Y-Axis"
                     data={items}
                     icon={<ItemIcon icon={icon} />}
                     value={selected}
@@ -75,42 +130,46 @@ const VerticalAxis: FunctionComponent = () => {
                     }}
                     sx={{ width: 240 }}
                 />
-                <ActionIcon mt="xl" variant="transparent">
-                    <IconSettings size={16} />
-                </ActionIcon>
+
+                <Menu
+                    width={200}
+                    opened={opened}
+                    onChange={setOpened}
+                    position="right"
+                    withArrow
+                >
+                    <Menu.Target>
+                        <ActionIcon
+                            mt="xl"
+                            variant="transparent"
+                            onClick={() => setOpened(true)}
+                        >
+                            <IconSettings size={16} />
+                        </ActionIcon>
+                    </Menu.Target>
+
+                    <Menu.Dropdown>
+                        <Menu.Label>Aggregation</Menu.Label>
+
+                        {
+                            ["sum", "average", "max", "min", "count", "median"].map(item => {
+                                return aggregationItem(item);
+                            })
+                        }
+
+                        <Menu.Divider />
+
+                        <Menu.Label>Sort</Menu.Label>
+
+                        {
+                            [SortType.Ascending, SortType.Descending].map(item => {
+                                return sortItem(item);
+                            })
+                        }
+                    </Menu.Dropdown>
+                </Menu>
             </Group>
-
-            <VerticalAxisAggr />
         </Stack>
-    )
-}
-
-const VerticalAxisAggr: FunctionComponent = () => {
-    const [config, setConfig] = useModelState("chart_config");
-
-    const selected = JSON.parse(config)["aggr"];
-
-    return (
-        <Select
-            label="Aggregation"
-            data={[
-                { value: "count", label: "count" },
-                { value: "max", label: "max" },
-                { value: "mean", label: "mean" },
-                { value: "median", label: "median" },
-                { value: "min", label: "min" },
-                { value: "sum", label: "sum" },
-            ]}
-            value={selected}
-            onChange={(value) => {
-                const updated = {
-                    ...JSON.parse(config),
-                    aggr: value,
-                };
-                setConfig(JSON.stringify(updated));
-            }}
-            sx={{ width: 240 }}
-        />
     )
 }
 
@@ -173,21 +232,45 @@ export const ChartProperties: FunctionComponent = () => {
 
     const render = () => {
         switch (type) {
-            case "bar":
+            case ChartType.Bar:
                 return (
                     <>
                         <HorizontalAxis />
                         <VerticalAxis />
                     </>
-                )
+                );
 
-            case "pie":
+            case ChartType.Area:
+                return (
+                    <>
+                        <HorizontalAxis />
+                        <VerticalAxis />
+                    </>
+                );
+
+            case ChartType.Line:
+                return (
+                    <>
+                        <HorizontalAxis />
+                        <VerticalAxis />
+                    </>
+                );
+
+            case ChartType.Scatter:
+                return (
+                    <>
+                        <HorizontalAxis />
+                        <VerticalAxis />
+                    </>
+                );
+
+            case ChartType.Pie:
                 return (
                     <>
                         <ColorAxis />
                         <ThetaAxis />
                     </>
-                )
+                );
         }
     }
 

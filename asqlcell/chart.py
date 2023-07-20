@@ -1,4 +1,5 @@
 from typing import Optional, TypedDict
+
 from strenum import StrEnum
 
 
@@ -7,7 +8,7 @@ class ChartType(StrEnum):
     LINE = "line"
     AREA = "area"
     PIE = "pie"
-    SCATTER = "point"
+    SCATTER = "scatter"
 
 
 class SubChartType(StrEnum):
@@ -21,5 +22,6 @@ class ChartConfig(TypedDict):
     y: Optional[str]
     color: Optional[str]
     theta: Optional[str]
-    aggr: Optional[str]
+    aggregation: str
     subtype: list[str]
+    sort: Optional[str]

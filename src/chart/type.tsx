@@ -23,7 +23,7 @@ const data = [
     },
     {
         icon: IconChartDots,
-        value: "point",
+        value: "scatter",
         label: "Scatter"
     },
     {
