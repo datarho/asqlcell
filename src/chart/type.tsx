@@ -1,18 +1,18 @@
-import { Select } from "@mantine/core";
-import { IconChartAreaLine, IconChartBar, IconChartDots, IconChartLine, IconChartPie } from "@tabler/icons-react";
-import React, { FunctionComponent } from "react";
+import { ActionIcon, Group, Menu, Select } from "@mantine/core";
+import { IconChartAreaLine, IconChartBar, IconChartDots, IconChartLine, IconChartPie, IconPercentage, IconSettings } from "@tabler/icons-react";
+import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
 import { IconItem } from "./item";
 
 
 const data = [
     {
-        icon: <IconChartBar stroke={1.5} size={18} style={{ transform: "rotate(90deg)" }} />,
+        icon: <IconChartBar stroke={1.5} size={18} />,
         value: "column",
         label: "Column",
     },
     {
-        icon: <IconChartBar stroke={1.5} size={18} />,
+        icon: <IconChartBar stroke={1.5} size={18} style={{ transform: "rotate(90deg)" }} />,
         value: "bar",
         label: "Bar",
     },
@@ -41,24 +41,96 @@ const data = [
 export const ChartType: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
 
+    const [opened, setOpened] = useState(false);
+
     const type: string = JSON.parse(config)["type"];
     const icon = data.find((entry) => entry.value === type)?.icon;
 
     return (
-        <Select
-            label="Chart type"
-            itemComponent={IconItem}
-            data={data}
-            icon={icon}
-            value={type}
-            onChange={(value) => {
-                const updated = {
-                    ...JSON.parse(config),
-                    type: value,
-                };
-                setConfig(JSON.stringify(updated));
-            }}
-            sx={{ width: 240 }}
-        />
+        <Group noWrap spacing="xs">
+            <Select
+                label="Chart type"
+                searchable
+                itemComponent={IconItem}
+                data={data}
+                icon={icon}
+                value={type}
+                onChange={(value) => {
+                    const updated = {
+                        ...JSON.parse(config),
+                        type: value,
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+                sx={{ width: 240 }}
+            />
+
+            {
+                ["column", "bar"].includes(type) ?
+                    <Menu
+                        width={160}
+                        opened={opened}
+                        onChange={setOpened}
+                        position="right"
+                        shadow="md"
+                        withArrow
+                    >
+                        <Menu.Target>
+                            <ActionIcon
+                                mt="xl"
+                                variant="transparent"
+                                onClick={() => setOpened(true)}
+                            >
+                                <IconSettings size={16} />
+                            </ActionIcon>
+                        </Menu.Target>
+
+                        <Menu.Dropdown>
+                            <Menu.Label>Style</Menu.Label>
+
+                            <Menu.Item
+                                onClick={() => {
+                                    const updated = {
+                                        ...JSON.parse(config),
+                                        subtype: [],
+                                    };
+                                    setConfig(JSON.stringify(updated));
+                                }}
+                                icon={<IconChartBar size={12} />}
+                            >
+                                Stack
+                            </Menu.Item>
+
+                            <Menu.Item
+                                onClick={() => {
+                                    const updated = {
+                                        ...JSON.parse(config),
+                                        subtype: ["clustered"],
+                                    };
+                                    setConfig(JSON.stringify(updated));
+                                }}
+                                icon={<IconChartBar size={12} />}
+                            >
+                                Clustered
+                            </Menu.Item>
+
+                            <Menu.Item
+                                onClick={() => {
+                                    const updated = {
+                                        ...JSON.parse(config),
+                                        subtype: ["100"],
+                                    };
+                                    setConfig(JSON.stringify(updated));
+                                }}
+                                icon={<IconPercentage size={12} />}
+                            >
+                                100% Stack
+                            </Menu.Item>
+                        </Menu.Dropdown>
+                    </Menu>
+                    :
+                    undefined
+            }
+        </Group>
     )
 }

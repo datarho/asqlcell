@@ -33,14 +33,39 @@ const HorizontalAxis: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
+    const [opened, setOpened] = useState(false);
+
     const items = columns(hist);
     const selected = JSON.parse(config)["x"];
     const icon = items.find((entry) => entry.value === selected)?.icon;
+
+    const sortItem = (name: SortType) => {
+        const Icon = {
+            [SortType.Ascending]: IconSortAscending,
+            [SortType.Descending]: IconSortDescending,
+        }[name];
+
+        return (
+            <Menu.Item
+                onClick={() => {
+                    const updated = {
+                        ...JSON.parse(config),
+                        sort: name,
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+                icon={<Icon size={12} />}
+            >
+                Sort {name}
+            </Menu.Item>
+        )
+    }
 
     return (
         <Group noWrap spacing="xs">
             <Select
                 label="X-Axis"
+                searchable
                 data={items}
                 icon={icon}
                 value={selected}
@@ -55,9 +80,34 @@ const HorizontalAxis: FunctionComponent = () => {
                 sx={{ width: 240 }}
             />
 
-            <ActionIcon mt="xl" variant="transparent">
-                <IconSettings size={16} />
-            </ActionIcon>
+            <Menu
+                width={160}
+                opened={opened}
+                onChange={setOpened}
+                position="right"
+                shadow="md"
+                withArrow
+            >
+                <Menu.Target>
+                    <ActionIcon
+                        mt="xl"
+                        variant="transparent"
+                        onClick={() => setOpened(true)}
+                    >
+                        <IconSettings size={16} />
+                    </ActionIcon>
+                </Menu.Target>
+
+                <Menu.Dropdown>
+                    <Menu.Label>Sort</Menu.Label>
+
+                    {
+                        [SortType.Ascending, SortType.Descending].map(item => {
+                            return sortItem(item);
+                        })
+                    }
+                </Menu.Dropdown>
+            </Menu>
         </Group>
     )
 }
@@ -102,7 +152,7 @@ const VerticalAxis: FunctionComponent = () => {
                 onClick={() => {
                     const updated = {
                         ...JSON.parse(config),
-                        sort: name,
+                        sort: name === SortType.Ascending ? "y" : "-y",
                     };
                     setConfig(JSON.stringify(updated));
                 }}
@@ -114,63 +164,63 @@ const VerticalAxis: FunctionComponent = () => {
     }
 
     return (
-        <Stack>
-            <Group noWrap spacing="xs">
-                <Select
-                    label="Y-Axis"
-                    data={items}
-                    icon={icon}
-                    value={selected}
-                    itemComponent={IconItem}
-                    onChange={(value) => {
-                        const updated = {
-                            ...JSON.parse(config),
-                            y: value,
-                        };
-                        setConfig(JSON.stringify(updated));
-                    }}
-                    sx={{ width: 240 }}
-                />
+        <Group noWrap spacing="xs">
+            <Select
+                label="Y-Axis"
+                searchable
+                data={items}
+                icon={icon}
+                value={selected}
+                itemComponent={IconItem}
+                onChange={(value) => {
+                    const updated = {
+                        ...JSON.parse(config),
+                        y: value,
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+                sx={{ width: 240 }}
+            />
 
-                <Menu
-                    width={200}
-                    opened={opened}
-                    onChange={setOpened}
-                    position="right"
-                    withArrow
-                >
-                    <Menu.Target>
-                        <ActionIcon
-                            mt="xl"
-                            variant="transparent"
-                            onClick={() => setOpened(true)}
-                        >
-                            <IconSettings size={16} />
-                        </ActionIcon>
-                    </Menu.Target>
+            <Menu
+                width={160}
+                opened={opened}
+                onChange={setOpened}
+                position="right"
+                shadow="md"
+                withArrow
+            >
+                <Menu.Target>
+                    <ActionIcon
+                        mt="xl"
+                        variant="transparent"
+                        onClick={() => setOpened(true)}
+                    >
+                        <IconSettings size={16} />
+                    </ActionIcon>
+                </Menu.Target>
 
-                    <Menu.Dropdown>
-                        <Menu.Label>Aggregation</Menu.Label>
+                <Menu.Dropdown>
+                    <Menu.Label>Aggregation</Menu.Label>
 
-                        {
-                            ["sum", "average", "max", "min", "count", "median"].map(item => {
-                                return aggregationItem(item);
-                            })
-                        }
+                    {
+                        ["sum", "average", "max", "min", "count", "median"].map(item => {
+                            return aggregationItem(item);
+                        })
+                    }
 
-                        <Menu.Divider />
+                    <Menu.Divider />
 
-                        <Menu.Label>Sort</Menu.Label>
+                    <Menu.Label>Sort</Menu.Label>
 
-                        {
-                            [SortType.Ascending, SortType.Descending].map(item => {
-                                return sortItem(item);
-                            })
-                        }
-                    </Menu.Dropdown>
-                </Menu>
-            </Group>
-        </Stack>
+                    {
+                        [SortType.Ascending, SortType.Descending].map(item => {
+                            return sortItem(item);
+                        })
+                    }
+                </Menu.Dropdown>
+            </Menu>
+        </Group>
     )
 }
 
@@ -185,6 +235,7 @@ const ThetaAxis: FunctionComponent = () => {
     return (
         <Select
             label="Size"
+            searchable
             data={items}
             icon={icon}
             value={selected}
@@ -196,6 +247,7 @@ const ThetaAxis: FunctionComponent = () => {
                 };
                 setConfig(JSON.stringify(updated));
             }}
+            sx={{ width: 240 }}
         />
     )
 }
@@ -211,6 +263,8 @@ const ColorAxis: FunctionComponent = () => {
     return (
         <Select
             label="Color"
+            searchable
+            clearable
             data={items}
             icon={icon}
             value={selected}
@@ -222,6 +276,7 @@ const ColorAxis: FunctionComponent = () => {
                 };
                 setConfig(JSON.stringify(updated));
             }}
+            sx={{ width: 240 }}
         />
     )
 }
@@ -238,14 +293,16 @@ export const ChartProperties: FunctionComponent = () => {
                     <>
                         <HorizontalAxis />
                         <VerticalAxis />
+                        <ColorAxis />
                     </>
                 );
 
             case ChartType.Bar:
                 return (
                     <>
-                        <HorizontalAxis />
                         <VerticalAxis />
+                        <HorizontalAxis />
+                        <ColorAxis />
                     </>
                 );
 
@@ -254,6 +311,7 @@ export const ChartProperties: FunctionComponent = () => {
                     <>
                         <HorizontalAxis />
                         <VerticalAxis />
+                        <ColorAxis />
                     </>
                 );
 
@@ -270,14 +328,15 @@ export const ChartProperties: FunctionComponent = () => {
                     <>
                         <HorizontalAxis />
                         <VerticalAxis />
+                        <ColorAxis />
                     </>
                 );
 
             case ChartType.Pie:
                 return (
                     <>
-                        <ColorAxis />
                         <ThetaAxis />
+                        <ColorAxis />
                     </>
                 );
         }

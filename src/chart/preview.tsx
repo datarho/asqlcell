@@ -1,7 +1,7 @@
+import { ScrollArea } from "@mantine/core";
 import React, { FunctionComponent } from "react";
 import { VegaLite, VisualizationSpec } from "react-vega";
 import { useModelState } from "../hooks";
-import { ScrollArea } from "@mantine/core";
 
 export const ChartPreview: FunctionComponent = () => {
     const [spec] = useModelState("preview_vega");

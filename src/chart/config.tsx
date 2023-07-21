@@ -1,5 +1,5 @@
-import { Button, Group, ScrollArea, Stack, Tabs } from "@mantine/core";
-import { IconSettings } from "@tabler/icons-react";
+import { Button, Group, ScrollArea, Space, Stack, Tabs } from "@mantine/core";
+import { IconPin, IconSettings } from "@tabler/icons-react";
 import React, { FunctionComponent } from "react";
 import { useModelState } from "../hooks";
 import { ChartProperties } from "./properties";
@@ -16,8 +16,9 @@ const ConfigCommand: FunctionComponent = () => {
                 compact
                 onClick={() => setPersistVega(new Date().toString())}
                 disabled={spec === "{}"}
+                leftIcon={<IconPin stroke={1.5} size={14} />}
             >
-                Save
+                Pin
             </Button>
         </Group>
     )
@@ -40,6 +41,8 @@ export const ChartConfig: FunctionComponent = () => {
                         <ChartType />
 
                         <ChartProperties />
+
+                        <Space h="xl" />
 
                         <ConfigCommand />
                     </Stack>

@@ -240,7 +240,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         ordinal_config: ChartConfig = json.loads(self.chart_config)
         chart_config: ChartConfig = json.loads(self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)"))
-        print(ordinal_config)
+
         # Check the type of the chart is specified.
         if chart_config["type"] is None:
             return

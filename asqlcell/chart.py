@@ -13,7 +13,7 @@ class ChartType(StrEnum):
 
 
 class SubChartType(StrEnum):
-    GROUPED = "grouped"
+    CLUSTERED = "clustered"
     PERCENT = "100"
 
 
