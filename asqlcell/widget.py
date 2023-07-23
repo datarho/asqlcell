@@ -135,11 +135,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
             return None
 
         # Generate vega spec for the chart.
-        params = {"tooltip": [config["x"], config["y"]], "y": Y(config["y"], sort=config["sort"])}
         if config["aggregation"]:
-            params["x"] = X(self.aggregation(config["aggregation"], config["x"]))
-        else:
-            params["x"] = X(config["x"])
+            config["x"] = self.aggregation(config["aggregation"], config["x"])
+        params = {"tooltip": [config["x"], config["y"]], "x": X(config["x"]), "y": Y(config["y"], sort=config["sort"])}
 
         if SubChartType.PERCENT in config["subtype"]:
             params["x"] = params["x"].stack("normalize")
@@ -155,18 +153,16 @@ class SqlCellWidget(DOMWidget, HasTraits):
             return None
 
         # Generate vega spec for the chart.
-        params = {"x": X(config["x"], sort=config["sort"]), "tooltip": [config["x"], config["y"]]}
         if config["aggregation"]:
-            params["y"] = Y(self.aggregation(config["aggregation"], config["y"]))
-        else:
-            params["y"] = Y(config["y"])
+            config["y"] = self.aggregation(config["aggregation"], config["y"])
+        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
         if SubChartType.PERCENT in config["subtype"]:
             params["y"] = params["y"].stack("normalize")
 
         if config["color"]:
             params["color"] = config["color"]
-
+        # print(params)
         return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
@@ -175,18 +171,15 @@ class SqlCellWidget(DOMWidget, HasTraits):
             return None
 
         # Generate vega spec for the chart.
-        params = {"x": X(config["x"], sort=None), "tooltip": [config["x"], config["y"]]}
         if config["aggregation"]:
-            params["y"] = Y(self.aggregation(config["aggregation"], config["y"]))
-        else:
-            params["y"] = Y(config["y"])
+            config["y"] = self.aggregation(config["aggregation"], config["y"])
+        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
         if SubChartType.PERCENT in config["subtype"]:
             params["y"] = params["y"].stack("normalize")
 
         if config["color"]:
             params["color"] = config["color"]
-
         return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**params)
 
     def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
@@ -195,15 +188,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
             return None
 
         # Generate vega spec for the chart.
-        params = {"x": X(config["x"], sort=None), "tooltip": [config["x"], config["y"]]}
         if config["aggregation"]:
-            params["y"] = Y(self.aggregation(config["aggregation"], config["y"]))
-        else:
-            params["y"] = Y(config["y"])
+            config["y"] = self.aggregation(config["aggregation"], config["y"])
+        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
         if config["color"]:
             params["color"] = config["color"]
-
+        print(params)
         return Chart(get_value(self.shell, self.data_name)).mark_line().encode(**params)
 
     def _generate_scatter(self, config: ChartConfig) -> Optional[Chart]:
