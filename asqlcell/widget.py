@@ -139,11 +139,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
             config["x"] = self.aggregation(config["aggregation"], config["x"])
         params = {"tooltip": [config["x"], config["y"]], "x": X(config["x"]), "y": Y(config["y"], sort=config["sort"])}
 
-        if SubChartType.PERCENT in config["subtype"]:
-            params["x"] = params["x"].stack("normalize")
-
         if config["color"]:
             params["color"] = config["color"]
+            if SubChartType.PERCENT in config["subtype"]:
+                params["x"] = params["x"].stack("normalize")
+            if SubChartType.CLUSTERED in config["subtype"]:
+                params["xOffset"] = config["color"]
 
         return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
 
@@ -157,12 +158,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
             config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
-        if SubChartType.PERCENT in config["subtype"]:
-            params["y"] = params["y"].stack("normalize")
-
         if config["color"]:
             params["color"] = config["color"]
-        # print(params)
+            if SubChartType.PERCENT in config["subtype"]:
+                params["y"] = params["y"].stack("normalize")
+            if SubChartType.CLUSTERED in config["subtype"]:
+                params["xOffset"] = config["color"]
+
         return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
@@ -175,11 +177,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
             config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
-        if SubChartType.PERCENT in config["subtype"]:
-            params["y"] = params["y"].stack("normalize")
-
         if config["color"]:
             params["color"] = config["color"]
+            if SubChartType.PERCENT in config["subtype"]:
+                params["y"] = params["y"].stack("normalize")
         return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**params)
 
     def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
