@@ -26,3 +26,5 @@ class ChartConfig(TypedDict):
     aggregation: Optional[str]
     subtype: list[str]
     sort: Optional[str]
+    height: int
+    width: int

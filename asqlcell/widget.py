@@ -72,6 +72,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "aggregation": None,
             "subtype": [],
             "sort": None,
+            "width": 0,
+            "height": 0,
         }
 
         self.chart_config = json.dumps(config)
@@ -277,6 +279,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if self.chart is None:
             self.preview_vega = "{}"
             return
+        self.chart = self.chart.properties(width=chart_config["width"], height=chart_config["height"])
         self.preview_vega = json.dumps(self.chart.to_dict())
 
     @observe("row_range")
