@@ -23,6 +23,6 @@ class ChartConfig(TypedDict):
     y: Optional[str]
     color: Optional[str]
     theta: Optional[str]
-    aggregation: str
+    aggregation: Optional[str]
     subtype: list[str]
     sort: Optional[str]
