@@ -69,6 +69,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "color": None,
             "theta": None,
             "aggregation": None,
+            "aggregation": None,
             "subtype": [],
             "sort": None,
         }
