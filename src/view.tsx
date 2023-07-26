@@ -1,10 +1,10 @@
-import React, { useState } from "react";
 import { WidgetModel } from "@jupyter-widgets/base";
-import { useModel, useModelState, WidgetModelContext } from "./hooks";
 import { Box, Tabs } from "@mantine/core";
-import { DataTable } from "./table";
-import { Chart } from "./chart";
 import { IconChartBar, IconTable } from "@tabler/icons-react";
+import React, { useState } from "react";
+import { Chart } from "./chart";
+import { useModel, useModelState, WidgetModelContext } from "./hooks";
+import { DataTable } from "./table";
 
 interface WidgetProps {
     model: WidgetModel;
