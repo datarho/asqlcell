@@ -293,22 +293,26 @@ const ThetaAxis: FunctionComponent = () => {
     const icon = items.find((entry) => entry.value === selected)?.icon;
 
     return (
-        <Select
-            label="Size"
-            searchable
-            data={items}
-            icon={icon}
-            value={selected}
-            itemComponent={IconItem}
-            onChange={(value) => {
-                const updated = {
-                    ...JSON.parse(config),
-                    theta: value,
-                };
-                setConfig(JSON.stringify(updated));
-            }}
-            sx={{ width: 240 }}
-        />
+        <Group noWrap spacing="xs">
+            <Select
+                label="Size"
+                searchable
+                data={items}
+                icon={icon}
+                value={selected}
+                itemComponent={IconItem}
+                onChange={(value) => {
+                    const updated = {
+                        ...JSON.parse(config),
+                        theta: value,
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+                sx={{ width: 240 }}
+            />
+
+            <QuantitativeMenu />
+        </Group>
     )
 }
 
