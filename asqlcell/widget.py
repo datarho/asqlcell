@@ -198,7 +198,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         if config["color"]:
             params["color"] = config["color"]
-        print(params)
         return Chart(get_value(self.shell, self.data_name)).mark_line().encode(**params)
 
     def _generate_scatter(self, config: ChartConfig) -> Optional[Chart]:
