@@ -36,8 +36,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
     data_grid = Unicode().tag(sync=True)
     exec_time = Float().tag(sync=True)
     data_name = Unicode().tag(sync=True)
-    vis_sql = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)
-    vis_data = Unicode().tag(sync=True)
+    vis_sql = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)  # delete
+    vis_data = Unicode().tag(sync=True)  # delete
     quickview_var = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
     quickview_vega = Unicode().tag(sync=True)
     cache = Unicode().tag(sync=True)
@@ -123,11 +123,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def set_data_grid(self):
         assert type(self.row_range) is tuple
-
         df = get_value(self.shell, self.data_name)
-
         assert type(df) is DataFrame
-
         self.data_grid = (
             df[self.row_range[0] : self.row_range[1]].to_json(orient="split", date_format="iso") + "\n" + str(len(df))
         )
@@ -143,12 +140,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
             return None
-
         # Generate vega spec for the chart.
         if config["aggregation"]:
             config["x"] = self.aggregation(config["aggregation"], config["x"])
         params = {"tooltip": [config["x"], config["y"]], "x": X(config["x"]), "y": Y(config["y"], sort=config["sort"])}
-
         if config["color"]:
             params["color"] = config["color"]
             params["tooltip"] = [config["x"], config["y"], config["color"]]
@@ -156,19 +151,16 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 params["x"] = params["x"].stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
                 params["xOffset"] = config["color"]
-
         return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
 
     def _generate_column(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
             return None
-
         # Generate vega spec for the chart.
         if config["aggregation"]:
             config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
-
         if config["color"]:
             params["color"] = config["color"]
             params["tooltip"] = [config["x"], config["y"], config["color"]]
@@ -176,25 +168,21 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 params["y"] = params["y"].stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
                 params["xOffset"] = config["color"]
-
         return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
             return None
-
         # Generate vega spec for the chart.
         if config["aggregation"]:
             config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
-
         if config["color"]:
             params["color"] = config["color"]
             params["tooltip"] = [config["x"], config["y"], config["color"]]
             if SubChartType.PERCENT in config["subtype"]:
                 params["y"] = params["y"].stack("normalize")
-        print(params)
         return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**params)
 
     def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
@@ -216,14 +204,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
             return None
-
         # Generate vega spec for the chart.
-        params = {"x": X(config["x"], sort=None), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
-
+        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
         if config["color"]:
             params["tooltip"] = [config["x"], config["y"], config["color"]]
             params["color"] = config["color"]
-
         return Chart(get_value(self.shell, self.data_name)).mark_point().encode(**params)
 
     def _generate_arc(self, config: ChartConfig) -> Optional[Chart]:
@@ -258,7 +243,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def on_persist_vega(self, _):
         if self.chart is None:
             return
-
         update_display(
             self.chart,
             display_id=self.cell_id,
@@ -305,12 +289,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
     @observe("column_sort")
     def on_column_sort(self, _):
         assert type(self.column_sort) is tuple
-
         df = get_value(self.shell, self.data_name)
-        # print(self.column_sort)
-        # return
         assert type(df) is DataFrame
-
         df.sort_index(axis=0, inplace=True)
         if self.column_sort[1] != 0:
             df.sort_values(
