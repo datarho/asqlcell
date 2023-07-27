@@ -3,7 +3,14 @@ import { VegaLite } from "react-vega";
 import { Dfhead } from "../view";
 import { Group, Stack, Text } from "@mantine/core";
 
-export const HistChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }> = ({ item, headerContent }) => {
+
+
+interface HistChartProps {
+    headerContent: Dfhead;
+    item: string;
+}
+
+export const HistChart: FunctionComponent<HistChartProps> = ({ item, headerContent }) => {
     const expo = (input: number) => { return input.toExponential(2) };
     const isScientific = (input: number) => { return (!(0.1 <= Math.abs(input) && Math.abs(input) <= 10000)) };
     const getIntervalSide = (input: number) => {
@@ -20,14 +27,14 @@ export const HistChart: FunctionComponent<{ item: any, headerContent: Dfhead[] }
     };
 
     const globalInterval = (item: string) => {
-        const left = (headerContent.filter(header => header.columnName === item)[0].bins[0] as any).bin_start;
-        const right = (headerContent.filter(header => header.columnName === item)[0].bins[9] as any).bin_end;
+        const left = headerContent.bins[0].bin_start;
+        const right = headerContent.bins[9].bin_end;
         return (
             `[${getIntervalSide(left)}, ${getIntervalSide(right)}]`
         )
     }
 
-    const data = headerContent.filter(header => header.columnName === item)[0].bins
+    const data = headerContent.bins
     const barData = {
         table:
             data.map((item: any, index: number) => {

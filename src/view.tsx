@@ -31,11 +31,6 @@ const ReactWidget = () => {
         setData(model?.get("data_grid"));
     });
 
-    model?.on("sort", (msg) => {
-        model?.set("column_sort", msg, "");
-        model?.save_changes();
-    });
-
     model?.on("setRange", (msg) => {
         model?.set("row_range", msg, "");
         model?.save_changes();

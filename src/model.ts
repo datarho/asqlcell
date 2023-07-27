@@ -3,6 +3,7 @@ import { DOMWidgetView } from "@jupyter-widgets/base";
 import React from "react";
 import ReactDOM from "react-dom";
 import "../css/widget.css";
+import { Order } from "./const";
 import { MODULE_NAME, MODULE_VERSION } from "./version";
 import ReactWidget from "./view";
 
@@ -12,7 +13,7 @@ export type WidgetModelState = {
     exec_time: number;
     output_var: string;
     row_range: [number, number];
-    column_sort: any;
+    column_sort: [string, Order];
     dfs_result: string;
     sql_button: string;
     mode: string;
@@ -44,7 +45,7 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             exec_time: 0,
             output_var: "sqlcelldf",
             row_range: [0, 10],
-            column_sort: ["", 0], // default value: ("",0), orientation:(-1,0,1)
+            column_sort: ["", Order.None],
             dfs_result: "",
             sql_button: "",
             mode: "",

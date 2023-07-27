@@ -113,7 +113,7 @@ export const DataTable: FunctionComponent = () => {
                         },
                     }}>
 
-                    <DataframeHeader headerContent={headerContent} header={header} dataLength={dataLength} />
+                    <DataframeHeader contents={headerContent} titles={header} dataLength={dataLength} />
 
                     <tbody>
                         {rows}
