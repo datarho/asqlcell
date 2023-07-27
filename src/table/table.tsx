@@ -79,13 +79,9 @@ export const DataTable: FunctionComponent = () => {
 
     return (
         <Stack
-            align="center"
             spacing={10}
-            sx={{
-                width: "100%",
-                marginBottom: "16px",
-            }}>
-            <ScrollArea scrollbarSize={8} style={{ width: "100%" }}>
+        >
+            <ScrollArea scrollbarSize={8}>
                 <Table
                     withBorder
                     withColumnBorders
@@ -118,7 +114,7 @@ export const DataTable: FunctionComponent = () => {
                     <tbody>
                         {rows}
                     </tbody>
-                </Table >
+                </Table>
             </ScrollArea>
             <Group
                 position="apart"

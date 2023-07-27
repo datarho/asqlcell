@@ -58,6 +58,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self._view_module_version = module_version
 
         self.preview_vega = "{}"
+        self.quickview_vega = "{}"
 
         config: ChartConfig = {
             "type": None,

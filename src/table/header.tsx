@@ -3,7 +3,7 @@ import { IconChartLine } from "@tabler/icons-react";
 import React, { FunctionComponent, useState } from "react";
 import { HistChart, QuickViewChart } from "../chart";
 import { Order } from "../const";
-import { useModel, useModelState } from "../hooks";
+import { useModelState } from "../hooks";
 import { Dfhead } from "../view";
 import { OrderIcons } from "./const";
 
