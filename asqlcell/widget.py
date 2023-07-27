@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 import sqlparse
-from altair import Chart, Color, Theta, X, Y
+from altair import Chart, Color, Order, Theta, X, Y
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import update_display
 from ipywidgets import DOMWidget
@@ -218,13 +218,16 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["theta"] is None or config["color"] is None:
             return None
 
+        if config["aggregation"]:
+            config["theta"] = self.aggregation(config["aggregation"], config["theta"])
         # Generate vega spec for the chart.
         params = {
-            "color": Color(config["color"], sort=None),
-            "theta": Theta(config["theta"], sort="color"),
+            "color": Color(config["color"]),
+            "theta": Theta(config["theta"]),
             "tooltip": [config["color"], config["theta"]],
         }
-
+        if config["sort"]:
+            params["order"] = Order(config["sort"][1:], sort="ascending" if config["sort"] == "+" else "descending")
         return Chart(get_value(self.shell, self.data_name)).mark_arc().encode(**params)
 
     def check_duplicate(self, *args):
