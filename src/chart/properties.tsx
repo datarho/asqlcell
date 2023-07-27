@@ -122,6 +122,8 @@ const QuantitativeMenu: FunctionComponent = () => {
         switch (type) {
             case ChartType.Bar:
                 return name === SortType.Ascending ? "x" : "-x";
+            case ChartType.Pie:
+                return name === SortType.Ascending ? "color" : "-color";
             default:
                 return name === SortType.Ascending ? "y" : "-y";
         }
@@ -325,23 +327,27 @@ const ColorAxis: FunctionComponent = () => {
     const icon = items.find((entry) => entry.value === selected)?.icon;
 
     return (
-        <Select
-            label="Color"
-            searchable
-            clearable
-            data={items}
-            icon={icon}
-            value={selected}
-            itemComponent={IconItem}
-            onChange={(value) => {
-                const updated = {
-                    ...JSON.parse(config),
-                    color: value,
-                };
-                setConfig(JSON.stringify(updated));
-            }}
-            sx={{ width: 240 }}
-        />
+        <Group noWrap spacing="xs">
+            <Select
+                label="Color"
+                searchable
+                clearable
+                data={items}
+                icon={icon}
+                value={selected}
+                itemComponent={IconItem}
+                onChange={(value) => {
+                    const updated = {
+                        ...JSON.parse(config),
+                        color: value,
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+                sx={{ width: 240 }}
+            />
+
+            <QualitativeMenu />
+        </Group>
     )
 }
 
