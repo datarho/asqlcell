@@ -4,6 +4,7 @@ from typing import Optional
 
 import pandas as pd
 import sqlparse
+import datetime
 from altair import Chart, Color, Order, Theta, X, Y
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import update_display
@@ -101,7 +102,15 @@ class SqlCellWidget(DOMWidget, HasTraits):
                     get_duckdb_result(self.shell, res, vlist),
                 )
             else:
-                set_value(self.shell, self.data_name, read_sql(sql, con=con))
+                df = read_sql(sql, con=con)
+                dt_columns = {}
+                for column in df.columns:
+                    for i in range(len(df[column])):
+                        if df[column][i] and type(df[column][i]) == datetime.date:
+                            dt_columns[column] = "datetime64[ns]"
+                            break
+                df = df.astype(dt_columns, copy=False, errors="ignore")
+                set_value(self.shell, self.data_name, df)
             # Calculate time elapsed for running the sql queries.
             self.exec_time = time() - start
 
@@ -215,7 +224,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # Ensure parameters are presented.
         if config["theta"] is None or config["color"] is None:
             return None
-
         if config["aggregation"]:
             config["theta"] = self.aggregation(config["aggregation"], config["theta"])
         # Generate vega spec for the chart.
@@ -225,7 +233,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "tooltip": [config["color"], config["theta"]],
         }
         if config["sort"]:
-            params["order"] = Order(config["sort"][1:], sort="ascending" if config["sort"] == "+" else "descending")
+            params["order"] = Order(
+                config[config["sort"][1:]], sort="ascending" if config["sort"][:1] == "+" else "descending"
+            )
         return Chart(get_value(self.shell, self.data_name)).mark_arc().encode(**params)
 
     def check_duplicate(self, *args):
