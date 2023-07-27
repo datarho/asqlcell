@@ -151,6 +151,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         if config["color"]:
             params["color"] = config["color"]
+            params["tooltip"] = [config["x"], config["y"], config["color"]]
             if SubChartType.PERCENT in config["subtype"]:
                 params["x"] = params["x"].stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
@@ -170,6 +171,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         if config["color"]:
             params["color"] = config["color"]
+            params["tooltip"] = [config["x"], config["y"], config["color"]]
             if SubChartType.PERCENT in config["subtype"]:
                 params["y"] = params["y"].stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
@@ -189,8 +191,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         if config["color"]:
             params["color"] = config["color"]
+            params["tooltip"] = [config["x"], config["y"], config["color"]]
             if SubChartType.PERCENT in config["subtype"]:
                 params["y"] = params["y"].stack("normalize")
+        print(params)
         return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**params)
 
     def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
@@ -204,6 +208,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
         if config["color"]:
+            params["tooltip"] = [config["x"], config["y"], config["color"]]
             params["color"] = config["color"]
         return Chart(get_value(self.shell, self.data_name)).mark_line().encode(**params)
 
@@ -216,6 +221,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         params = {"x": X(config["x"], sort=None), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
         if config["color"]:
+            params["tooltip"] = [config["x"], config["y"], config["color"]]
             params["color"] = config["color"]
 
         return Chart(get_value(self.shell, self.data_name)).mark_point().encode(**params)
