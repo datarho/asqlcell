@@ -28,8 +28,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
     _view_module = Unicode().tag(sync=True)
     _view_module_version = Unicode().tag(sync=True)
 
-    output_var = Unicode().tag(sync=True)
-
     row_range = Tuple(Int(), Int(), default_value=(0, 10)).tag(sync=True)
     column_color = Unicode().tag(sync=True)
     column_sort = Tuple(Unicode(), Int(), default_value=("", 0)).tag(sync=True)
@@ -59,7 +57,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self._view_module = module_name
         self._view_module_version = module_version
 
-        self.output_var = "sqlcelldf"
         self.preview_vega = "{}"
 
         config: ChartConfig = {

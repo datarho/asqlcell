@@ -63,7 +63,7 @@ const BinInfo: FunctionComponent<InfoProps> = ({ header, title, dataLength }) =>
 }
 
 const HistInfo: FunctionComponent<InfoProps> = ({ header, title, dataLength }) => {
-    const model = useModel();
+    const [, setQuickViewVar] = useModelState("quickview_var");
 
     return (
         <Group noWrap position="center">
@@ -71,7 +71,7 @@ const HistInfo: FunctionComponent<InfoProps> = ({ header, title, dataLength }) =
 
             <Popover
                 onOpen={() => {
-                    model?.trigger("quick_view", title)
+                    setQuickViewVar([title, new Date().toISOString()])
                 }}
             >
                 <Popover.Target>

@@ -11,7 +11,6 @@ export type WidgetModelState = {
     data_name: string;
     dfs_button: string;
     exec_time: number;
-    output_var: string;
     row_range: [number, number];
     column_sort: [string, Order];
     dfs_result: string;
@@ -20,6 +19,7 @@ export type WidgetModelState = {
     data_grid: string;
     column_color: string;
     data_sql: string;
+    quickview_var: [string, string];
     quickview_vega: string;
     vis_sql: [string, string],
     vis_data: string;
@@ -43,7 +43,6 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             data_name: "",
             dfs_button: "",
             exec_time: 0,
-            output_var: "sqlcelldf",
             row_range: [0, 10],
             column_sort: ["", Order.None],
             dfs_result: "",

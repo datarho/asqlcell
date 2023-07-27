@@ -36,29 +36,6 @@ const ReactWidget = () => {
         model?.save_changes();
     });
 
-    model?.on("quick_view", (col_name) => {
-        model?.set("quickview_var", [
-            col_name,
-            new Date().toISOString()
-        ]);
-        model?.save_changes();
-    });
-
-    model?.on("output_var", (outputName) => {
-        model?.set("output_var", outputName);
-        model?.save_changes();
-    });
-
-    model?.on("dfs_button", () => {
-        model?.set("dfs_button", new Date().toISOString());
-        model?.save_changes();
-    });
-
-    model?.on("data_sql", (sqlContent) => {
-        model?.set("data_sql", sqlContent);
-        model?.save_changes();
-    });
-
     return (
         data ?
             <Tabs
