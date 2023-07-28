@@ -299,7 +299,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if self.column_sort[1] != 0:
             df.sort_values(
                 by=self.column_sort[0],
-                ascending=(True if self.column_sort[1] > 0 else False),
+                ascending=self.column_sort[1] > 0,
                 inplace=True,
                 kind="stable",
             )

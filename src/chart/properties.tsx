@@ -36,6 +36,18 @@ const QualitativeMenu: FunctionComponent = () => {
 
     const [opened, setOpened] = useState(false);
 
+    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
+    const type = ChartType[key as keyof typeof ChartType];
+
+    const sortValue = (type: ChartType, name: SortType) => {
+        switch (type) {
+            case ChartType.Pie:
+                return name === SortType.Ascending ? "+color" : "-color";
+            default:
+                return name === SortType.Naturally ? null : name;
+        }
+    }
+
     const sortItem = (name: SortType) => {
         const icon = {
             [SortType.Ascending]: <IconSortAscending stroke={1.5} size={12} />,
@@ -48,7 +60,7 @@ const QualitativeMenu: FunctionComponent = () => {
                 onClick={() => {
                     const updated = {
                         ...JSON.parse(config),
-                        sort: name === SortType.Naturally ? null : name,
+                        sort: sortValue(type, name),
                     };
                     setConfig(JSON.stringify(updated));
                 }}
@@ -123,7 +135,7 @@ const QuantitativeMenu: FunctionComponent = () => {
             case ChartType.Bar:
                 return name === SortType.Ascending ? "x" : "-x";
             case ChartType.Pie:
-                return name === SortType.Ascending ? "color" : "-color";
+                return name === SortType.Ascending ? "+theta" : "-theta";
             default:
                 return name === SortType.Ascending ? "y" : "-y";
         }
