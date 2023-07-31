@@ -39,6 +39,15 @@ const QualitativeMenu: FunctionComponent = () => {
         }
     }
 
+    const items = () => {
+        switch (type) {
+            case ChartType.Pie:
+                return [SortType.Ascending, SortType.Descending];
+            default:
+                return [SortType.Ascending, SortType.Descending, SortType.Naturally];
+        }
+    }
+
     const sortItem = (name: SortType) => {
         const icon = {
             [SortType.Ascending]: <IconSortAscending stroke={1.5} size={12} />,
@@ -85,7 +94,7 @@ const QualitativeMenu: FunctionComponent = () => {
                 <Menu.Label>Sort</Menu.Label>
 
                 {
-                    [SortType.Ascending, SortType.Descending, SortType.Naturally].map(item => {
+                    items().map(item => {
                         return sortItem(item);
                     })
                 }

@@ -1,5 +1,5 @@
 import { ActionIcon, Group, Menu, Select } from "@mantine/core";
-import { IconChartAreaLine, IconChartBar, IconChartDots, IconChartLine, IconChartPie, IconPercentage, IconSettings } from "@tabler/icons-react";
+import { IconChartAreaLine, IconChartBar, IconChartDots, IconChartLine, IconChartPie, IconPercentage, IconSettings, IconStack } from "@tabler/icons-react";
 import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
 import { ChartType } from "./const";
@@ -97,13 +97,13 @@ export const ChartPicker: FunctionComponent = () => {
                                     };
                                     setConfig(JSON.stringify(updated));
                                 }}
-                                icon={<IconChartBar size={12} />}
+                                icon={<IconStack size={12} />}
                             >
                                 Stack
                             </Menu.Item>
 
                             {
-                                [ChartType.Area].includes(type) ?
+                                [ChartType.Area, ChartType.Area].includes(type) ?
                                     undefined
                                     :
                                     <Menu.Item
