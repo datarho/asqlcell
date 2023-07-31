@@ -126,7 +126,7 @@ class SqlMagics(Magics):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo-0613", messages=[{"role": "user", "content": query}]
         )
-        self.displayAns(query, response.choices[0].message.content)
+        self.displayAns(query, response.choices[0].message.content)  # type: ignore
 
     @cell_magic("chat")
     @magic_arguments()
