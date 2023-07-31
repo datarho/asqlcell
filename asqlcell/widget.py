@@ -138,8 +138,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["x"] is None or config["y"] is None or config["aggregation"] is None:
             return None
         # Generate vega spec for the chart.
-        if config["sort"] and ("theta" in config["sort"] or "color" in config["sort"]):
-            config["sort"] = None
         config["x"] = self.aggregation(config["aggregation"], config["x"])
         params = {"tooltip": [config["x"], config["y"]], "x": X(config["x"]), "y": Y(config["y"], sort=config["sort"])}
         if config["color"]:
@@ -156,8 +154,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["x"] is None or config["y"] is None or config["aggregation"] is None:
             return None
         # Generate vega spec for the chart.
-        if config["sort"] and ("theta" in config["sort"] or "color" in config["sort"]):
-            config["sort"] = None
         config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
         if config["color"]:
@@ -176,8 +172,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["sort"] is None:
             config["sort"] = "ascending"
         # Generate vega spec for the chart.
-        if config["sort"] and ("theta" in config["sort"] or "color" in config["sort"]):
-            config["sort"] = None
         config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {
             "x": X(config["x"] + ":O", sort=config["sort"]),
@@ -197,8 +191,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
             return None
 
         # Generate vega spec for the chart.
-        if config["sort"] and ("theta" in config["sort"] or "color" in config["sort"]):
-            config["sort"] = None
         config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
@@ -212,8 +204,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["x"] is None or config["y"] is None:
             return None
         # Generate vega spec for the chart.
-        if config["sort"] and ("theta" in config["sort"] or "color" in config["sort"]):
-            config["sort"] = None
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
         if config["color"]:
             params["tooltip"] = [config["x"], config["y"], config["color"]]
@@ -257,7 +247,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         )
 
     @observe("chart_config")
-    def on_chart_config(self, _):
+    def on_chart_config(self, change):
         assert type(self.chart_config) is str
         chart_config: ChartConfig = json.loads(
             self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)").replace(".", "\\\\.")
@@ -265,9 +255,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # Check the type of the chart is specified.
         if chart_config["type"] is None:
             return
-        # if chart_config["type"] in (ChartType.BAR, ChartType.AREA, ChartType.LINE, ChartType.SCATTER):
-        #     ordinal_config: ChartConfig = json.loads(self.chart_config)
-        #     self.check_duplicate(ordinal_config["x"], ordinal_config["y"], ordinal_config["color"])
+        co = json.loads(change["old"])
+        cn = json.loads(change["new"])
+        if co["type"] != cn["type"] and ChartType.PIE in (co["type"], cn["type"]):
+            chart_config["sort"] = None
+        # ordinal_config: ChartConfig = json.loads(self.chart_config)
+        # self.check_duplicate(ordinal_config["x"], ordinal_config["y"], ordinal_config["color"])
 
         # Try to generate vega spec based on config.
         mapping = {
@@ -278,7 +271,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.PIE: self._generate_arc,
             ChartType.SCATTER: self._generate_scatter,
         }
-
         self.chart = mapping[chart_config["type"]](chart_config)
         if self.chart is None:
             self.preview_vega = "{}"
