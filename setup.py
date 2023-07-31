@@ -86,6 +86,8 @@ setup_args = dict(
         "StrEnum>=0.4.15",
         "sqlparse>=0.4.3",
         "sqlalchemy>=2.0.19",
+        "openai>= 0.27.8",
+        "requests>=2.28.1",
     ],
     extras_require={
         "test": [
