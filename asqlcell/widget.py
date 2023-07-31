@@ -1,10 +1,10 @@
+import datetime
 import json
 from time import time
 from typing import Optional
 
 import pandas as pd
 import sqlparse
-import datetime
 from altair import Chart, Color, Order, Theta, X, Y
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import update_display
@@ -36,8 +36,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
     data_grid = Unicode().tag(sync=True)
     exec_time = Float().tag(sync=True)
     data_name = Unicode().tag(sync=True)
-    vis_sql = Tuple(Unicode(), Unicode(), Unicode(), default_value=("", "", "")).tag(sync=True)  # delete
-    vis_data = Unicode().tag(sync=True)  # delete
     quickview_var = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
     quickview_vega = Unicode().tag(sync=True)
     cache = Unicode().tag(sync=True)

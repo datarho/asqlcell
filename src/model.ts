@@ -21,8 +21,6 @@ export type WidgetModelState = {
     data_sql: string;
     quickview_var: [string, string];
     quickview_vega: string;
-    vis_sql: [string, string],
-    vis_data: string;
     title_hist: string;
     cache: string;
     chart_config: string;
@@ -54,8 +52,6 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             quickview_vega: "{}",
             quickview_var: ["", ""],
             quickview_data: "",
-            vis_sql: ["", ""],
-            vis_data: "",
             title_hist: "",
             cache: "[{}]",
             chart_config: "{}",
