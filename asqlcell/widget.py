@@ -65,7 +65,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "y": None,
             "color": None,
             "theta": None,
-            "aggregation": None,
+            "aggregation": "sum",
             "subtype": [],
             "sort": None,
             "width": 0,
@@ -135,11 +135,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def _generate_bar(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None:
+        if config["x"] is None or config["y"] is None or config["aggregation"] is None:
             return None
         # Generate vega spec for the chart.
-        if config["aggregation"]:
-            config["x"] = self.aggregation(config["aggregation"], config["x"])
+        config["x"] = self.aggregation(config["aggregation"], config["x"])
         params = {"tooltip": [config["x"], config["y"]], "x": X(config["x"]), "y": Y(config["y"], sort=config["sort"])}
         if config["color"]:
             params["color"] = config["color"]
@@ -152,11 +151,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def _generate_column(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None:
+        if config["x"] is None or config["y"] is None or config["aggregation"] is None:
             return None
         # Generate vega spec for the chart.
-        if config["aggregation"]:
-            config["y"] = self.aggregation(config["aggregation"], config["y"])
+        config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
         if config["color"]:
             params["color"] = config["color"]
@@ -169,12 +167,17 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None:
+        if config["x"] is None or config["y"] is None or config["aggregation"] is None:
             return None
+        if config["sort"] is None:
+            config["sort"] = "ascending"
         # Generate vega spec for the chart.
-        if config["aggregation"]:
-            config["y"] = self.aggregation(config["aggregation"], config["y"])
-        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
+        config["y"] = self.aggregation(config["aggregation"], config["y"])
+        params = {
+            "x": X(config["x"] + ":O", sort=config["sort"]),
+            "y": Y(config["y"]),
+            "tooltip": [config["x"], config["y"]],
+        }
         if config["color"]:
             params["color"] = config["color"]
             params["tooltip"] = [config["x"], config["y"], config["color"]]
@@ -184,12 +187,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None:
+        if config["x"] is None or config["y"] is None or config["aggregation"] is None:
             return None
 
         # Generate vega spec for the chart.
-        if config["aggregation"]:
-            config["y"] = self.aggregation(config["aggregation"], config["y"])
+        config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
         if config["color"]:
@@ -210,10 +212,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def _generate_arc(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
-        if config["theta"] is None or config["color"] is None:
+        if config["theta"] is None or config["color"] is None or config["aggregation"] is None:
             return None
-        if config["aggregation"]:
-            config["theta"] = self.aggregation(config["aggregation"], config["theta"])
+        config["theta"] = self.aggregation(config["aggregation"], config["theta"])
         # Generate vega spec for the chart.
         params = {
             "color": Color(config["color"]),
@@ -248,19 +249,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
     @observe("chart_config")
     def on_chart_config(self, _):
         assert type(self.chart_config) is str
-
-        ordinal_config: ChartConfig = json.loads(self.chart_config)
         chart_config: ChartConfig = json.loads(self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)"))
-
         # Check the type of the chart is specified.
         if chart_config["type"] is None:
             return
-
-        # Build aggregation expression when appropriate.
-        if chart_config["aggregation"]:
-            self.need_aggr = False
-        elif chart_config["type"] in (ChartType.BAR, ChartType.AREA, ChartType.LINE, ChartType.SCATTER):
-            self.check_duplicate(ordinal_config["x"], ordinal_config["y"], ordinal_config["color"])
+        # if chart_config["type"] in (ChartType.BAR, ChartType.AREA, ChartType.LINE, ChartType.SCATTER):
+        #     ordinal_config: ChartConfig = json.loads(self.chart_config)
+        #     self.check_duplicate(ordinal_config["x"], ordinal_config["y"], ordinal_config["color"])
 
         # Try to generate vega spec based on config.
         mapping = {
