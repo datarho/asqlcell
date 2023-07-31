@@ -249,7 +249,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
     @observe("chart_config")
     def on_chart_config(self, _):
         assert type(self.chart_config) is str
-        chart_config: ChartConfig = json.loads(self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)"))
+        chart_config: ChartConfig = json.loads(
+            self.chart_config.replace("(", "\\\\(")
+            .replace(")", "\\\\)")
+            .replace(".", "\\\\.")
+            .replace("[", "\\\\[")
+            .replace("]", "\\\\]")
+        )
         # Check the type of the chart is specified.
         if chart_config["type"] is None:
             return
