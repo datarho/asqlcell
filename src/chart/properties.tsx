@@ -2,17 +2,8 @@ import { ActionIcon, Group, Menu, Select, Stack, Text } from "@mantine/core";
 import { IconArrowsSort, IconCheck, IconSettings, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
-import { DataType, DataTypeIcons } from "./const";
+import { ChartType, DataType, DataTypeIcons } from "./const";
 import { IconItem } from "./item";
-
-enum ChartType {
-    Bar = "bar",
-    Column = "column",
-    Line = "line",
-    Area = "area",
-    Scatter = "scatter",
-    Pie = "pie",
-}
 
 enum SortType {
     Ascending = "ascending",

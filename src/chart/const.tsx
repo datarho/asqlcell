@@ -6,6 +6,15 @@ export const MenuHeight = 311;
 export const MenuWidth = 285;
 export const LabelWidth = 128;
 
+export enum ChartType {
+    Bar = "bar",
+    Column = "column",
+    Line = "line",
+    Area = "area",
+    Scatter = "scatter",
+    Pie = "pie",
+}
+
 export enum DataType {
     Int = "int",
     Float = "float",
@@ -21,4 +30,3 @@ export const DataTypeIcons: Record<DataType, JSX.Element> = {
     [DataType.Bool]: <IconAbc stroke={1.5} size={18} />,
     [DataType.Datetime]: <IconCalendar stroke={1.5} size={18} />,
 };
-

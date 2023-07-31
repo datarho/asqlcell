@@ -4,7 +4,7 @@ import React, { FunctionComponent } from "react";
 import { ConfigCommand } from "./command";
 import { DisplaySize } from "./display";
 import { ChartProperties } from "./properties";
-import { ChartType } from "./type";
+import { ChartPicker } from "./type";
 
 export const ChartConfig: FunctionComponent = () => {
     return (
@@ -20,7 +20,7 @@ export const ChartConfig: FunctionComponent = () => {
                     sx={{ padding: 5 }}
                 >
                     <Stack justify="flex-start">
-                        <ChartType />
+                        <ChartPicker />
 
                         <ChartProperties />
 
