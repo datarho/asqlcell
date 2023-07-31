@@ -5,6 +5,8 @@ from IPython.core.magic_arguments import argument, magic_arguments, parse_argstr
 from IPython.display import display
 from pandas import DataFrame
 from sqlalchemy import Connection
+import requests
+import json
 
 from asqlcell.utils import get_cell_id, get_duckdb_result
 from asqlcell.widget import SqlCellWidget
@@ -19,6 +21,9 @@ class SqlMagics(Magics):
     def __init__(self, shell: InteractiveShell):
         super(SqlMagics, self).__init__(shell)
         self.shell = shell
+        self.access_token = None
+        self.api_key = None
+        self.chat_to = None
 
     @line_magic("sql")
     @cell_magic("sql")
@@ -93,3 +98,53 @@ class SqlMagics(Magics):
         if type(var) is not Connection:
             raise NameError("Failed to find connection variable")
         return var
+
+    def displayAns(self, q, a):
+        from IPython.display import display, Markdown
+
+        display(Markdown(f"Question: {q}\nAnswer: " + a))
+
+    def get_baidu_token(self, api_key, secret_key):
+        url = f"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={api_key}&client_secret={secret_key}"
+        payload = ""
+        headers = {"Content-Type": "application/json", "Accept": "application/json"}
+        response = requests.request("POST", url, headers=headers, data=payload)
+        self.access_token = json.loads(response.text)["access_token"]
+
+    def get_baidu_result(self, query):
+        url = f"https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token={self.access_token}"
+        payload = json.dumps({"messages": [{"role": "user", "content": query}], "stream": True})
+        headers = {"Content-Type": "application/json"}
+        response = requests.request("POST", url, headers=headers, data=payload)
+        ll = [item.replace("data: ", "") for item in response.text.split("\n\n") if len(item) > 200]
+        self.displayAns(query, "".join([json.loads(item)["result"] for item in ll]))
+
+    def get_openai_result(self, query):
+        import openai
+
+        openai.api_key = self.api_key
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo-0613", messages=[{"role": "user", "content": query}]
+        )
+        self.displayAns(query, response.choices[0].message.content)
+
+    @cell_magic("chat")
+    @magic_arguments()
+    @argument("--to", nargs="?", type=str)
+    @argument("--apikey", nargs="?", type=str)
+    @argument("--secretkey", nargs="?", type=str)
+    @argument("--accesstoken", nargs="?", type=str)
+    def chat(self, line="", cell=""):
+        args = parse_argstring(self.chat, line)
+        if args.to:
+            self.chat_to = args.to
+        if args.accesstoken:
+            self.access_token = args.accesstoken
+        if self.chat_to == "openai" and args.apikey:
+            self.api_key = args.apikey
+        if args.apikey and args.secretkey:
+            self.get_baidu_token(args.apikey, args.secretkey)
+        if self.chat_to == "openai":
+            self.get_openai_result(cell)
+        else:
+            self.get_baidu_result(cell)
