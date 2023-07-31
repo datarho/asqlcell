@@ -57,7 +57,7 @@ const QualitativeMenu: FunctionComponent = () => {
                 }}
                 icon={icon}
             >
-                Sort {name}
+                <Text tt="capitalize">{name}</Text>
             </Menu.Item>
         )
     }
@@ -150,7 +150,7 @@ const QuantitativeMenu: FunctionComponent = () => {
                 }}
                 icon={icon}
             >
-                Sort {name}
+                <Text tt="capitalize">{name}</Text>
             </Menu.Item>
         )
     }
