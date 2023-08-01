@@ -233,13 +233,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         base = Chart(get_value(self.shell, self.data_name)).encode(**params)
         width = config["width"]
         height = config["height"]
-        if width * height == 0:
-            r = 100
-        else:
-            r = min(width - 20, height) / 2
+        r = 100 if width * height == 0 else min(width - 20, height) / 2
         pie = base.mark_arc(outerRadius=r)
         text = base.mark_text(radius=r + 20, size=10)
-        return pie + text
+        print(config["label"])
+        return (pie + text) if config["label"] else pie
 
     def check_duplicate(self, *args):
         li = [item for item in args if item is not None]
@@ -290,6 +288,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
             self.preview_vega = "{}"
             return
         self.chart = self.chart.properties(width=chart_config["width"], height=chart_config["height"])
+        if not chart_config["legend"]["visible"]:
+            self.chart = self.chart.configure_legend(disable=True)
         self.preview_vega = self.chart.to_json()
 
     @observe("row_range")
