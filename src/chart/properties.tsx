@@ -42,6 +42,7 @@ const QualitativeMenu: FunctionComponent = () => {
     const items = () => {
         switch (type) {
             case ChartType.Pie:
+            case ChartType.Area:
                 return [SortType.Ascending, SortType.Descending];
             default:
                 return [SortType.Ascending, SortType.Descending, SortType.Naturally];
