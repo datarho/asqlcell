@@ -1,11 +1,11 @@
 import datetime
 import json
 from time import time
-from typing import Optional
+from typing import Optional, Union
 
 import pandas as pd
 import sqlparse
-from altair import Chart, Color, Order, Theta, X, Y
+from altair import Chart, Color, LayerChart, Order, Theta, X, Y
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import update_display
 from ipywidgets import DOMWidget
@@ -210,7 +210,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             params["color"] = config["color"]
         return Chart(get_value(self.shell, self.data_name)).mark_point().encode(**params)
 
-    def _generate_arc(self, config: ChartConfig) -> Optional[Chart]:
+    def _generate_arc(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         # Ensure parameters are presented.
         if config["theta"] is None or config["color"] is None or config["aggregation"] is None:
             return None
@@ -218,14 +218,18 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # Generate vega spec for the chart.
         params = {
             "color": Color(config["color"]),
-            "theta": Theta(config["theta"]),
+            "theta": Theta(config["theta"]).stack(True),
             "tooltip": [config["color"], config["theta"]],
+            "text": config["color"],
         }
         if config["sort"]:
             params["order"] = Order(
                 config[config["sort"][1:]], sort="ascending" if config["sort"][:1] == "+" else "descending"
             )
-        return Chart(get_value(self.shell, self.data_name)).mark_arc().encode(**params)
+        base = Chart(get_value(self.shell, self.data_name)).encode(**params)
+        pie = base.mark_arc(outerRadius=100)
+        text = base.mark_text(radius=120, size=10)
+        return pie + text
 
     def check_duplicate(self, *args):
         li = [item for item in args if item is not None]
@@ -276,7 +280,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             self.preview_vega = "{}"
             return
         self.chart = self.chart.properties(width=chart_config["width"], height=chart_config["height"])
-        self.preview_vega = json.dumps(self.chart.to_dict())
+        self.preview_vega = self.chart.to_json()
 
     @observe("row_range")
     def on_row_range(self, _):
@@ -307,4 +311,4 @@ class SqlCellWidget(DOMWidget, HasTraits):
             f"select {select} from (SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM {name}) using SAMPLE reservoir (100 rows) REPEATABLE(42) order by index_rn1qaz2wsx",
         )
         df = df.reset_index()
-        self.quickview_vega = json.dumps(Chart(df).mark_line().encode(x="index", y=select).to_dict())
+        self.quickview_vega = Chart(df).mark_line().encode(x="index", y=select).to_json()

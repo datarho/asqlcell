@@ -9,7 +9,7 @@ export const ChartPreview: FunctionComponent = () => {
     const vega: VisualizationSpec = JSON.parse(spec);
 
     return (
-        "mark" in vega ?
+        "$schema" in vega ?
             <ScrollArea
                 style={{ width: "100%" }}
             >
