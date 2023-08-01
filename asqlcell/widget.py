@@ -70,6 +70,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "sort": None,
             "width": 0,
             "height": 0,
+            "style": {},
         }
 
         self.chart_config = json.dumps(config)
@@ -227,8 +228,14 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 config[config["sort"][1:]], sort="ascending" if config["sort"][:1] == "+" else "descending"
             )
         base = Chart(get_value(self.shell, self.data_name)).encode(**params)
-        pie = base.mark_arc(outerRadius=100)
-        text = base.mark_text(radius=120, size=10)
+        width = config["width"]
+        height = config["height"]
+        if width * height == 0:
+            r = 100
+        else:
+            r = min(width - 20, height) / 2
+        pie = base.mark_arc(outerRadius=r)
+        text = base.mark_text(radius=r + 20, size=10)
         return pie + text
 
     def check_duplicate(self, *args):

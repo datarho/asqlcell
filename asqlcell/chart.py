@@ -28,3 +28,4 @@ class ChartConfig(TypedDict):
     sort: Optional[str]
     height: int
     width: int
+    style: dict
