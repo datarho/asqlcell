@@ -339,6 +339,18 @@ const ColorAxis: FunctionComponent = () => {
     const selected = JSON.parse(config)["color"];
     const icon = items.find((entry) => entry.value === selected)?.icon;
 
+    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
+    const type = ChartType[key as keyof typeof ChartType];
+
+    const menu = () => {
+        switch (type) {
+            case ChartType.Pie:
+                return <QualitativeMenu />;
+            default:
+                return undefined;
+        }
+    }
+
     return (
         <Group noWrap spacing="xs">
             <Select
@@ -359,7 +371,9 @@ const ColorAxis: FunctionComponent = () => {
                 sx={{ width: 240 }}
             />
 
-            <QualitativeMenu />
+            {
+                menu()
+            }
         </Group>
     )
 }
