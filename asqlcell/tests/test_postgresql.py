@@ -8,9 +8,7 @@ dir = Path(__file__).parent.resolve()
 
 
 def test_sqlite_standalone_metadata(shell: InteractiveShell):
-    conn = create_engine(
-        "postgresql+pg8000://postgres:123456@localhost:5432/",
-    ).connect()
+    conn = create_engine("postgresql+pg8000://postgres:123456@localhost:5432/").connect()
 
     tables = inspect(conn).get_table_names()
     chinook = [
@@ -30,12 +28,8 @@ def test_sqlite_standalone_metadata(shell: InteractiveShell):
     assert sorted(tables) == chinook
 
 
-def test_sqlite_standalone_cell_magic(
-    shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"
-):
-    con = create_engine(
-        "postgresql+pg8000://postgres:123456@localhost:5432/",
-    ).connect()
+def test_sqlite_standalone_cell_magic(shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"):
+    con = create_engine("postgresql+pg8000://postgres:123456@localhost:5432/").connect()
 
     shell.user_global_ns["con"] = con
 

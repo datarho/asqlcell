@@ -8,9 +8,7 @@ dir = Path(__file__).parent.resolve()
 
 
 def test_sqlite_standalone_metadata(shell: InteractiveShell):
-    conn = create_engine(
-        "mysql+pymysql://mysql:123456@localhost:3306/Chinook",
-    ).connect()
+    conn = create_engine("mysql+pymysql://mysql:123456@localhost:3306/Chinook").connect()
 
     tables = inspect(conn).get_table_names()
     chinook = [
@@ -30,12 +28,8 @@ def test_sqlite_standalone_metadata(shell: InteractiveShell):
     assert sorted(tables) == chinook
 
 
-def test_sqlite_standalone_cell_magic(
-    shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"
-):
-    con = create_engine(
-        "mysql+pymysql://mysql:123456@localhost:3306/Chinook",
-    ).connect()
+def test_sqlite_standalone_cell_magic(shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"):
+    con = create_engine("mysql+pymysql://mysql:123456@localhost:3306/Chinook").connect()
 
     shell.user_global_ns["con"] = con
 
