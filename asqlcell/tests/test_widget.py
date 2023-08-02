@@ -29,8 +29,8 @@ def test_generate_column_basic(session):
     """
     Check proper vega spec generated for bar chart.
     """
-    file = Path(dir, "chinook.sqlite")
-    con = create_engine(f"sqlite:///{file}").connect()
+    db = Path(dir, "chinook.sqlite")
+    con = create_engine(f"sqlite:///{db}").connect()
 
     query = """
         SELECT
@@ -63,7 +63,10 @@ def test_generate_column_basic(session):
 
     assert chart is not None
 
-    with open(Path(dir, "actual", "column_basic.json"), "w") as file:
+    actual = Path(dir, "actual", "column_basic.json")
+    actual.parent.mkdir(exist_ok=True, parents=True)
+
+    with open(actual, "w") as file:
         json.dump(chart.to_dict(), file, indent=4)
 
     assert filecmp.cmp(Path(dir, "baseline", "column_basic.json"), Path(dir, "actual", "column_basic.json"))
