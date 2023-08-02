@@ -1,12 +1,11 @@
-import { FunctionComponent, useRef, useState } from "react";
-import { Group, Stack, Table, Text, NumberInput, Pagination, Select, ScrollArea, Box, ActionIcon, Tooltip } from "@mantine/core"
-import React from "react";
 import { uuid } from "@jupyter-widgets/base";
-import { DataframeHeader } from "./header";
-import { TableElement } from "./element";
-import { useModel, useModelState } from "../hooks";
-import { IconFilters } from "@tabler/icons-react";
+import { ActionIcon, Box, Group, NumberInput, Pagination, ScrollArea, Select, Stack, Table, Text, Tooltip } from "@mantine/core";
 import { useIntersection } from "@mantine/hooks";
+import { IconFilters } from "@tabler/icons-react";
+import React, { FunctionComponent, useRef, useState } from "react";
+import { useModel, useModelState } from "../hooks";
+import { TableElement } from "./element";
+import { DataframeHeader } from "./header";
 
 
 const NumericElement: FunctionComponent<{ item: number, color: number, activated: boolean }> = ({ item, color, activated }) => {
@@ -18,7 +17,7 @@ const NumericElement: FunctionComponent<{ item: number, color: number, activated
     });
     return (
         <Box ref={ref} bg={activated && entry?.isIntersecting ? `rgb(${color}, ${color}, ${color})` : "transparent"} c={activated && entry?.isIntersecting ? `rgb(${textColor}, ${textColor}, ${textColor})` : "black"}>
-            <Text sx={{ overflow: "hidden" }} fz="8px">
+            <Text sx={{ overflow: "hidden" }} fz="12px">
                 {
                     item
                 }
@@ -80,13 +79,9 @@ export const DataTable: FunctionComponent = () => {
 
     return (
         <Stack
-            align="center"
             spacing={10}
-            sx={{
-                width: "100%",
-                marginBottom: "16px",
-            }}>
-            <ScrollArea scrollbarSize={8} style={{ width: "100%" }}>
+        >
+            <ScrollArea scrollbarSize={8}>
                 <Table
                     withBorder
                     withColumnBorders
@@ -114,12 +109,12 @@ export const DataTable: FunctionComponent = () => {
                         },
                     }}>
 
-                    <DataframeHeader headerContent={headerContent} header={header} dataLength={dataLength} />
+                    <DataframeHeader contents={headerContent} titles={header} dataLength={dataLength} />
 
                     <tbody>
                         {rows}
                     </tbody>
-                </Table >
+                </Table>
             </ScrollArea>
             <Group
                 position="apart"

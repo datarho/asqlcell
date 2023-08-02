@@ -9,5 +9,7 @@
     "python.formatting.provider": "none",
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "git.ignoreLimitWarning": true
+    "python.formatting.blackArgs": ["--line-length", "120"],
+    "git.ignoreLimitWarning": true,
+    "python.analysis.typeCheckingMode": "basic"
 }

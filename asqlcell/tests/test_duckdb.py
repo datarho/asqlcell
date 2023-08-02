@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import cast
 
 from IPython.core.interactiveshell import InteractiveShell
 from pandas import DataFrame
@@ -12,9 +11,18 @@ def test_duckdb_conn_embedded_line_magic(shell: InteractiveShell):
     file = Path(dir, "gapminder.csv.gz")
     sql = f"SELECT * FROM '{file}'"
 
-    result = cast(DataFrame, shell.run_line_magic("sql", sql))
+    result = shell.run_line_magic("sql", sql)
 
-    assert list(result.columns) == ["country", "year", "population", "continent", "life_exp", "gdp_cap"]
+    assert type(result) is DataFrame
+
+    assert list(result.columns) == [
+        "country",
+        "year",
+        "population",
+        "continent",
+        "life_exp",
+        "gdp_cap",
+    ]
     assert result.shape == (1704, 6)
 
 
@@ -24,9 +32,18 @@ def test_duckdb_conn_embedded_cell_magic(shell: InteractiveShell, cell_id="076b7
 
     shell.run_cell_magic("sql", "--out out", sql)
 
-    out = cast(DataFrame, shell.user_global_ns.get("out"))
+    out = shell.user_global_ns.get("out")
 
-    assert list(out.columns) == ["country", "year", "population", "continent", "life_exp", "gdp_cap"]
+    assert type(out) is DataFrame
+
+    assert list(out.columns) == [
+        "country",
+        "year",
+        "population",
+        "continent",
+        "life_exp",
+        "gdp_cap",
+    ]
     assert out.shape == (1704, 6)
 
 
@@ -52,7 +69,7 @@ def test_duckdb_conn_standalone_metadata(shell: InteractiveShell):
     assert sorted(tables) == chinook
 
 
-def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell):
+def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"):
     file = Path(dir, "chinook.duckdb")
     con = create_engine(f"duckdb:///{file}").connect()
 
@@ -67,6 +84,8 @@ def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell):
     )
 
     out = shell.user_global_ns.get("out")
+
+    assert type(out) is DataFrame
 
     assert out.columns.values.tolist() == ["AlbumId", "Title", "ArtistId"]
     assert out.shape == (347, 3)
@@ -83,6 +102,8 @@ def test_duckdb_conn_standalone_cell_magic(shell: InteractiveShell):
     )
 
     out = shell.user_global_ns.get("out")
+
+    assert type(out) is DataFrame
 
     assert out.columns.values.tolist() == ["Name", "Albums"]
     assert out.shape == (275, 2)

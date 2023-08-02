@@ -1,118 +1,124 @@
 import { ActionIcon, Box, Button, Group, Popover, Stack, Text } from "@mantine/core";
 import { IconChartLine } from "@tabler/icons-react";
-import React, { useState } from "react";
-import { FunctionComponent } from "react";
-import { FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
-import { useModel, useModelState } from "../hooks";
-import { HistChart, QuickViewChart } from "../visualization";
-import { Dfhead } from "../WidgetView";
+import React, { FunctionComponent, useState } from "react";
+import { HistChart, QuickViewChart } from "../chart";
+import { Order } from "../const";
+import { useModelState } from "../hooks";
+import { Dfhead } from "../view";
+import { OrderIcons } from "./const";
 
-interface props {
-    headerContent: Dfhead[];
-    header: string[];
+interface HeaderProps {
+    contents: Dfhead[];
+    titles: string[];
     dataLength: number;
 }
+
 interface TitleProps {
-    headerContent: Dfhead[];
-    item: string;
+    content: Dfhead;
+    title: string;
 }
+
 interface InfoProps {
-    headerContent: Dfhead[];
-    item: string;
+    header: Dfhead;
+    title: string;
     dataLength: number;
 }
 
-const HeaderInfo: FunctionComponent<InfoProps> = ({ headerContent, item, dataLength }) => {
-    const model = useModel();
+const BinInfo: FunctionComponent<InfoProps> = ({ header, title, dataLength }) => {
     const [open, setOpen] = useState<string | undefined>(undefined);
+
     return (
-        <>
-            {headerContent.filter(header => header.columnName === item && (header.dtype.includes("int") || header.dtype.includes("float"))).length !== 0 ?
-                <Group noWrap position="center" sx={{ gap: 0, alignItems: "flex-start" }}>
-
-                    <HistChart item={item} headerContent={headerContent} />
-
-                    <Popover
-                        onOpen={() => {
-                            model?.trigger("quick_view", item)
-                        }}
+        <Stack spacing={0}>
+            {
+                header.bins.map((bin, index) =>
+                    <Group
+                        key={index}
+                        noWrap
+                        position="apart"
+                        onMouseEnter={() => { setOpen(title) }}
+                        onMouseLeave={() => setOpen(undefined)}
+                        sx={{ gap: 0, width: "10rem", marginBottom: "-2px" }}
                     >
-                        <Popover.Target>
-                            <ActionIcon variant="transparent" sx={{ alignItems: "flex-end" }}>
-                                <IconChartLine size={12} />
-                            </ActionIcon>
-                        </Popover.Target>
-                        <Popover.Dropdown
-                            sx={{
-                                position: "fixed",
-                                top: "calc(50vh - 75px) !important",
-                                left: "calc(50vw - 240px) !important",
-                            }}
-                        >
-                            <QuickViewChart />
-                        </Popover.Dropdown>
-                    </Popover>
+                        {
+                            bin.count > 0 ?
+                                <>
+                                    <Box sx={{ maxWidth: "6rem" }}>
+                                        <Text weight={600} fs="italic" c={"#696969"} truncate fz="xs">{bin.bin}</Text>
+                                    </Box>
 
-                </Group>
-                :
-                <Stack align="left" sx={{ gap: 0 }}>
-                    {
-                        headerContent.filter(header => header.columnName === item).length > 0 ?
-                            headerContent.filter(header => header.columnName === item)[0].bins.map((bin, index) => {
-                                return (
-                                    <Group
-                                        key={index}
-                                        noWrap
-                                        position="apart"
-                                        onMouseEnter={() => { setOpen(item) }}
-                                        onMouseLeave={() => setOpen(undefined)}
-                                        sx={{ gap: 0, width: "10rem", marginBottom: "-2px" }}
-                                    >
+                                    <Text c={"blue"} fz="xs">
                                         {
-                                            (bin as any).count !== 0 ?
-                                                <>
-                                                    <Box sx={{ maxWidth: "6rem" }}>
-                                                        <Text weight={600} fs="italic" c={"#696969"} truncate fz="xs">{(bin as any).bin}</Text>
-                                                    </Box>
-                                                    {
-                                                        open ?
-                                                            <Text
-                                                                c={"blue"}
-                                                                fz="xs">
-                                                                {(bin as any).count}
-                                                            </Text>
-                                                            :
-                                                            <Text
-                                                                c={"blue"}
-                                                                fz="xs"
-                                                            >
-                                                                {((bin as any).count / dataLength * 100).toFixed(2)}%
-                                                            </Text>
-                                                    }
-                                                </>
-                                                :
-                                                <></>
+                                            open ? bin.count : (bin.count / dataLength * 100).toFixed(2) + "%"
                                         }
-                                    </Group>
-                                )
-                            })
-                            :
-                            <></>
-                    }
-                </Stack>}
-        </>
+                                    </Text>
+                                </>
+                                :
+                                <></>
+                        }
+                    </Group>
+                )
+            }
+        </Stack>
+    );
+}
+
+const HistInfo: FunctionComponent<InfoProps> = ({ header, title, dataLength }) => {
+    const [, setQuickViewVar] = useModelState("quickview_var");
+
+    return (
+        <Group noWrap position="center">
+            <HistChart item={title} headerContent={header} />
+
+            <Popover
+                onOpen={() => {
+                    setQuickViewVar([title, new Date().toISOString()])
+                }}
+            >
+                <Popover.Target>
+                    <ActionIcon variant="transparent" sx={{ alignItems: "flex-end" }}>
+                        <IconChartLine size={12} />
+                    </ActionIcon>
+                </Popover.Target>
+                <Popover.Dropdown
+                    sx={{
+                        position: "fixed",
+                        top: "calc(50vh - 75px) !important",
+                        left: "calc(50vw - 240px) !important",
+                    }}
+                >
+                    <QuickViewChart />
+                </Popover.Dropdown>
+            </Popover>
+        </Group>
+    );
+}
+
+const HeaderInfo: FunctionComponent<InfoProps> = ({ header, title, dataLength }) => {
+    const numerical = header.dtype.includes("int") || header.dtype.includes("float");
+
+    return (
+        <Group position="center">
+            {
+                numerical ?
+                    <HistInfo
+                        header={header}
+                        title={title}
+                        dataLength={dataLength}
+                    />
+                    :
+                    <BinInfo
+                        header={header}
+                        title={title}
+                        dataLength={dataLength}
+                    />
+            }
+        </Group>
     )
 }
 
-const HeaderTitle: FunctionComponent<TitleProps> = ({ headerContent, item }) => {
-    const model = useModel();
-    const Order = {
-        Increasing: 1,
-        Descending: -1,
-        None: 0,
-    }
+const HeaderTitle: FunctionComponent<TitleProps> = ({ content, title }) => {
     const [colSort, setColSort] = useModelState("column_sort");
-    let currentOrder = Order.None;
+
     return (
         <Group position="center">
             <Button
@@ -128,97 +134,74 @@ const HeaderTitle: FunctionComponent<TitleProps> = ({ headerContent, item }) => 
                 }}
                 rightIcon={
                     <>
-                        {
-                            headerContent ?
-                                headerContent.filter(header => header.columnName === item).length !== 0 ?
-                                    <Text size={"xs"} fs="italic" color={"gray"}>{
-                                        headerContent.filter(header => header.columnName === item)[0].dtype.includes("datetime") ?
-                                            "datetime"
-                                            :
-                                            headerContent.filter(header => header.columnName === item)[0].dtype
-                                    }</Text>
+                        <Text size={"xs"} fs="italic" color={"gray"}>
+                            {
+                                content.dtype.includes("datetime") ?
+                                    "datetime"
                                     :
-                                    <></>
-                                :
-                                <></>
-                        }
+                                    content.dtype
+                            }
+                        </Text>
+
                         {
-                            colSort[0] === item ?
-                                colSort[1] === Order.Increasing ?
-                                    <FaSortUp color="gray" size={10} />
-                                    :
-                                    colSort[1] === Order.Descending ?
-                                        <FaSortDown color="gray" size={10} />
-                                        :
-                                        <FaSort color="lightgray" size={10} />
+                            colSort[0] === title ?
+                                OrderIcons[colSort[1]]
                                 :
-                                <FaSort color="lightgray" size={10} />
+                                OrderIcons[Order.None]
                         }
                     </>
                 }
                 variant="subtle"
                 onClick={() => {
-                    if (colSort[0] === item) {
-                        if (colSort[1] === Order.Increasing) {
-                            currentOrder = Order.Descending
-                            setColSort([colSort[0], Order.Descending])
-                        }
-                        else if (colSort[1] === Order.Descending) {
-                            currentOrder = Order.None;
-                            setColSort([colSort[0], Order.None]);
-                        } else {
-                            currentOrder = Order.Increasing
-                            setColSort([colSort[0], Order.Increasing])
+                    if (colSort[0] === title) {
+                        switch (colSort[1]) {
+                            case Order.Increasing:
+                                setColSort([colSort[0], Order.Descending]);
+                                break;
+                            case Order.Descending:
+                                setColSort([colSort[0], Order.None]);
+                                break;
+                            default:
+                                setColSort([colSort[0], Order.Increasing]);
                         }
                     } else {
-                        currentOrder = Order.Increasing
-                        setColSort([colSort[0], Order.Increasing])
+                        setColSort([title, Order.Increasing])
                     }
-                    model?.trigger("sort", [item, currentOrder])
                 }}
             >
-                <Text truncate fw={700}>{item}</Text>
+                <Text truncate fw={700}>{title}</Text>
             </Button>
         </Group>
     )
 }
 
-export const DataframeHeader: FunctionComponent<props> = ({ headerContent, header, dataLength }) => {
+export const DataframeHeader: FunctionComponent<HeaderProps> = ({ contents, titles, dataLength }) => {
     return (
         <thead>
             <tr>
-                <th></th>
+                <th>{/* column for index */}</th>
+
                 {
-                    header.map((item, index) =>
-                        <th
-                            key={index}
-                            style={{
-                                padding: 0,
-                                verticalAlign: "baseline",
-                            }}>
-                            <Box sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                            }}>
-                                <Stack align={"center"} sx={{ gap: 0, maxWidth: "10rem" }}>
+                    titles.map((title, index) => {
+                        const content = contents.find(head => head.columnName === title)!;  // there must be a corresponding header content
+
+                        return (
+                            <th key={index}>
+                                <Stack justify="flex-start" spacing="xs">
                                     <HeaderTitle
-                                        headerContent={headerContent}
-                                        item={item}
+                                        content={content}
+                                        title={title}
                                     />
-                                    {
-                                        headerContent ?
-                                            <HeaderInfo
-                                                headerContent={headerContent}
-                                                item={item}
-                                                dataLength={dataLength}
-                                            />
-                                            :
-                                            <></>
-                                    }
+
+                                    <HeaderInfo
+                                        header={content}
+                                        title={title}
+                                        dataLength={dataLength}
+                                    />
                                 </Stack>
-                            </Box>
-                        </th>
-                    )
+                            </th>
+                        );
+                    })
                 }
             </tr >
         </thead >

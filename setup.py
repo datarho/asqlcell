@@ -76,14 +76,18 @@ setup_args = dict(
     include_package_data=True,
     python_requires=">=3.8",
     install_requires=[
-        "duckdb>=0.8.0",
-        "duckdb-engine>=0.7.3",
+        "altair>=5.0.1",
+        "duckdb>=0.8.1",
+        "duckdb-engine>=0.9.2",
         "fastparquet>=2023.4.0",
         "ipywidgets>=8.0.0",
         "jinja2>=3.1.2",
-        "pandas>=1.5.2",
+        "pandas>=2.0.3",
+        "StrEnum>=0.4.15",
         "sqlparse>=0.4.3",
-        "sqlalchemy>=2.0.16",
+        "sqlalchemy>=2.0.19",
+        "openai>= 0.27.8",
+        "requests>=2.28.1",
     ],
     extras_require={
         "test": [

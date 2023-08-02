@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from IPython.core.interactiveshell import InteractiveShell
+from pandas import DataFrame
 from sqlalchemy import create_engine, inspect
 
 dir = Path(__file__).parent.resolve()
@@ -37,7 +38,7 @@ def test_sqlite_standalone_metadata(shell: InteractiveShell):
     assert sorted(tables) == chinook
 
 
-def test_sqlite_standalone_cell_magic(shell: InteractiveShell):
+def test_sqlite_standalone_cell_magic(shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"):
     file = Path(dir, "chinook.sqlite")
     con = create_engine(f"sqlite:///{file}").connect()
 
@@ -52,6 +53,8 @@ def test_sqlite_standalone_cell_magic(shell: InteractiveShell):
     )
 
     out = shell.user_global_ns.get("out")
+
+    assert type(out) is DataFrame
 
     assert out.columns.values.tolist() == ["GenreId", "Name"]
     assert out.shape == (25, 2)
@@ -68,6 +71,8 @@ def test_sqlite_standalone_cell_magic(shell: InteractiveShell):
     )
 
     out = shell.user_global_ns.get("out")
+
+    assert type(out) is DataFrame
 
     assert out.columns.values.tolist() == ["Name", "Albums"]
     assert out.shape == (275, 2)
