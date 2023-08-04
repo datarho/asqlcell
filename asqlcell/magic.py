@@ -1,3 +1,7 @@
+import json
+from typing import Union
+
+import requests
 from IPython.core.display import HTML
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
@@ -5,8 +9,6 @@ from IPython.core.magic_arguments import argument, magic_arguments, parse_argstr
 from IPython.display import display
 from pandas import DataFrame
 from sqlalchemy import Connection
-import requests
-import json
 
 from asqlcell.utils import get_cell_id, get_duckdb_result
 from asqlcell.widget import SqlCellWidget
@@ -76,7 +78,7 @@ class SqlMagics(Magics):
         display(HTML(""), display_id=widget.cell_id)
         return widget
 
-    def _get_widget(self, var_name: str) -> SqlCellWidget | None:
+    def _get_widget(self, var_name: str) -> Union[SqlCellWidget, None]:
         """
         Get sql cell widget variable by the given name and type. None will be returned if type is incorrect.
         """
@@ -100,7 +102,7 @@ class SqlMagics(Magics):
         return var
 
     def displayAns(self, q, a):
-        from IPython.display import display, Markdown
+        from IPython.core.display import Markdown, display
 
         display(Markdown(f"Question: {q}\nAnswer: " + a))
 

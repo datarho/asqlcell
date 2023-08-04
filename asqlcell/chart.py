@@ -1,4 +1,4 @@
-from typing import Optional, TypedDict
+from typing import List, Optional, TypedDict
 
 from strenum import StrEnum
 
@@ -24,7 +24,7 @@ class ChartConfig(TypedDict):
     color: Optional[str]
     theta: Optional[str]
     aggregation: Optional[str]
-    subtype: list[str]
+    subtype: List[str]
     sort: Optional[str]
     height: int
     width: int
