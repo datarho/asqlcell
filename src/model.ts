@@ -85,6 +85,8 @@ export class SqlCellView extends DOMWidgetView {
         const component = React.createElement(ReactWidget, {
             model: this.model,
         });
+
+        // eslint-disable-next-line react/no-deprecated
         ReactDOM.render(component, this.el);
     }
 }

@@ -70,7 +70,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "sort": None,
             "width": 0,
             "height": 0,
-            "style": {},
+            "legend": {
+                "visible": True,
+            },
+            "label": True,
         }
 
         self.chart_config = json.dumps(config)
