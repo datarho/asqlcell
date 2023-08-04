@@ -236,7 +236,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         r = 100 if width * height == 0 else min(width - 20, height) / 2
         pie = base.mark_arc(outerRadius=r)
         text = base.mark_text(radius=r + 20, size=10)
-        print(config["label"])
         return (pie + text) if config["label"] else pie
 
     def check_duplicate(self, *args):

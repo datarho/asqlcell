@@ -51,44 +51,34 @@ export const DisplaySize: FunctionComponent = () => {
                 }}
             />
 
-            <Switch.Group
-                defaultValue={["visible"]}
-                label="Label"
-            >
-                <Switch
-                    value="visible"
-                    label="Visible"
-                    checked={label}
-                    onChange={(event) => {
-                        const updated = {
-                            ...payload,
-                            label: event.currentTarget.checked
-                        };
-                        setConfig(JSON.stringify(updated));
-                    }}
-                />
-            </Switch.Group>
+            <Switch
+                value="visible"
+                label="Show label"
+                checked={label}
+                onChange={(event) => {
+                    const updated = {
+                        ...payload,
+                        label: event.currentTarget.checked
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+            />
 
-            <Switch.Group
-                defaultValue={["visible"]}
-                label="Legend"
-            >
-                <Switch
-                    value="visible"
-                    label="Visible"
-                    checked={legend["visible"]}
-                    onChange={(event) => {
-                        const updated = {
-                            ...payload,
-                            legend: {
-                                ...payload["legend"],
-                                visible: event.currentTarget.checked
-                            },
-                        };
-                        setConfig(JSON.stringify(updated));
-                    }}
-                />
-            </Switch.Group>
+            <Switch
+                value="visible"
+                label="Show legend"
+                checked={legend["visible"]}
+                onChange={(event) => {
+                    const updated = {
+                        ...payload,
+                        legend: {
+                            ...payload["legend"],
+                            visible: event.currentTarget.checked
+                        },
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+            />
         </Stack>
     )
 }
