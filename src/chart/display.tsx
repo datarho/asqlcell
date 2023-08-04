@@ -1,12 +1,17 @@
-import { NumberInput, Stack } from "@mantine/core";
+import { NumberInput, Stack, Switch } from "@mantine/core";
 import { IconArrowAutofitHeight, IconArrowAutofitWidth } from "@tabler/icons-react";
 import React, { FunctionComponent } from "react";
 import { useModelState } from "../hooks";
 
 export const DisplaySize: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
-    const width: number = JSON.parse(config)["width"];
-    const height: number = JSON.parse(config)["height"];
+
+    const payload = JSON.parse(config);
+    const width: number = payload["width"];
+    const height: number = payload["height"];
+
+    const label = payload["label"]
+    const legend = payload["legend"]
 
     return (
         <Stack>
@@ -21,7 +26,7 @@ export const DisplaySize: FunctionComponent = () => {
                 value={width}
                 onChange={(value) => {
                     const updated = {
-                        ...JSON.parse(config),
+                        ...payload,
                         width: value,
                     };
                     setConfig(JSON.stringify(updated));
@@ -39,8 +44,37 @@ export const DisplaySize: FunctionComponent = () => {
                 value={height}
                 onChange={(value) => {
                     const updated = {
-                        ...JSON.parse(config),
+                        ...payload,
                         height: value,
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+            />
+
+            <Switch
+                value="visible"
+                label="Show label"
+                checked={label}
+                onChange={(event) => {
+                    const updated = {
+                        ...payload,
+                        label: event.currentTarget.checked
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+            />
+
+            <Switch
+                value="visible"
+                label="Show legend"
+                checked={legend["visible"]}
+                onChange={(event) => {
+                    const updated = {
+                        ...payload,
+                        legend: {
+                            ...payload["legend"],
+                            visible: event.currentTarget.checked
+                        },
                     };
                     setConfig(JSON.stringify(updated));
                 }}

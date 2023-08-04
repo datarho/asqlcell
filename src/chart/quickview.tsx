@@ -8,7 +8,7 @@ export const QuickViewChart: FunctionComponent = () => {
     const vega: VisualizationSpec = JSON.parse(spec);
 
     return (
-        "mark" in vega ?
+        "$schema" in vega ?
             <VegaLite
                 renderer="svg"
                 actions={{ export: true, source: false, compiled: false, editor: false }}

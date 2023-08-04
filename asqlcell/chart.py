@@ -17,6 +17,10 @@ class SubChartType(StrEnum):
     PERCENT = "100"
 
 
+class LegendConfig(TypedDict):
+    visible: bool
+
+
 class ChartConfig(TypedDict):
     type: Optional[ChartType]
     x: Optional[str]
@@ -28,3 +32,5 @@ class ChartConfig(TypedDict):
     sort: Optional[str]
     height: int
     width: int
+    legend: LegendConfig
+    label: bool
