@@ -1,19 +1,21 @@
-from __future__ import unicode_literals
-from jinja2 import Environment
-from jinja2 import Template
-from jinja2.ext import Extension
-from jinja2.lexer import Token
-from jinja2.utils import markupsafe
 from collections import OrderedDict
 from threading import local
 
+import markupsafe
+from jinja2 import Environment, Template
+from jinja2.ext import Extension
+from jinja2.lexer import Token
+
 _thread_local = local()
+
 
 class JinjaSqlException(Exception):
     pass
 
+
 class InvalidBindParameterException(JinjaSqlException):
     pass
+
 
 class SqlExtension(Extension):
     def extract_param_name(self, tokens):
@@ -33,16 +35,16 @@ class SqlExtension(Extension):
 
     def filter_stream(self, stream):
         """
-        We convert 
+        We convert
         {{ some.variable | filter1 | filter 2}}
-            to 
+            to
         {{ ( some.variable | filter1 | filter 2 ) | bind}}
-        
+
         ... for all variable declarations in the template
         Note the extra ( and ). We want the | bind to apply to the entire value, not just the last value.
         The parentheses are mostly redundant, except in expressions like {{ '%' ~ myval ~ '%' }}
-        This function is called by jinja2 immediately 
-        after the lexing stage, but before the parser is called. 
+        This function is called by jinja2 immediately
+        after the lexing stage, but before the parser is called.
         """
         while not stream.eos:
             token = next(stream)
@@ -56,9 +58,9 @@ class SqlExtension(Extension):
                 last_token = var_expr[-1]
                 lineno = last_token.lineno
                 # don't bind twice
-                if not last_token.test("name") or last_token.value not in ('bind', 'inclause', 'sqlsafe'):
+                if not last_token.test("name") or last_token.value not in ("bind", "inclause", "sqlsafe"):
                     param_name = self.extract_param_name(var_expr)
-                    
+
                     var_expr.insert(1, Token(lineno, "lparen", "("))
                     var_expr.append(Token(lineno, "rparen", ")"))
                     var_expr.append(Token(lineno, "pipe", "|"))
@@ -73,57 +75,64 @@ class SqlExtension(Extension):
             else:
                 yield token
 
+
 def sql_safe(value):
     """Filter to mark the value of an expression as safe for inserting
     in a SQL statement"""
     return markupsafe.Markup(value)
 
+
 def bind(value, name):
-    """A filter that prints %s, and stores the value 
+    """A filter that prints %s, and stores the value
     in an array, so that it can be bound using a prepared statement
-    This filter is automatically applied to every {{variable}} 
+    This filter is automatically applied to every {{variable}}
     during the lexing stage, so developers can't forget to bind
     """
     if isinstance(value, markupsafe.Markup):
         return value
     else:
         return _bind_param(_thread_local.bind_params, name, value)
-    
+
+
 def bind_in_clause(value):
     values = list(value)
     results = []
     for v in values:
         results.append(_bind_param(_thread_local.bind_params, "inclause", v))
-    
+
     clause = ",".join(results)
     return clause
+
 
 def _bind_param(already_bound, key, value):
     _thread_local.param_index += 1
     new_key = "%s_%s" % (key, _thread_local.param_index)
     already_bound[new_key] = value
-    
+
     param_style = _thread_local.param_style
-    if param_style == 'qmark':
+    if param_style == "qmark":
         return "?"
-    elif param_style == 'format':
+    elif param_style == "format":
         return "%s"
-    elif param_style == 'numeric':
+    elif param_style == "numeric":
         return ":%s" % _thread_local.param_index
-    elif param_style == 'named':
+    elif param_style == "named":
         return ":%s" % new_key
-    elif param_style == 'pyformat':
+    elif param_style == "pyformat":
         return "%%(%s)s" % new_key
-    elif param_style == 'asyncpg':
+    elif param_style == "asyncpg":
         return "$%s" % _thread_local.param_index
     else:
         raise AssertionError("Invalid param_style - %s" % param_style)
 
+
 def requires_in_clause(obj):
     return isinstance(obj, (list, tuple))
 
+
 def is_dictionary(obj):
     return isinstance(obj, dict)
+
 
 class JinjaSql(object):
     # See PEP-249 for definition
@@ -133,8 +142,9 @@ class JinjaSql(object):
     # format "where name = %s"
     # pyformat "where name = %(name)s"
     # asyncpg "where name = $1"
-    VALID_PARAM_STYLES = ('qmark', 'numeric', 'named', 'format', 'pyformat', 'asyncpg')
-    def __init__(self, env=None, param_style='format'):
+    VALID_PARAM_STYLES = ("qmark", "numeric", "named", "format", "pyformat", "asyncpg")
+
+    def __init__(self, env=None, param_style="format"):
         self.env = env or Environment()
         self._prepare_environment()
         self.param_style = param_style
@@ -161,9 +171,9 @@ class JinjaSql(object):
             _thread_local.param_index = 0
             query = template.render(data)
             bind_params = _thread_local.bind_params
-            if self.param_style in ('named', 'pyformat'):
+            if self.param_style in ("named", "pyformat"):
                 bind_params = dict(bind_params)
-            elif self.param_style in ('qmark', 'numeric', 'format', 'asyncpg'):
+            elif self.param_style in ("qmark", "numeric", "format", "asyncpg"):
                 bind_params = list(bind_params.values())
             return query, bind_params
         finally:

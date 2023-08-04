@@ -1,3 +1,5 @@
+from typing import Generator
+
 import pytest
 from ipykernel.comm import Comm
 from IPython.core.interactiveshell import InteractiveShell
@@ -9,11 +11,11 @@ from asqlcell.magic import SqlMagics
 
 @pytest.fixture(scope="session")
 def session() -> InteractiveShell:
-    yield start_ipython()
+    yield start_ipython()  # type: ignore
 
 
 @pytest.fixture(scope="function")
-def shell(session) -> InteractiveShell:
+def shell(session: InteractiveShell) -> Generator[InteractiveShell, None, None]:
     session.run_line_magic(magic_name="load_ext", line="asqlcell")
     yield session
     session.run_line_magic(magic_name="unload_ext", line="asqlcell")
@@ -43,27 +45,3 @@ class MockComm(Comm):
 
     def close(self, *args, **kwargs):
         self.log_close.append((args, kwargs))
-
-
-_widget_attrs = {}
-undefined = object()
-
-
-@pytest.fixture
-def mock_comm():
-    _widget_attrs["_comm_default"] = getattr(Widget, "_comm_default", undefined)
-    Widget._comm_default = lambda self: MockComm()
-    _widget_attrs["_ipython_display_"] = Widget._ipython_display_
-
-    def raise_not_implemented(*args, **kwargs):
-        raise NotImplementedError()
-
-    Widget._ipython_display_ = raise_not_implemented
-
-    yield MockComm()
-
-    for attr, value in _widget_attrs.items():
-        if value is undefined:
-            delattr(Widget, attr)
-        else:
-            setattr(Widget, attr, value)
