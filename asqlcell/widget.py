@@ -328,7 +328,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.COMBO: self._generate_combo,
             ChartType.FUNNEL: self._generate_funnel,
         }
-        self.chart = mapping[config["type"]](Chart(self.get_value(self.data_name)), config)
+        base = Chart(self.get_value(self.data_name))
+        self.chart = mapping[config["type"]](base, config)
         if self.chart:
             self.chart = self.chart.properties(width=config["width"], height=config["height"])
             if not config["legend"]["visible"]:

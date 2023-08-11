@@ -6,331 +6,135 @@
         }
     },
     "data": {
-        "name": "data-115488874c169afeb264449f8b6c32b4"
+        "name": "data-b39687acf961882efa4ea21196a84cce"
     },
     "mark": {
         "type": "bar"
     },
     "encoding": {
+        "text": {
+            "aggregate": "sum",
+            "field": "Total"
+        },
         "tooltip": [
             {
-                "field": "Country",
-                "type": "nominal"
+                "field": "Country"
             },
             {
                 "aggregate": "sum",
-                "field": "Total",
-                "type": "quantitative"
+                "field": "Total"
             }
         ],
         "x": {
             "field": "Country",
-            "sort": null,
-            "type": "nominal"
+            "sort": null
         },
         "y": {
             "aggregate": "sum",
             "field": "Total",
-            "type": "quantitative"
+            "stack": "zero"
         }
     },
+    "height": 400,
+    "width": 1000,
     "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
     "datasets": {
-        "data-115488874c169afeb264449f8b6c32b4": [
-            {
-                "Country": "Czech Republic",
-                "Customer": "Helena Hol\u00fd",
-                "Total": 49.620000000000005
-            },
+        "data-b39687acf961882efa4ea21196a84cce": [
             {
                 "Country": "USA",
-                "Customer": "Richard Cunningham",
-                "Total": 47.620000000000005
+                "Total": 523.0600000000003
             },
             {
-                "Country": "Chile",
-                "Customer": "Luis Rojas",
-                "Total": 46.62
+                "Country": "Canada",
+                "Total": 303.9599999999999
             },
             {
-                "Country": "Hungary",
-                "Customer": "Ladislav Kov\u00e1cs",
-                "Total": 45.62
+                "Country": "France",
+                "Total": 195.09999999999994
             },
             {
-                "Country": "Ireland",
-                "Customer": "Hugh O'Reilly",
-                "Total": 45.62
-            },
-            {
-                "Country": "USA",
-                "Customer": "Julia Barnett",
-                "Total": 43.620000000000005
+                "Country": "Brazil",
+                "Total": 190.09999999999997
             },
             {
                 "Country": "Germany",
-                "Customer": "Fynn Zimmermann",
-                "Total": 43.62
+                "Total": 156.48
             },
             {
-                "Country": "USA",
-                "Customer": "Frank Ralston",
-                "Total": 43.62
+                "Country": "United Kingdom",
+                "Total": 112.85999999999999
+            },
+            {
+                "Country": "Czech Republic",
+                "Total": 90.24000000000001
+            },
+            {
+                "Country": "Portugal",
+                "Total": 77.23999999999998
+            },
+            {
+                "Country": "India",
+                "Total": 75.25999999999999
+            },
+            {
+                "Country": "Chile",
+                "Total": 46.62
+            },
+            {
+                "Country": "Ireland",
+                "Total": 45.62
+            },
+            {
+                "Country": "Hungary",
+                "Total": 45.62
             },
             {
                 "Country": "Austria",
-                "Customer": "Astrid Gruber",
-                "Total": 42.62
-            },
-            {
-                "Country": "USA",
-                "Customer": "Victor Stevens",
                 "Total": 42.62
             },
             {
                 "Country": "Finland",
-                "Customer": "Terhi H\u00e4m\u00e4l\u00e4inen",
                 "Total": 41.620000000000005
             },
             {
-                "Country": "Czech Republic",
-                "Customer": "Franti\u0161ek Wichterlov\u00e1",
-                "Total": 40.620000000000005
-            },
-            {
-                "Country": "France",
-                "Customer": "Isabelle Mercier",
-                "Total": 40.620000000000005
-            },
-            {
                 "Country": "Netherlands",
-                "Customer": "Johannes Van der Berg",
                 "Total": 40.62
             },
             {
-                "Country": "Portugal",
-                "Customer": "Jo\u00e3o Fernandes",
-                "Total": 39.620000000000005
-            },
-            {
-                "Country": "USA",
-                "Customer": "Jack Smith",
-                "Total": 39.620000000000005
-            },
-            {
-                "Country": "Brazil",
-                "Customer": "Lu\u00eds Gon\u00e7alves",
-                "Total": 39.62
-            },
-            {
-                "Country": "Canada",
-                "Customer": "Fran\u00e7ois Tremblay",
-                "Total": 39.62
-            },
-            {
-                "Country": "France",
-                "Customer": "Wyatt Girard",
-                "Total": 39.62
-            },
-            {
                 "Country": "Norway",
-                "Customer": "Bj\u00f8rn Hansen",
                 "Total": 39.62
-            },
-            {
-                "Country": "USA",
-                "Customer": "Dan Miller",
-                "Total": 39.62
-            },
-            {
-                "Country": "USA",
-                "Customer": "Heather Leacock",
-                "Total": 39.62
-            },
-            {
-                "Country": "Canada",
-                "Customer": "Jennifer Peterson",
-                "Total": 38.620000000000005
-            },
-            {
-                "Country": "France",
-                "Customer": "Camille Bernard",
-                "Total": 38.620000000000005
-            },
-            {
-                "Country": "France",
-                "Customer": "Dominique Lefebvre",
-                "Total": 38.620000000000005
-            },
-            {
-                "Country": "India",
-                "Customer": "Manoj Pareek",
-                "Total": 38.620000000000005
             },
             {
                 "Country": "Sweden",
-                "Customer": "Joakim Johansson",
                 "Total": 38.620000000000005
             },
             {
-                "Country": "USA",
-                "Customer": "Tim Goyer",
-                "Total": 38.620000000000005
-            },
-            {
-                "Country": "Argentina",
-                "Customer": "Diego Guti\u00e9rrez",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Australia",
-                "Customer": "Mark Taylor",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Brazil",
-                "Customer": "Alexandre Rocha",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Brazil",
-                "Customer": "Eduardo Martins",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Brazil",
-                "Customer": "Fernanda Ramos",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Canada",
-                "Customer": "Aaron Mitchell",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Canada",
-                "Customer": "Edward Francis",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Canada",
-                "Customer": "Mark Philips",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Canada",
-                "Customer": "Martha Silk",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Denmark",
-                "Customer": "Kara Nielsen",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "France",
-                "Customer": "Marc Dubois",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Germany",
-                "Customer": "Hannah Schneider",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Germany",
-                "Customer": "Leonie K\u00f6hler",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Germany",
-                "Customer": "Niklas Schr\u00f6der",
+                "Country": "Poland",
                 "Total": 37.620000000000005
             },
             {
                 "Country": "Italy",
-                "Customer": "Lucas Mancini",
                 "Total": 37.620000000000005
             },
             {
-                "Country": "Poland",
-                "Customer": "Stanis\u0142aw W\u00f3jcik",
+                "Country": "Denmark",
                 "Total": 37.620000000000005
             },
             {
-                "Country": "Portugal",
-                "Customer": "Madalena Sampaio",
+                "Country": "Australia",
                 "Total": 37.620000000000005
             },
             {
-                "Country": "USA",
-                "Customer": "Michelle Brooks",
+                "Country": "Argentina",
                 "Total": 37.620000000000005
-            },
-            {
-                "Country": "USA",
-                "Customer": "Patrick Gray",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "United Kingdom",
-                "Customer": "Emma Jones",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "United Kingdom",
-                "Customer": "Phil Hughes",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Belgium",
-                "Customer": "Daan Peeters",
-                "Total": 37.62
-            },
-            {
-                "Country": "Brazil",
-                "Customer": "Roberto Almeida",
-                "Total": 37.62
-            },
-            {
-                "Country": "Canada",
-                "Customer": "Ellie Sullivan",
-                "Total": 37.62
-            },
-            {
-                "Country": "Canada",
-                "Customer": "Robert Brown",
-                "Total": 37.62
             },
             {
                 "Country": "Spain",
-                "Customer": "Enrique Mu\u00f1oz",
                 "Total": 37.62
             },
             {
-                "Country": "USA",
-                "Customer": "Frank Harris",
+                "Country": "Belgium",
                 "Total": 37.62
-            },
-            {
-                "Country": "USA",
-                "Customer": "John Gordon",
-                "Total": 37.62
-            },
-            {
-                "Country": "USA",
-                "Customer": "Kathy Chase",
-                "Total": 37.62
-            },
-            {
-                "Country": "United Kingdom",
-                "Customer": "Steve Murray",
-                "Total": 37.62
-            },
-            {
-                "Country": "India",
-                "Customer": "Puja Srivastava",
-                "Total": 36.64
             }
         ]
     }
