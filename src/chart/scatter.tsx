@@ -1,12 +1,17 @@
 import React, { FunctionComponent } from "react";
-import { ColorAxis, HorizontalAxis, VerticalAxis } from "./properties";
+import { Text } from "@mantine/core";
+import { FieldSwitch } from "./properties";
 
 export const ScatterChart: FunctionComponent = () => {
     return (
         <>
-            <HorizontalAxis />
-            <VerticalAxis />
-            <ColorAxis />
+            <Text fw={600}>Y-Axis</Text>
+
+            <FieldSwitch major="y" minor="x" sort={true} />
+
+            <Text fw={600}>X-Axis</Text>
+
+            <FieldSwitch major="x" minor="y" sort={true} />
         </>
     );
 }
