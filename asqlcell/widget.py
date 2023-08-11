@@ -191,7 +191,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         x = X(field=config["x"]["field"], aggregate=config["y"]["aggregation"])
         y = Y(field=config["y"]["field"])
         color = config["color"]["field"]
-        params = {"x": x.stack("zero"), "y": y.sort(self._get_sort_symbol(config)), "tooltip": [x, y], "text": y}
+        params = {"x": x.stack("zero"), "y": y.sort(self._get_sort_symbol(config)), "tooltip": [x, y], "text": x}
         if color:
             params["color"] = color
             params["tooltip"] += [color]
@@ -201,7 +201,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 params["yOffset"] = color
         base = base.encode(**params)
         bar = base.mark_bar()
-        return bar + base.mark_text(align="center", baseline="bottom", dx=20) if config["label"] else bar
+        return bar + base.mark_text(align="center", baseline="bottom", dx=40) if config["label"] else bar
 
     def _generate_column(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         if config["x"]["field"] is None or config["y"]["field"] is None:
@@ -219,7 +219,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 params["xOffset"] = color
         base = base.encode(**params)
         bar = base.mark_bar()
-        return bar  # + base.mark_text(align="center", baseline="bottom") if config["label"] else bar
+        return bar + base.mark_text(align="center", baseline="bottom") if config["label"] else bar
 
     def _generate_area(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         if config["x"]["field"] is None or config["y"]["field"] is None:
@@ -263,9 +263,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         """
         Generate combo based on the chart config. This could be a a line and stacked column or line and clustered column.
         """
+        if config["x"]["field"] is None or config["y"]["field"] is None or config["y2"]["field"] is None:
+            return None
         line = self._generate_line(base, config)
-        # config["y"] = config["y2"]
-        column = self._generate_line(base, config)
+        config["y"] = config["y2"]
+        column = self._generate_column(base, config)
         return line + column  # type: ignore
 
     def _generate_arc(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
@@ -280,7 +282,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["x"]["sort"]:
             params["order"] = Order(color).sort(config["x"]["sort"])  # type: ignore
         if config["y"]["sort"]:
-            params["order"] = Order(theta).sort(config["y"]["sort"])  # type: ignore
+            params["order"] = Order(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).sort(config["y"]["sort"])  # type: ignore
         base = base.encode(**params)
         width = config["width"]
         height = config["height"]
