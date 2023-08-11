@@ -1,6 +1,6 @@
 import React, { FunctionComponent } from "react";
 import { Text } from "@mantine/core";
-import { FieldSwitch } from "./properties";
+import { AggregationSwitch, FieldSwitch } from "./properties";
 
 export const AreaChart: FunctionComponent = () => {
     return (
@@ -12,6 +12,9 @@ export const AreaChart: FunctionComponent = () => {
             <Text fw={600}>X-Axis</Text>
 
             <FieldSwitch major="x" minor="y" sort={true} />
+
+            <AggregationSwitch major="x" minor="y" />
+
             <Text fw={600}>Color</Text>
 
             <FieldSwitch major="color" />
