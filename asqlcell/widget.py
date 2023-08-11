@@ -185,9 +185,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
         base = Chart(get_value(self.shell, self.data_name)).encode(**params)
         bar = base.mark_bar()
-        text = base.mark_text(align="center", baseline="bottom").encode(
-            y=config["y"], text=config["y"], yOffset=config["color"]
-        )
+        text = base.mark_text(align="center", baseline="bottom").encode(y=config["y"], text=config["y"])
         return (bar + text) if config["label"] else bar
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
