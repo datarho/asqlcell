@@ -1,17 +1,13 @@
-import { Stack, Text } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import React, { FunctionComponent } from "react";
 import { FieldSwitch } from "./properties";
 
 export const FunnelChart: FunctionComponent = () => {
     return (
         <Stack>
-            <Text fw={600}>X-Axis</Text>
+            <FieldSwitch label="X-Axis" major="x" minor="y" />
 
-            <FieldSwitch major="x" minor="y" />
-
-            <Text fw={600}>Y-Axis</Text>
-
-            <FieldSwitch major="y" minor="x" />
+            <FieldSwitch label="Y-Axis" major="y" minor="x" />
         </Stack>
     );
 }

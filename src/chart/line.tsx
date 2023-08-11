@@ -1,23 +1,17 @@
-import { Stack, Text } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import React, { FunctionComponent } from "react";
 import { AggregationSwitch, FieldSwitch } from "./properties";
 
 export const LineChart: FunctionComponent = () => {
     return (
         <Stack>
-            <Text fw={600}>X-Axis</Text>
+            <FieldSwitch label="X-Axis" major="x" minor="y" sort />
 
-            <FieldSwitch major="x" minor="y" sort />
-
-            <Text fw={600}>Y-Axis</Text>
-
-            <FieldSwitch major="y" minor="x" sort />
+            <FieldSwitch label="Y-Axis" major="y" minor="x" sort />
 
             <AggregationSwitch major="x" minor="y" />
 
-            <Text fw={600}>Color</Text>
-
-            <FieldSwitch major="color" clearable />
+            <FieldSwitch label="Color" major="color" clearable />
         </Stack>
     );
 }

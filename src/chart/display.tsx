@@ -1,4 +1,4 @@
-import { NumberInput, Stack, Switch } from "@mantine/core";
+import { Group, NumberInput, Stack, Switch, Text } from "@mantine/core";
 import { IconArrowAutofitHeight, IconArrowAutofitWidth } from "@tabler/icons-react";
 import React, { FunctionComponent } from "react";
 import { useModelState } from "../hooks";
@@ -51,34 +51,52 @@ export const DisplaySize: FunctionComponent = () => {
                 }}
             />
 
-            <Switch
-                value="visible"
-                label="Show label"
-                checked={label}
-                onChange={(event) => {
-                    const updated = {
-                        ...payload,
-                        label: event.currentTarget.checked
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-            />
+            <Group
+                noWrap
+                position="apart"
+            >
+                <Text>
+                    Show label
+                </Text>
 
-            <Switch
-                value="visible"
-                label="Show legend"
-                checked={legend["visible"]}
-                onChange={(event) => {
-                    const updated = {
-                        ...payload,
-                        legend: {
-                            ...payload["legend"],
-                            visible: event.currentTarget.checked
-                        },
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-            />
+                <Switch
+                    value="visible"
+                    size="xs"
+                    checked={label}
+                    onChange={(event) => {
+                        const updated = {
+                            ...payload,
+                            label: event.currentTarget.checked
+                        };
+                        setConfig(JSON.stringify(updated));
+                    }}
+                />
+            </Group>
+
+            <Group
+                noWrap
+                position="apart"
+            >
+                <Text>
+                    Show legend
+                </Text>
+
+                <Switch
+                    value="visible"
+                    size="xs"
+                    checked={legend["visible"]}
+                    onChange={(event) => {
+                        const updated = {
+                            ...payload,
+                            legend: {
+                                ...payload["legend"],
+                                visible: event.currentTarget.checked
+                            },
+                        };
+                        setConfig(JSON.stringify(updated));
+                    }}
+                />
+            </Group>
         </Stack>
     )
 }

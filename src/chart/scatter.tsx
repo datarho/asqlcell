@@ -1,21 +1,15 @@
-import { Stack, Text } from "@mantine/core";
+import { Stack } from "@mantine/core";
 import React, { FunctionComponent } from "react";
 import { FieldSwitch } from "./properties";
 
 export const ScatterChart: FunctionComponent = () => {
     return (
         <Stack>
-            <Text fw={600}>X-Axis</Text>
+            <FieldSwitch label="X-Axis" major="x" />
 
-            <FieldSwitch major="x" />
+            <FieldSwitch label="Y-Axis" major="y" />
 
-            <Text fw={600}>Y-Axis</Text>
-
-            <FieldSwitch major="y" />
-
-            <Text fw={600}>Color</Text>
-
-            <FieldSwitch major="color" clearable />
+            <FieldSwitch label="Color" major="color" clearable />
         </Stack>
     );
 }
