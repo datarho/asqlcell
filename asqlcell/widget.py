@@ -147,14 +147,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         df = 150 * df + 105
         self.column_color = df.to_json(orient="split", date_format="iso")
 
-    def aggregation(self, fun: str, name: str):
-        return fun + "(" + name + ")"
-
     def _get_sort_symbol(self, config: ChartConfig) -> Union[str, None]:
         """
         Get sort symbol used by vega spec.
         """
-        if config["type"] in {ChartType.BAR, ChartType.COLUMN}:
+        if config["type"] in {ChartType.BAR, ChartType.COLUMN, ChartType.AREA, ChartType.LINE}:
             if config["x"]["sort"]:
                 return "x" if config["x"]["sort"] == "ascending" else "-x"
             elif config["y"]["sort"]:
@@ -164,25 +161,25 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def _generate_funnel(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None:
+        if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
         base = Chart(get_value(self.shell, self.data_name))
         a = (
-            base.encode(x=X(config["x"]).stack("center"), color=Color(config["y"], legend=None)).mark_bar()
-            + base.encode(text=config["x"]).mark_text()
+            base.encode(
+                x=X(config["x"]["field"]).stack("center"), color=Color(config["y"]["field"], legend=None)
+            ).mark_bar()
+            + base.encode(text=config["x"]["field"]).mark_text()
         )
-        return a.encode(y=Y(config["y"], sort=None))
+        return a.encode(y=Y(config["y"]["field"], sort=None))
 
     def _generate_bar(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         """
         Generate vega spec for bar chart with the given config.
         """
-
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
 
         # Generate parameters for altair.
-
         params = {
             "x": X(field=config["x"]["field"], aggregate=config["x"]["aggregation"]).stack("zero"),
             "y": Y(field=config["y"]["field"], sort=self._get_sort_symbol(config)),
@@ -192,7 +189,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ],
             "text": Text(config["x"]["field"]),
         }
-
         if config["color"]["field"]:
             params.update(
                 {
@@ -205,7 +201,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
                     ],
                 }
             )
-
             if SubChartType.PERCENT in config["subtype"]:
                 params.update(
                     {
@@ -214,16 +209,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
                         .stack("normalize")
                     }
                 )
-
             if SubChartType.CLUSTERED in config["subtype"]:
                 params.update({"yOffset": config["color"]["field"]})
 
         # Create the chart based on the parameter.
-
         base = Chart(get_value(self.shell, self.data_name)).encode(**params)
         bar = base.mark_bar()
         text = base.mark_text(align="center", baseline="bottom", dx=20)
-
         return bar + text if config["label"] else bar
 
     def _generate_column(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
@@ -235,7 +227,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
             return None
 
         # Generate parameters for altair.
-
         params = {
             "x": X(field=config["x"]["field"], sort=self._get_sort_symbol(config)),
             "y": Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).stack("zero"),
@@ -245,7 +236,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ],
             "text": Text(config["y"]["field"]),
         }
-
         if config["color"]["field"]:
             params.update(
                 {
@@ -258,7 +248,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
                     ],
                 }
             )
-
             if SubChartType.PERCENT in config["subtype"]:
                 params.update(
                     {
@@ -267,38 +256,51 @@ class SqlCellWidget(DOMWidget, HasTraits):
                         .stack("normalize")
                     }
                 )
-
             if SubChartType.CLUSTERED in config["subtype"]:
                 params.update({"xOffset": config["color"]["field"]})
 
         # Create the chart based on the parameter.
-
         base = Chart(get_value(self.shell, self.data_name)).encode(**params)
         bar = base.mark_bar()
         text = base.mark_text(align="center", baseline="bottom")
-
         return bar + text if config["label"] else bar
 
-    # def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
-    #     # Ensure parameters are presented.
-    #     if config["x"]["field"] is None or config["y"] is None or config["aggregation"] is None:
-    #         return None
-    #     if config["sort"] is None:
-    #         config["sort"] = "ascending"
-
-    #     # Generate vega spec for the chart.
-    #     config["y"] = self.aggregation(config["aggregation"], config["y"])
-    #     params = {
-    #         "x": X(config["x"]["field"] + ":O", type="O", sort=config["sort"]),
-    #         "y": Y(config["y"]),
-    #         "tooltip": [config["x"], config["y"]],
-    #     }
-    #     if config["color"]:
-    #         params["color"] = config["color"]
-    #         params["tooltip"] = [config["x"], config["y"], config["color"]]
-    #         if SubChartType.PERCENT in config["subtype"]:
-    #             params["y"] = params["y"].stack("normalize")
-    #     return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**params)
+    def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
+        # Ensure parameters are presented.
+        if config["x"]["field"] is None or config["y"]["field"] is None:
+            return None
+        # if config["sort"] is None:
+        #     config["sort"] = "ascending"
+        # Generate vega spec for the chart.
+        params = {
+            "x": X(field=config["x"]["field"], type="ordinal", sort=self._get_sort_symbol(config)),
+            "y": Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"]),
+            "tooltip": [
+                Tooltip(field=config["x"]["field"]),
+                Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"]),
+            ],
+        }
+        print(config)
+        if config["color"]["field"]:
+            params.update(
+                {
+                    "color": config["color"]["field"],
+                    "tooltip": [
+                        Tooltip(field=config["x"]["field"]),
+                        Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"]),
+                        Tooltip(field=config["color"]["field"]),
+                    ],
+                }
+            )
+            if SubChartType.PERCENT in config["subtype"]:
+                params.update(
+                    {
+                        "y": Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
+                        .stack("zero")
+                        .stack("normalize")
+                    }
+                )
+        return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**params)
 
     # def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
     #     # Ensure parameters are presented.
@@ -409,7 +411,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.COLUMN: self._generate_column,
             ChartType.BAR: self._generate_bar,
             # ChartType.LINE: self._generate_line,
-            # ChartType.AREA: self._generate_area,
+            ChartType.AREA: self._generate_area,
             ChartType.PIE: self._generate_arc,
             # ChartType.SCATTER: self._generate_scatter,
             # ChartType.COMBO: self._generate_combo,
