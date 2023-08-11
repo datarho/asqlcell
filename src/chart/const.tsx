@@ -23,7 +23,7 @@ export enum ChartType {
     Scatter = "scatter",
     Pie = "pie",
     Combo = "combo",
-    Funnel = "Funnel",
+    Funnel = "funnel",
 }
 
 export const ChartTypeComponents: Record<ChartType, JSX.Element> = {
