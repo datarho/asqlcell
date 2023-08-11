@@ -97,6 +97,7 @@ interface AxisProps {
     major: string;
     minor?: string;
     sort?: boolean;
+    clearable?: boolean;
 }
 
 const QuantitativeMenu: FunctionComponent<AxisProps> = ({ major, minor }) => {
@@ -211,7 +212,7 @@ export const SortToggle: FunctionComponent<AxisProps> = ({ major, minor }) => {
     )
 }
 
-export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, sort }) => {
+export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, sort, clearable }) => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
@@ -226,6 +227,7 @@ export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, sort }
         <Group noWrap spacing="xs">
             <Select
                 searchable
+                clearable={clearable}
                 data={items}
                 icon={icon}
                 value={selected}

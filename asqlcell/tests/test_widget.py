@@ -48,13 +48,30 @@ def test_generate_column_basic(session):
 
     config: ChartConfig = {
         "type": ChartType.COLUMN,
-        "x": "Country",
-        "y": "Total",
-        "color": None,
-        "theta": None,
-        "aggregation": "sum",
+        "x": {
+            "label": None,
+            "field": "Country",
+            "aggregation": "sum",
+            "sort": None,
+        },
+        "y": {
+            "label": None,
+            "field": "Total",
+            "aggregation": "sum",
+            "sort": None,
+        },
+        "color": {
+            "label": None,
+            "field": None,
+            "aggregation": "sum",
+            "sort": None,
+        },
+        "y2": None,
+        "legend": {
+            "visible": True,
+        },
+        "label": True,
         "subtype": [],
-        "sort": None,
         "width": 0,
         "height": 0,
     }
