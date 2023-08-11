@@ -139,29 +139,42 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def aggregation(self, fun: str, name: str):
         return fun + "(" + name + ")"
 
-    def _generate_bar(self, config: ChartConfig) -> Optional[Chart]:
+    def _generate_bar(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None or config["aggregation"] is None:
             return None
         # Generate vega spec for the chart.
         config["x"] = self.aggregation(config["aggregation"], config["x"])
-        params = {"tooltip": [config["x"], config["y"]], "x": X(config["x"]), "y": Y(config["y"], sort=config["sort"])}
+        params = {
+            "x": X(config["x"]),
+            "y": Y(config["y"], sort=config["sort"]),
+            "tooltip": [config["x"], config["y"]],
+            "text": config["x"],
+        }
         if config["color"]:
             params["color"] = config["color"]
             params["tooltip"] = [config["x"], config["y"], config["color"]]
             if SubChartType.PERCENT in config["subtype"]:
                 params["x"] = params["x"].stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
-                params["xOffset"] = config["color"]
-        return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
+                params["yOffset"] = config["color"]
+        # return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
+        base = Chart(get_value(self.shell, self.data_name)).encode(**params)
+        bar = base.mark_bar()
+        text = base.mark_text(align="center", baseline="middle", dx=25)
+        return (bar + text) if config["label"] else bar
 
-    def _generate_column(self, config: ChartConfig) -> Optional[Chart]:
+    def _generate_column(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None or config["aggregation"] is None:
             return None
         # Generate vega spec for the chart.
         config["y"] = self.aggregation(config["aggregation"], config["y"])
-        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
+        params = {
+            "x": X(config["x"], sort=config["sort"]),
+            "y": Y(config["y"]),
+            "tooltip": [config["x"], config["y"]],
+        }
         if config["color"]:
             params["color"] = config["color"]
             params["tooltip"] = [config["x"], config["y"], config["color"]]
@@ -169,7 +182,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 params["y"] = params["y"].stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
                 params["xOffset"] = config["color"]
-        return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
+        # return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
+        base = Chart(get_value(self.shell, self.data_name)).encode(**params)
+        bar = base.mark_bar()
+        text = base.mark_text(align="center", baseline="bottom").encode(
+            y=config["y"], text=config["y"], yOffset=config["color"]
+        )
+        return (bar + text) if config["label"] else bar
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
         # Ensure parameters are presented.
