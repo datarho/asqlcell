@@ -4,6 +4,7 @@ import { AreaChart } from "./area";
 import { BarChart } from "./bar";
 import { ColumnChart } from "./column";
 import { ComboChart } from "./combo";
+import { FunnelChart } from "./funnel";
 import { LineChart } from "./line";
 import { PieChart } from "./pie";
 import { ScatterChart } from "./scatter";
@@ -22,6 +23,7 @@ export enum ChartType {
     Scatter = "scatter",
     Pie = "pie",
     Combo = "combo",
+    Funnel = "Funnel",
 }
 
 export const ChartTypeComponents: Record<ChartType, JSX.Element> = {
@@ -32,6 +34,7 @@ export const ChartTypeComponents: Record<ChartType, JSX.Element> = {
     [ChartType.Scatter]: <ScatterChart />,
     [ChartType.Pie]: <PieChart />,
     [ChartType.Combo]: <ComboChart />,
+    [ChartType.Funnel]: <FunnelChart />,
 }
 
 export enum DataType {

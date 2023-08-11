@@ -36,9 +36,7 @@ class ChartConfig(TypedDict):
     y: AxisConfig
     y2: Optional[str]
     color: AxisConfig
-    theta: Optional[str]
     subtype: List[str]
-    sort: Optional[str]
     height: int
     width: int
     legend: LegendConfig

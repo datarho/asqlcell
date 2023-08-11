@@ -80,9 +80,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 "aggregation": "sum",
                 "sort": None,
             },
-            "theta": None,
             "subtype": [],
-            "sort": None,
             "width": 500,
             "height": 400,
             "legend": {
@@ -333,29 +331,41 @@ class SqlCellWidget(DOMWidget, HasTraits):
     #     """
     #     return None
 
-    # def _generate_arc(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-    #     # Ensure parameters are presented.
-    #     if config["theta"] is None or config["color"] is None or config["aggregation"] is None:
-    #         return None
-    #     config["theta"] = self.aggregation(config["aggregation"], config["theta"])
-    #     # Generate vega spec for the chart.
-    #     params = {
-    #         "color": Color(config["color"]),
-    #         "theta": Theta(config["theta"]).stack(True),
-    #         "tooltip": [config["color"], config["theta"]],
-    #         "text": config["color"],
-    #     }
-    #     if config["sort"]:
-    #         params["order"] = Order(
-    #             config[config["sort"][1:]], sort="ascending" if config["sort"][:1] == "+" else "descending"
-    #         )
-    #     base = Chart(get_value(self.shell, self.data_name)).encode(**params)
-    #     width = config["width"]
-    #     height = config["height"]
-    #     r = 100 if width * height == 0 else min(width - 20, height) / 2
-    #     pie = base.mark_arc(outerRadius=r)
-    #     text = base.mark_text(radius=r + 20, size=10)
-    #     return (pie + text) if config["label"] else pie
+    def _generate_arc(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
+        """
+        Generate vega spec for pie chart with the given config.
+        """
+        if config["x"]["field"] is None or config["y"]["field"] is None:
+            return None
+
+        # Generate parameters for altair.
+
+        params = {
+            "color": Color(field=config["x"]["field"]),
+            "theta": Theta(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).stack(True),
+            "tooltip": [
+                Tooltip(field=config["x"]["field"]),
+                Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"]),
+            ],
+            "text": Text(field=config["x"]["field"]),
+        }
+
+        if config["x"]["sort"]:
+            params.update({"order": Order(field=config["x"]["field"], sort=config["x"]["sort"])})
+
+        if config["y"]["sort"]:
+            params.update({"order": Order(field=config["y"]["field"], sort=config["y"]["sort"])})
+
+        # Create the chart based on the parameter.
+
+        base = Chart(get_value(self.shell, self.data_name)).encode(**params)
+        width = config["width"]
+        height = config["height"]
+        r = 100 if width * height == 0 else min(width - 20, height) / 2
+        pie = base.mark_arc(outerRadius=r)
+        text = base.mark_text(radius=r + 20, size=10)
+
+        return pie + text if config["label"] else pie
 
     def check_duplicate(self, *args):
         li = [item for item in args if item is not None]
@@ -391,8 +401,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         chart_old = json.loads(change["old"])
         chart_new = json.loads(change["new"])
 
-        if chart_old["type"] != chart_new["type"] and ChartType.PIE in (chart_old["type"], chart_new["type"]):
-            config["sort"] = None
+        # if chart_old["type"] != chart_new["type"] and ChartType.PIE in (chart_old["type"], chart_new["type"]):
+        #     config["sort"] = None
 
         # Try to generate vega spec based on config.
         mapping = {
@@ -400,10 +410,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.BAR: self._generate_bar,
             # ChartType.LINE: self._generate_line,
             # ChartType.AREA: self._generate_area,
-            # ChartType.PIE: self._generate_arc,
+            ChartType.PIE: self._generate_arc,
             # ChartType.SCATTER: self._generate_scatter,
             # ChartType.COMBO: self._generate_combo,
-            # ChartType.FUNNEL: self._generate_funnel,
+            ChartType.FUNNEL: self._generate_funnel,
         }
 
         self.chart = mapping[config["type"]](config)
