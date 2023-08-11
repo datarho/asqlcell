@@ -139,6 +139,17 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def aggregation(self, fun: str, name: str):
         return fun + "(" + name + ")"
 
+    def _generate_funnel(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
+        # Ensure parameters are presented.
+        if config["x"] is None or config["y"] is None:
+            return None
+        base = Chart(get_value(self.shell, self.data_name))
+        a = (
+            base.encode(x=X(config["x"]).stack("center"), color=Color(config["y"], legend=None)).mark_bar()
+            + base.encode(text=config["x"]).mark_text()
+        )
+        return a.encode(y=Y(config["y"], sort=None))
+
     def _generate_bar(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None or config["aggregation"] is None:
@@ -306,6 +317,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.PIE: self._generate_arc,
             ChartType.SCATTER: self._generate_scatter,
             ChartType.COMBO: self._generate_combo,
+            ChartType.FUNNEL: self._generate_funnel,
         }
         self.chart = mapping[chart_config["type"]](chart_config)
         if self.chart is None:
