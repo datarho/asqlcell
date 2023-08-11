@@ -125,17 +125,6 @@ def get_histogram(df: DataFrame):
     return hist
 
 
-def get_random_data(number=10):
-    return pd.DataFrame(
-        data={
-            "id": np.arange(number),
-            "price": [i for i in range(number)],
-            "normal": [True for i in range(number)],
-        },
-        index=np.arange(number),
-    )
-
-
 class NoTracebackException(Exception):
     def _render_traceback_(self):
         red_text = "\033[0;31m"
