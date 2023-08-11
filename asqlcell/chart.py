@@ -11,6 +11,7 @@ class ChartType(StrEnum):
     PIE = "pie"
     SCATTER = "scatter"
     COMBO = "combo"
+    FUNNEL = "funnel"
 
 
 class SubChartType(StrEnum):
