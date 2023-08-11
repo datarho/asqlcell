@@ -45,51 +45,49 @@ class SqlCellWidget(DOMWidget, HasTraits):
     chart_config = Unicode().tag(sync=True)
     persist_vega = Unicode().tag(sync=True)
 
+    config: ChartConfig = {
+        "type": None,
+        "x": {
+            "label": None,
+            "field": None,
+            "aggregation": "sum",
+            "sort": None,
+        },
+        "y": {
+            "label": None,
+            "field": None,
+            "aggregation": "sum",
+            "sort": None,
+        },
+        "y2": None,
+        "color": {
+            "label": None,
+            "field": None,
+            "aggregation": "sum",
+            "sort": None,
+        },
+        "subtype": [],
+        "width": 500,
+        "height": 400,
+        "legend": {
+            "visible": True,
+        },
+        "label": True,
+    }
+
     def __init__(self, shell: InteractiveShell, cell_id="", sql=""):
         super(SqlCellWidget, self).__init__()
-        self.shell = shell
-        self.cell_id = cell_id
         self._model_name = "SqlCellModel"
         self._model_module = module_name
         self._model_module_version = module_version
         self._view_name = "SqlCellView"
         self._view_module = module_name
         self._view_module_version = module_version
-
+        self.shell = shell
+        self.cell_id = cell_id
         self.preview_vega = "{}"
         self.quickview_vega = "{}"
-
-        config: ChartConfig = {
-            "type": None,
-            "x": {
-                "label": None,
-                "field": None,
-                "aggregation": "sum",
-                "sort": None,
-            },
-            "y": {
-                "label": None,
-                "field": None,
-                "aggregation": "sum",
-                "sort": None,
-            },
-            "y2": None,
-            "color": {
-                "label": None,
-                "field": None,
-                "aggregation": "sum",
-                "sort": None,
-            },
-            "subtype": [],
-            "width": 500,
-            "height": 400,
-            "legend": {
-                "visible": True,
-            },
-            "label": True,
-        }
-
-        self.chart_config = json.dumps(config)
+        self.chart_config = json.dumps(self.config)
 
     def get_duckdb_result(self, sql, vlist=[]):
         for k, v in self.get_vars(is_df=True).items():
@@ -112,7 +110,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def run_sql(self, sql: str, con: Optional[Connection] = None):
         assert type(self.data_name) is str
         assert type(self.row_range) is tuple
-
         try:
             if len(self.data_name) == 0:
                 self.data_name = self.cell_id + "result"
@@ -146,6 +143,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             assert type(df) is DataFrame
             self.title_hist = json.dumps(get_histogram(df))
             self.set_data_grid()
+            self.chart_config = json.dumps(self.config)
         except Exception as r:
             raise NoTracebackException(r)
 
@@ -338,8 +336,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("chart_config")
     def on_chart_config(self, _):
+        self.preview_vega = "{}"
         assert type(self.chart_config) is str
-
         config: ChartConfig = json.loads(
             self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)").replace(".", "\\\\.")
         )
@@ -358,13 +356,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.FUNNEL: self._generate_funnel,
         }
         self.chart = mapping[config["type"]](Chart(self.get_value(self.data_name)), config)
-        if self.chart is None:
-            self.preview_vega = "{}"
-            return
-        self.chart = self.chart.properties(width=config["width"], height=config["height"])
-        if not config["legend"]["visible"]:
-            self.chart = self.chart.configure_legend(disable=True)
-        self.preview_vega = self.chart.to_json()
+        if self.chart:
+            self.chart = self.chart.properties(width=config["width"], height=config["height"])
+            if not config["legend"]["visible"]:
+                self.chart = self.chart.configure_legend(disable=True)
+            self.preview_vega = self.chart.to_json()
 
     @observe("row_range")
     def on_row_range(self, _):
