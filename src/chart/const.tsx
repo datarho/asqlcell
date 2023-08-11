@@ -12,6 +12,7 @@ export const ViewHeight = 264;
 export const MenuHeight = 311;
 export const MenuWidth = 285;
 export const LabelWidth = 128;
+export const ConfigItemWidth = 240;
 
 export enum ChartType {
     Bar = "bar",
@@ -52,11 +53,20 @@ export const DataTypeIcons: Record<DataType, JSX.Element> = {
 export enum SortType {
     Ascending = "ascending",
     Descending = "descending",
-    Naturally = "naturally",
+    None = "none",
 }
 
 export const SortIcons = {
     [SortType.Ascending]: <IconSortAscending stroke={1.5} size={18} />,
     [SortType.Descending]: <IconSortDescending stroke={1.5} size={18} />,
-    [SortType.Naturally]: <IconArrowsSort stroke={1.5} size={18} />,
+    [SortType.None]: <IconArrowsSort stroke={1.5} size={18} />,
+}
+
+export enum AggregationType {
+    Sum = "sum",
+    Average = "average",
+    Max = "max",
+    Min = "min",
+    Count = "count",
+    Median = "median",
 }

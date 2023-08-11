@@ -1,8 +1,8 @@
-import { ActionIcon, Group, Menu, Select, Stack, Text } from "@mantine/core";
-import { IconArrowsSort, IconCheck, IconSettings, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
+import { ActionIcon, Group, Menu, Select, Stack, Text, Tooltip } from "@mantine/core";
+import { IconArrowsSort, IconSettings, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
-import { ChartType, ChartTypeComponents, DataType, DataTypeIcons, SortIcons, SortType } from "./const";
+import { AggregationType, ChartType, ChartTypeComponents, ConfigItemWidth, DataType, DataTypeIcons, SortIcons, SortType } from "./const";
 import { IconItem } from "./item";
 
 const columns = (hist: string) => {
@@ -28,7 +28,7 @@ const QualitativeMenu: FunctionComponent = () => {
             case ChartType.Pie:
                 return name === SortType.Ascending ? "+color" : "-color";
             default:
-                return name === SortType.Naturally ? null : name;
+                return name === SortType.None ? null : name;
         }
     }
 
@@ -38,7 +38,7 @@ const QualitativeMenu: FunctionComponent = () => {
             case ChartType.Area:
                 return [SortType.Ascending, SortType.Descending];
             default:
-                return [SortType.Ascending, SortType.Descending, SortType.Naturally];
+                return [SortType.Ascending, SortType.Descending, SortType.None];
         }
     }
 
@@ -93,32 +93,20 @@ const QualitativeMenu: FunctionComponent = () => {
     )
 }
 
-const QuantitativeMenu: FunctionComponent = () => {
+interface AxisProps {
+    major: string;
+    minor?: string;
+    sort?: boolean;
+}
+
+const QuantitativeMenu: FunctionComponent<AxisProps> = ({ major, minor }) => {
     const [config, setConfig] = useModelState("chart_config");
 
     const [opened, setOpened] = useState(false);
 
-    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
-    const type = ChartType[key as keyof typeof ChartType];
+    const payload = JSON.parse(config);
 
-    const aggregation = JSON.parse(config)["aggregation"];
-
-    const aggregationItem = (name: string) => {
-        return (
-            <Menu.Item
-                onClick={() => {
-                    const updated = {
-                        ...JSON.parse(config),
-                        aggregation: name,
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-                icon={<IconCheck color={aggregation === name ? undefined : ""} size={12} />}
-            >
-                <Text tt="capitalize">{name}</Text>
-            </Menu.Item>
-        )
-    }
+    const type = payload["type"] as ChartType;
 
     const sortValue = (type: ChartType, name: SortType) => {
         switch (type) {
@@ -135,14 +123,14 @@ const QuantitativeMenu: FunctionComponent = () => {
         const icon = {
             [SortType.Ascending]: <IconSortAscending stroke={1.5} size={12} />,
             [SortType.Descending]: <IconSortDescending stroke={1.5} size={12} />,
-            [SortType.Naturally]: <IconArrowsSort stroke={1.5} size={12} />,
+            [SortType.None]: <IconArrowsSort stroke={1.5} size={12} />,
         }[name];
 
         return (
             <Menu.Item
                 onClick={() => {
                     const updated = {
-                        ...JSON.parse(config),
+                        ...payload,
                         sort: sortValue(type, name),
                     };
                     setConfig(JSON.stringify(updated));
@@ -174,18 +162,6 @@ const QuantitativeMenu: FunctionComponent = () => {
             </Menu.Target>
 
             <Menu.Dropdown>
-                <Menu.Label>Aggregation</Menu.Label>
-
-                {
-                    ["sum", "average", "max", "min", "count", "median"].map(item => {
-                        return aggregationItem(item);
-                    })
-                }
-
-                <Menu.Divider />
-
-                <Menu.Label>Sort</Menu.Label>
-
                 {
                     [SortType.Ascending, SortType.Descending].map(item => {
                         return sortItem(type, item);
@@ -196,30 +172,59 @@ const QuantitativeMenu: FunctionComponent = () => {
     );
 }
 
-export const HorizontalAxis: FunctionComponent = () => {
+export const SortToggle: FunctionComponent<AxisProps> = ({ major, minor }) => {
+    const [config, setConfig] = useModelState("chart_config");
+
+    const payload = JSON.parse(config);
+    const selected = payload[major]["sort"] ? payload[major]["sort"] as SortType : SortType.None;
+
+    return (
+        major && minor ?
+            <Tooltip label={selected.charAt(0).toUpperCase() + selected.slice(1)}>
+                <ActionIcon
+                    onClick={() => {
+                        const candidates = [SortType.Ascending, SortType.Descending, SortType.None];
+                        const last = candidates.indexOf(selected);
+                        const next = (last + 1) % candidates.length;
+
+                        const updated = {
+                            ...payload,
+                            [major]: {
+                                ...payload[major],
+                                sort: candidates[next] === SortType.None ? null : candidates[next],
+                            },
+                            [minor]: {
+                                ...payload[minor],
+                                sort: null,
+                            }
+                        };
+                        setConfig(JSON.stringify(updated));
+                    }}
+                >
+                    {
+                        SortIcons[selected]
+                    }
+                </ActionIcon>
+            </Tooltip>
+            :
+            null
+    )
+}
+
+export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, sort }) => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
-    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
-    const type = ChartType[key as keyof typeof ChartType];
-
     const items = columns(hist);
-    const selected = JSON.parse(config)["x"];
-    const icon = items.find((entry) => entry.value === selected)?.icon;
 
-    const menu = (type?: ChartType) => {
-        switch (type) {
-            case ChartType.Bar:
-                return <QuantitativeMenu />;
-            default:
-                return <QualitativeMenu />;
-        }
-    }
+    const payload = JSON.parse(config);
+    const selected = payload[major]["field"];
+
+    const icon = items.find((entry) => entry.value === selected)?.icon;
 
     return (
         <Group noWrap spacing="xs">
             <Select
-                label="X-Axis"
                 searchable
                 data={items}
                 icon={icon}
@@ -227,68 +232,85 @@ export const HorizontalAxis: FunctionComponent = () => {
                 itemComponent={IconItem}
                 onChange={(value) => {
                     const updated = {
-                        ...JSON.parse(config),
-                        x: value,
+                        ...payload,
+                        [major]: {
+                            ...payload[major],
+                            field: value
+                        },
                     };
                     setConfig(JSON.stringify(updated));
                 }}
-                sx={{ width: 240 }}
+                sx={{ width: ConfigItemWidth }}
             />
 
             {
-                menu(type)
+                sort ?
+                    <SortToggle major={major} minor={minor} sort={sort} />
+                    :
+                    undefined
             }
         </Group>
     )
 }
 
-interface VerticalAixsProps {
-    axis?: string;
-}
-
-export const VerticalAxis: FunctionComponent<VerticalAixsProps> = ({ axis = "y" }) => {
+export const AggregationSwitch: FunctionComponent<AxisProps> = ({ major, minor }) => {
     const [config, setConfig] = useModelState("chart_config");
-    const [hist] = useModelState("title_hist");
 
-    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
-    const type = ChartType[key as keyof typeof ChartType];
+    const payload = JSON.parse(config);
+    const selected = payload[major]["aggregation"] as AggregationType;
 
-    const items = columns(hist);
-    const selected = JSON.parse(config)[axis];
-    const icon = items.find((entry) => entry.value === selected)?.icon;
-
-    const menu = (type: ChartType) => {
-        switch (type) {
-            case ChartType.Bar:
-                return <QualitativeMenu />;
-            default:
-                return <QuantitativeMenu />;
-        }
-    }
+    const items = Object.values(AggregationType).map((operator) => ({
+        value: operator,
+        label: operator.charAt(0).toUpperCase() + operator.slice(1),
+    }))
 
     return (
-        <Group noWrap spacing="xs">
+        <Group
+            noWrap
+            sx={{ width: ConfigItemWidth }}
+        >
+            <Text>
+                Aggregation
+            </Text>
+
             <Select
-                label="Y-Axis"
                 searchable
                 data={items}
-                icon={icon}
                 value={selected}
-                itemComponent={IconItem}
                 onChange={(value) => {
                     const updated = {
-                        ...JSON.parse(config),
-                        [axis]: value,
+                        ...payload,
+                        [major]: {
+                            ...payload[major],
+                            aggregation: value
+                        },
                     };
                     setConfig(JSON.stringify(updated));
                 }}
-                sx={{ width: 240 }}
             />
-
-            {
-                menu(type)
-            }
         </Group>
+    );
+}
+
+export const HorizontalAxis: FunctionComponent = () => {
+    return (
+        <Stack>
+            <Text>X-Axis</Text>
+
+            <FieldSwitch major="x" minor="y" sort={true} />
+        </Stack>
+    )
+}
+
+export const VerticalAxis: FunctionComponent = () => {
+    return (
+        <Stack>
+            <Text>Y-Axis</Text>
+
+            <FieldSwitch major="y" minor="x" sort={true} />
+
+            <AggregationSwitch major="y" minor="x" sort={true} />
+        </Stack>
     )
 }
 
@@ -316,10 +338,10 @@ export const ThetaAxis: FunctionComponent = () => {
                     };
                     setConfig(JSON.stringify(updated));
                 }}
-                sx={{ width: 240 }}
+                sx={{ width: ConfigItemWidth }}
             />
 
-            <QuantitativeMenu />
+            <QuantitativeMenu major="y" minor="x" sort={true} />
         </Group>
     )
 }
@@ -361,7 +383,7 @@ export const ColorAxis: FunctionComponent = () => {
                     };
                     setConfig(JSON.stringify(updated));
                 }}
-                sx={{ width: 240 }}
+                sx={{ width: ConfigItemWidth }}
             />
 
             {

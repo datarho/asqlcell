@@ -6,7 +6,7 @@ export const ComboChart: FunctionComponent = () => {
         <>
             <HorizontalAxis />
             <VerticalAxis />
-            <VerticalAxis axis="y2" />
+            <VerticalAxis />
         </>
     );
 }

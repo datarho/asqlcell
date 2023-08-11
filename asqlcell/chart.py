@@ -23,15 +23,20 @@ class LegendConfig(TypedDict):
     visible: bool
 
 
+class AxisConfig(TypedDict):
+    label: Optional[str]
+    field: Optional[str]
+    aggregation: Optional[str]
+    sort: Optional[str]
+
+
 class ChartConfig(TypedDict):
     type: Optional[ChartType]
-    x: Optional[str]
-    y: Optional[str]
+    x: AxisConfig
+    y: AxisConfig
     y2: Optional[str]
-    color: Optional[str]
+    color: AxisConfig
     theta: Optional[str]
-    aggregation: Optional[str]
-    aggregation2: Optional[str]
     subtype: List[str]
     sort: Optional[str]
     height: int

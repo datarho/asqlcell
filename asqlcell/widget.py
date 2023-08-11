@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 import pandas as pd
 import sqlparse
-from altair import Chart, Color, LayerChart, Order, Theta, X, Y
+from altair import Chart, Color, LayerChart, Order, Text, Theta, Tooltip, X, Y
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import update_display
 from ipywidgets import DOMWidget
@@ -61,13 +61,26 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
         config: ChartConfig = {
             "type": None,
-            "x": None,
-            "y": None,
+            "x": {
+                "label": None,
+                "field": None,
+                "aggregation": "sum",
+                "sort": None,
+            },
+            "y": {
+                "label": None,
+                "field": None,
+                "aggregation": "sum",
+                "sort": None,
+            },
             "y2": None,
-            "color": None,
+            "color": {
+                "label": None,
+                "field": None,
+                "aggregation": "sum",
+                "sort": None,
+            },
             "theta": None,
-            "aggregation": "sum",
-            "aggregation2": "sum",
             "subtype": [],
             "sort": None,
             "width": 500,
@@ -139,6 +152,18 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def aggregation(self, fun: str, name: str):
         return fun + "(" + name + ")"
 
+    def _get_sort_symbol(self, config: ChartConfig) -> Union[str, None]:
+        """
+        Get sort symbol used by vega spec.
+        """
+        if config["type"] in {ChartType.BAR, ChartType.COLUMN}:
+            if config["x"]["sort"]:
+                return "x" if config["x"]["sort"] == "ascending" else "-x"
+            elif config["y"]["sort"]:
+                return "y" if config["y"]["sort"] == "ascending" else "-y"
+            else:
+                return None
+
     def _generate_funnel(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         # Ensure parameters are presented.
         if config["x"] is None or config["y"] is None:
@@ -151,129 +176,186 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return a.encode(y=Y(config["y"], sort=None))
 
     def _generate_bar(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None or config["aggregation"] is None:
+        """
+        Generate vega spec for bar chart with the given config.
+        """
+
+        if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
-        # Generate vega spec for the chart.
-        config["x"] = self.aggregation(config["aggregation"], config["x"])
+
+        # Generate parameters for altair.
+
         params = {
-            "x": X(config["x"]).stack("zero"),
-            "y": Y(config["y"], sort=config["sort"]),
-            "tooltip": [config["x"], config["y"]],
-            "text": config["x"],
-            "detail": config["color"],
+            "x": X(field=config["x"]["field"], aggregate=config["x"]["aggregation"]).stack("zero"),
+            "y": Y(field=config["y"]["field"], sort=self._get_sort_symbol(config)),
+            "tooltip": [
+                Tooltip(field=config["x"]["field"], aggregate=config["x"]["aggregation"]),
+                Tooltip(field=config["y"]["field"]),
+            ],
+            "text": Text(config["x"]["field"]),
         }
-        if config["color"]:
-            params["color"] = config["color"]
-            params["tooltip"] = [config["x"], config["y"], config["color"]]
+
+        if config["color"]["field"]:
+            params.update(
+                {
+                    "detail": config["color"]["field"],
+                    "color": config["color"]["field"],
+                    "tooltip": [
+                        Tooltip(field=config["x"]["field"], aggregate=config["x"]["aggregation"]),
+                        Tooltip(field=config["y"]["field"]),
+                        Tooltip(field=config["color"]["field"]),
+                    ],
+                }
+            )
+
             if SubChartType.PERCENT in config["subtype"]:
-                params["x"] = params["x"].stack("normalize")
+                params.update(
+                    {
+                        "x": X(field=config["x"]["field"], aggregate=config["x"]["aggregation"])
+                        .stack("zero")
+                        .stack("normalize")
+                    }
+                )
+
             if SubChartType.CLUSTERED in config["subtype"]:
-                params["yOffset"] = config["color"]
+                params.update({"yOffset": config["color"]["field"]})
+
+        # Create the chart based on the parameter.
+
         base = Chart(get_value(self.shell, self.data_name)).encode(**params)
         bar = base.mark_bar()
         text = base.mark_text(align="center", baseline="bottom", dx=20)
-        return (bar + text) if config["label"] else bar
+
+        return bar + text if config["label"] else bar
 
     def _generate_column(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None or config["aggregation"] is None:
+        """
+        Generate vega spec for column chart with the given config.
+        """
+
+        if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
-        # Generate vega spec for the chart.
-        config["y"] = self.aggregation(config["aggregation"], config["y"])
+
+        # Generate parameters for altair.
+
         params = {
-            "x": X(config["x"], sort=config["sort"]),
-            "y": Y(config["y"]).stack("zero"),
-            "tooltip": [config["x"], config["y"]],
-            "detail": config["color"],
-            "text": config["y"],
+            "x": X(field=config["x"]["field"], sort=self._get_sort_symbol(config)),
+            "y": Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).stack("zero"),
+            "tooltip": [
+                Tooltip(field=config["x"]["field"]),
+                Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"]),
+            ],
+            "text": Text(config["y"]["field"]),
         }
-        if config["color"]:
-            params["color"] = config["color"]
-            params["tooltip"] = [config["x"], config["y"], config["color"]]
+
+        if config["color"]["field"]:
+            params.update(
+                {
+                    "detail": config["color"]["field"],
+                    "color": config["color"]["field"],
+                    "tooltip": [
+                        Tooltip(field=config["x"]["field"]),
+                        Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"]),
+                        Tooltip(field=config["color"]["field"]),
+                    ],
+                }
+            )
+
             if SubChartType.PERCENT in config["subtype"]:
-                params["y"] = params["y"].stack("normalize")
+                params.update(
+                    {
+                        "y": Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
+                        .stack("zero")
+                        .stack("normalize")
+                    }
+                )
+
             if SubChartType.CLUSTERED in config["subtype"]:
-                params["xOffset"] = config["color"]
+                params.update({"xOffset": config["color"]["field"]})
+
+        # Create the chart based on the parameter.
+
         base = Chart(get_value(self.shell, self.data_name)).encode(**params)
         bar = base.mark_bar()
         text = base.mark_text(align="center", baseline="bottom")
-        return (bar + text) if config["label"] else bar
 
-    def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
-        # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None or config["aggregation"] is None:
-            return None
-        if config["sort"] is None:
-            config["sort"] = "ascending"
-        # Generate vega spec for the chart.
-        config["y"] = self.aggregation(config["aggregation"], config["y"])
-        params = {
-            "x": X(config["x"] + ":O", sort=config["sort"]),
-            "y": Y(config["y"]),
-            "tooltip": [config["x"], config["y"]],
-        }
-        if config["color"]:
-            params["color"] = config["color"]
-            params["tooltip"] = [config["x"], config["y"], config["color"]]
-            if SubChartType.PERCENT in config["subtype"]:
-                params["y"] = params["y"].stack("normalize")
-        return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**params)
+        return bar + text if config["label"] else bar
 
-    def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
-        # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None or config["aggregation"] is None:
-            return None
+    # def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
+    #     # Ensure parameters are presented.
+    #     if config["x"]["field"] is None or config["y"] is None or config["aggregation"] is None:
+    #         return None
+    #     if config["sort"] is None:
+    #         config["sort"] = "ascending"
 
-        # Generate vega spec for the chart.
-        config["y"] = self.aggregation(config["aggregation"], config["y"])
-        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
+    #     # Generate vega spec for the chart.
+    #     config["y"] = self.aggregation(config["aggregation"], config["y"])
+    #     params = {
+    #         "x": X(config["x"]["field"] + ":O", type="O", sort=config["sort"]),
+    #         "y": Y(config["y"]),
+    #         "tooltip": [config["x"], config["y"]],
+    #     }
+    #     if config["color"]:
+    #         params["color"] = config["color"]
+    #         params["tooltip"] = [config["x"], config["y"], config["color"]]
+    #         if SubChartType.PERCENT in config["subtype"]:
+    #             params["y"] = params["y"].stack("normalize")
+    #     return Chart(get_value(self.shell, self.data_name)).mark_area().encode(**params)
 
-        if config["color"]:
-            params["tooltip"] = [config["x"], config["y"], config["color"]]
-            params["color"] = config["color"]
-        return Chart(get_value(self.shell, self.data_name)).mark_line().encode(**params)
+    # def _generate_line(self, config: ChartConfig) -> Optional[Chart]:
+    #     # Ensure parameters are presented.
+    #     if config["x"] is None or config["y"] is None or config["aggregation"] is None:
+    #         return None
 
-    def _generate_scatter(self, config: ChartConfig) -> Optional[Chart]:
-        # Ensure parameters are presented.
-        if config["x"] is None or config["y"] is None:
-            return None
-        # Generate vega spec for the chart.
-        params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
-        if config["color"]:
-            params["tooltip"] = [config["x"], config["y"], config["color"]]
-            params["color"] = config["color"]
-        return Chart(get_value(self.shell, self.data_name)).mark_point().encode(**params)
+    #     # Generate vega spec for the chart.
+    #     config["y"] = self.aggregation(config["aggregation"], config["y"])
+    #     params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
 
-    def _generate_combo(self, config: ChartConfig) -> Optional[Chart]:
-        """
-        Generate combo based on the chart config. This could be a a line and stacked column or line and clustered column.
-        """
-        return None
+    #     if config["color"]:
+    #         params["tooltip"] = [config["x"], config["y"], config["color"]]
+    #         params["color"] = config["color"]
+    #     return Chart(get_value(self.shell, self.data_name)).mark_line().encode(**params)
 
-    def _generate_arc(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        # Ensure parameters are presented.
-        if config["theta"] is None or config["color"] is None or config["aggregation"] is None:
-            return None
-        config["theta"] = self.aggregation(config["aggregation"], config["theta"])
-        # Generate vega spec for the chart.
-        params = {
-            "color": Color(config["color"]),
-            "theta": Theta(config["theta"]).stack(True),
-            "tooltip": [config["color"], config["theta"]],
-            "text": config["color"],
-        }
-        if config["sort"]:
-            params["order"] = Order(
-                config[config["sort"][1:]], sort="ascending" if config["sort"][:1] == "+" else "descending"
-            )
-        base = Chart(get_value(self.shell, self.data_name)).encode(**params)
-        width = config["width"]
-        height = config["height"]
-        r = 100 if width * height == 0 else min(width - 20, height) / 2
-        pie = base.mark_arc(outerRadius=r)
-        text = base.mark_text(radius=r + 20, size=10)
-        return (pie + text) if config["label"] else pie
+    # def _generate_scatter(self, config: ChartConfig) -> Optional[Chart]:
+    #     # Ensure parameters are presented.
+    #     if config["x"] is None or config["y"] is None:
+    #         return None
+    #     # Generate vega spec for the chart.
+    #     params = {"x": X(config["x"], sort=config["sort"]), "y": Y(config["y"]), "tooltip": [config["x"], config["y"]]}
+    #     if config["color"]:
+    #         params["tooltip"] = [config["x"], config["y"], config["color"]]
+    #         params["color"] = config["color"]
+    #     return Chart(get_value(self.shell, self.data_name)).mark_point().encode(**params)
+
+    # def _generate_combo(self, config: ChartConfig) -> Optional[Chart]:
+    #     """
+    #     Generate combo based on the chart config. This could be a a line and stacked column or line and clustered column.
+    #     """
+    #     return None
+
+    # def _generate_arc(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
+    #     # Ensure parameters are presented.
+    #     if config["theta"] is None or config["color"] is None or config["aggregation"] is None:
+    #         return None
+    #     config["theta"] = self.aggregation(config["aggregation"], config["theta"])
+    #     # Generate vega spec for the chart.
+    #     params = {
+    #         "color": Color(config["color"]),
+    #         "theta": Theta(config["theta"]).stack(True),
+    #         "tooltip": [config["color"], config["theta"]],
+    #         "text": config["color"],
+    #     }
+    #     if config["sort"]:
+    #         params["order"] = Order(
+    #             config[config["sort"][1:]], sort="ascending" if config["sort"][:1] == "+" else "descending"
+    #         )
+    #     base = Chart(get_value(self.shell, self.data_name)).encode(**params)
+    #     width = config["width"]
+    #     height = config["height"]
+    #     r = 100 if width * height == 0 else min(width - 20, height) / 2
+    #     pie = base.mark_arc(outerRadius=r)
+    #     text = base.mark_text(radius=r + 20, size=10)
+    #     return (pie + text) if config["label"] else pie
 
     def check_duplicate(self, *args):
         li = [item for item in args if item is not None]
@@ -297,34 +379,39 @@ class SqlCellWidget(DOMWidget, HasTraits):
     @observe("chart_config")
     def on_chart_config(self, change):
         assert type(self.chart_config) is str
-        chart_config: ChartConfig = json.loads(
+
+        config: ChartConfig = json.loads(
             self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)").replace(".", "\\\\.")
         )
+
         # Check the type of the chart is specified.
-        if chart_config["type"] is None:
+        if config["type"] is None:
             return
-        co = json.loads(change["old"])
-        cn = json.loads(change["new"])
-        if co["type"] != cn["type"] and ChartType.PIE in (co["type"], cn["type"]):
-            chart_config["sort"] = None
+
+        chart_old = json.loads(change["old"])
+        chart_new = json.loads(change["new"])
+
+        if chart_old["type"] != chart_new["type"] and ChartType.PIE in (chart_old["type"], chart_new["type"]):
+            config["sort"] = None
 
         # Try to generate vega spec based on config.
         mapping = {
             ChartType.COLUMN: self._generate_column,
             ChartType.BAR: self._generate_bar,
-            ChartType.LINE: self._generate_line,
-            ChartType.AREA: self._generate_area,
-            ChartType.PIE: self._generate_arc,
-            ChartType.SCATTER: self._generate_scatter,
-            ChartType.COMBO: self._generate_combo,
-            ChartType.FUNNEL: self._generate_funnel,
+            # ChartType.LINE: self._generate_line,
+            # ChartType.AREA: self._generate_area,
+            # ChartType.PIE: self._generate_arc,
+            # ChartType.SCATTER: self._generate_scatter,
+            # ChartType.COMBO: self._generate_combo,
+            # ChartType.FUNNEL: self._generate_funnel,
         }
-        self.chart = mapping[chart_config["type"]](chart_config)
+
+        self.chart = mapping[config["type"]](config)
         if self.chart is None:
             self.preview_vega = "{}"
             return
-        self.chart = self.chart.properties(width=chart_config["width"], height=chart_config["height"])
-        if not chart_config["legend"]["visible"]:
+        self.chart = self.chart.properties(width=config["width"], height=config["height"])
+        if not config["legend"]["visible"]:
             self.chart = self.chart.configure_legend(disable=True)
         self.preview_vega = self.chart.to_json()
 
