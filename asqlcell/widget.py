@@ -175,11 +175,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 return "y" if config["y"]["sort"] == "ascending" else "-y"
         return None
 
-    def _get_aggr(self, x: str, config: ChartConfig):
-        return {"field": config[x]["field"], "aggregate": config[x]["aggregation"]}
-
     def _generate_funnel(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        # Ensure parameters are presented.
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
         return (
@@ -190,113 +186,87 @@ class SqlCellWidget(DOMWidget, HasTraits):
         ).encode(y=Y(config["y"]["field"], sort=None))
 
     def _generate_bar(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        """
-        Generate vega spec for bar chart with the given config.
-        """
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
-        # Generate parameters for altair.
-        x = X(**self._get_aggr("x", config)).stack("zero")
-        y = Y(field=config["y"]["field"], sort=self._get_sort_symbol(config))
+        x = X(field=config["x"]["field"], aggregate=config["y"]["aggregation"])
+        y = Y(field=config["y"]["field"])
         color = config["color"]["field"]
-        tooltip = [
-            Tooltip(field=config["x"]["field"], aggregate=config["x"]["aggregation"]),
-            config["y"]["field"],
-        ]
-        params = {
-            "x": x,
-            "y": y,
-            "tooltip": tooltip,
-            "text": Text(field=config["x"]["field"], aggregate=config["x"]["aggregation"]),
-        }
+        params = {"x": x.stack("zero"), "y": y.sort(self._get_sort_symbol(config)), "tooltip": [x, y], "text": y}
         if color:
-            params.update({"detail": color, "color": color, "tooltip": tooltip + [color]})
+            params["color"] = color
+            params["tooltip"] += [color]
             if SubChartType.PERCENT in config["subtype"]:
-                params.update({"x": x.stack("normalize")})
+                params["x"] = x.stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
-                params.update({"yOffset": color})
-        # Create the chart based on the parameter.
+                params["yOffset"] = color
         base = base.encode(**params)
         bar = base.mark_bar()
         return bar + base.mark_text(align="center", baseline="bottom", dx=20) if config["label"] else bar
 
     def _generate_column(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        """
-        Generate vega spec for column chart with the given config.
-        """
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
-        # Generate parameters for altair.
-        x = X(field=config["x"]["field"], sort=self._get_sort_symbol(config))
-        y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).stack("zero")
-        color = config["color"]["field"]
-        tooltip = [config["x"]["field"], Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"])]
-        params = {
-            "x": x,
-            "y": y,
-            "tooltip": tooltip,
-            "text": Text(field=config["y"]["field"], aggregate=config["y"]["aggregation"]),
-        }
-        if color:
-            params.update({"color": color, "tooltip": tooltip + [color]})
-            if SubChartType.PERCENT in config["subtype"]:
-                params.update({"y": y.stack("normalize")})
-            if SubChartType.CLUSTERED in config["subtype"]:
-                params.update({"xOffset": color})
-        # Create the chart based on the parameter.
-        base = base.encode(**params)
-        bar = base.mark_bar()
-        return bar + base.mark_text(align="center", baseline="bottom") if config["label"] else bar
-
-    def _generate_area(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        # Ensure parameters are presented.
-        if config["x"]["field"] is None or config["y"]["field"] is None:
-            return None
-        # Generate parameters for altair.
-        x = X(field=config["x"]["field"], sort=self._get_sort_symbol(config))
+        x = X(field=config["x"]["field"])
         y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         color = config["color"]["field"]
-        tooltip = [config["x"]["field"], Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"])]
-        params = {"x": x, "y": y, "tooltip": tooltip}
+        params = {"x": x.sort(self._get_sort_symbol(config)), "y": y.stack("zero"), "tooltip": [x, y], "text": y}
         if color:
-            params.update({"color": color, "tooltip": tooltip + [color]})
+            params["color"] = color
+            params["tooltip"] += [color]
             if SubChartType.PERCENT in config["subtype"]:
-                params.update({"y": y.stack("normalize")})
+                params["y"] = y.stack("normalize")
+            if SubChartType.CLUSTERED in config["subtype"]:
+                params["xOffset"] = color
+        base = base.encode(**params)
+        bar = base.mark_bar()
+        return bar  # + base.mark_text(align="center", baseline="bottom") if config["label"] else bar
+
+    def _generate_area(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
+        if config["x"]["field"] is None or config["y"]["field"] is None:
+            return None
+        x = X(field=config["x"]["field"])
+        y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
+        color = config["color"]["field"]
+        params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y]}
+        if color:
+            params["color"] = color
+            params["tooltip"] += [color]
+            if SubChartType.PERCENT in config["subtype"]:
+                params["y"] = y.stack("normalize")
         return base.encode(**params).mark_area()
 
     def _generate_line(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        # Ensure parameters are presented.
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
-        # Generate parameters for altair.
-        x = X(field=config["x"]["field"], sort=self._get_sort_symbol(config))
+        x = X(field=config["x"]["field"])
         y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         color = config["color"]["field"]
-        tooltip = [config["x"]["field"], Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"])]
-        params = {"x": x, "y": y, "tooltip": tooltip}
+        params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y]}
         if color:
-            params.update({"color": color, "tooltip": tooltip + [color]})
+            params["color"] = color
+            params["tooltip"] += [color]
         return base.encode(**params).mark_line()
 
     def _generate_scatter(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        # Ensure parameters are presented.
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
-        # Generate parameters for altair.
-        x = X(field=config["x"]["field"], sort=self._get_sort_symbol(config))
-        y = Y(field=config["y"]["field"])  # sort
+        x = config["x"]["field"]
+        y = config["y"]["field"]
         color = config["color"]["field"]
-        tooltip = [config["x"]["field"], config["y"]["field"]]
-        params = {"x": x, "y": y, "tooltip": tooltip}
+        params = {"x": x, "y": y, "tooltip": [x, y]}
         if color:
-            params.update({"color": color, "tooltip": tooltip + [color]})
+            params["color"] = color
+            params["tooltip"] += [color]
         return base.encode(**params).mark_point()
 
-    def _generate_combo(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
+    def _generate_combo(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         """
         Generate combo based on the chart config. This could be a a line and stacked column or line and clustered column.
         """
-        return None
+        line = self._generate_line(base, config)
+        # config["y"] = config["y2"]
+        column = self._generate_line(base, config)
+        return line + column  # type: ignore
 
     def _generate_arc(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         """
@@ -304,16 +274,13 @@ class SqlCellWidget(DOMWidget, HasTraits):
         """
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
-        # Generate parameters for altair.
-        theta = Theta(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).stack(True)
         color = config["x"]["field"]
-        tooltip = [config["x"]["field"], Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"])]
-        params = {"color": color, "theta": theta, "tooltip": tooltip, "text": config["x"]["field"]}
+        theta = Theta(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
+        params = {"color": color, "theta": theta.stack(True), "tooltip": [theta, color], "text": color}
         if config["x"]["sort"]:
-            params.update({"order": Order(field=config["x"]["field"], sort=config["x"]["sort"])})
+            params["order"] = Order(color).sort(config["x"]["sort"])  # type: ignore
         if config["y"]["sort"]:
-            params.update({"order": Order(field=config["y"]["field"], sort=config["y"]["sort"])})
-        # Create the chart based on the parameter.
+            params["order"] = Order(theta).sort(config["y"]["sort"])  # type: ignore
         base = base.encode(**params)
         width = config["width"]
         height = config["height"]
