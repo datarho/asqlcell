@@ -96,6 +96,7 @@ const QualitativeMenu: FunctionComponent = () => {
 interface AxisProps {
     major: string;
     minor?: string;
+    extra?: string;
     sort?: boolean;
     clearable?: boolean;
 }
@@ -173,46 +174,60 @@ const QuantitativeMenu: FunctionComponent<AxisProps> = ({ major, minor }) => {
     );
 }
 
-export const SortToggle: FunctionComponent<AxisProps> = ({ major, minor }) => {
+export const SortToggle: FunctionComponent<AxisProps> = ({ major, minor, extra }) => {
     const [config, setConfig] = useModelState("chart_config");
 
     const payload = JSON.parse(config);
     const selected = payload[major]["sort"] ? payload[major]["sort"] as SortType : SortType.None;
 
     return (
-        major && minor ?
-            <Tooltip label={selected.charAt(0).toUpperCase() + selected.slice(1)}>
-                <ActionIcon
-                    onClick={() => {
-                        const candidates = [SortType.Ascending, SortType.Descending, SortType.None];
-                        const last = candidates.indexOf(selected);
-                        const next = (last + 1) % candidates.length;
+        <Tooltip label={selected.charAt(0).toUpperCase() + selected.slice(1)}>
+            <ActionIcon
+                onClick={() => {
+                    const candidates = [SortType.Ascending, SortType.Descending, SortType.None];
+                    const last = candidates.indexOf(selected);
+                    const next = (last + 1) % candidates.length;
 
-                        const updated = {
-                            ...payload,
-                            [major]: {
-                                ...payload[major],
-                                sort: candidates[next] === SortType.None ? null : candidates[next],
-                            },
+                    let updated = {
+                        ...payload,
+                        [major]: {
+                            ...payload[major],
+                            sort: candidates[next] === SortType.None ? null : candidates[next],
+                        },
+                    };
+
+                    if (minor) {
+                        updated = {
+                            ...updated,
                             [minor]: {
                                 ...payload[minor],
                                 sort: null,
                             }
-                        };
-                        setConfig(JSON.stringify(updated));
-                    }}
-                >
-                    {
-                        SortIcons[selected]
+                        }
                     }
-                </ActionIcon>
-            </Tooltip>
-            :
-            null
+
+                    if (extra) {
+                        updated = {
+                            ...updated,
+                            [extra]: {
+                                ...payload[extra],
+                                sort: null,
+                            }
+                        }
+                    }
+
+                    setConfig(JSON.stringify(updated));
+                }}
+            >
+                {
+                    SortIcons[selected]
+                }
+            </ActionIcon>
+        </Tooltip >
     )
 }
 
-export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, sort, clearable }) => {
+export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, extra, sort, clearable }) => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
@@ -247,7 +262,7 @@ export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, sort, 
 
             {
                 sort ?
-                    <SortToggle major={major} minor={minor} sort={sort} />
+                    <SortToggle major={major} minor={minor} extra={extra} sort={sort} />
                     :
                     undefined
             }
@@ -255,7 +270,7 @@ export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, sort, 
     )
 }
 
-export const AggregationSwitch: FunctionComponent<AxisProps> = ({ major, minor }) => {
+export const AggregationSwitch: FunctionComponent<AxisProps> = ({ major }) => {
     const [config, setConfig] = useModelState("chart_config");
 
     const payload = JSON.parse(config);

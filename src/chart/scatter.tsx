@@ -7,11 +7,11 @@ export const ScatterChart: FunctionComponent = () => {
         <Stack>
             <Text fw={600}>X-Axis</Text>
 
-            <FieldSwitch major="x" minor="y" sort={true} />
+            <FieldSwitch major="x" />
 
             <Text fw={600}>Y-Axis</Text>
 
-            <FieldSwitch major="y" minor="x" sort={true} />
+            <FieldSwitch major="y" />
 
             <Text fw={600}>Color</Text>
 

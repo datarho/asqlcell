@@ -34,7 +34,7 @@ class ChartConfig(TypedDict):
     type: Optional[ChartType]
     x: AxisConfig
     y: AxisConfig
-    y2: Optional[str]
+    y2: AxisConfig
     color: AxisConfig
     subtype: List[str]
     height: int

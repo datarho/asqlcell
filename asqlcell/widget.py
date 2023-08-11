@@ -59,7 +59,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "aggregation": "sum",
             "sort": None,
         },
-        "y2": None,
+        "y2": {
+            "label": None,
+            "field": None,
+            "aggregation": "sum",
+            "sort": None,
+        },
         "color": {
             "label": None,
             "field": None,
@@ -287,11 +292,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
             params.update({"color": color, "tooltip": tooltip + [color]})
         return base.encode(**params).mark_point()
 
-    # def _generate_combo(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-    #     """
-    #     Generate combo based on the chart config. This could be a a line and stacked column or line and clustered column.
-    #     """
-    #     return None
+    def _generate_combo(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
+        """
+        Generate combo based on the chart config. This could be a a line and stacked column or line and clustered column.
+        """
+        return None
 
     def _generate_arc(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         """
@@ -353,7 +358,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.AREA: self._generate_area,
             ChartType.PIE: self._generate_arc,
             ChartType.SCATTER: self._generate_scatter,
-            # ChartType.COMBO: self._generate_combo,
+            ChartType.COMBO: self._generate_combo,
             ChartType.FUNNEL: self._generate_funnel,
         }
         self.chart = mapping[config["type"]](Chart(self.get_value(self.data_name)), config)
