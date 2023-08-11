@@ -168,7 +168,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         """
         Get sort symbol used by vega spec.
         """
-        if config["type"] in {ChartType.BAR, ChartType.COLUMN, ChartType.AREA, ChartType.LINE, ChartType.SCATTER}:
+        if config["type"] in [ChartType.BAR, ChartType.COLUMN, ChartType.AREA, ChartType.LINE, ChartType.COMBO]:
             if config["x"]["sort"]:
                 return "x" if config["x"]["sort"] == "ascending" else "-x"
             elif config["y"]["sort"]:
@@ -176,8 +176,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return None
 
     def _generate_funnel(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        if config["x"]["field"] is None or config["y"]["field"] is None:
-            return None
         return (
             base.encode(
                 x=X(config["x"]["field"]).stack("center"), color=Color(config["y"]["field"], legend=None)
@@ -186,8 +184,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         ).encode(y=Y(config["y"]["field"], sort=None))
 
     def _generate_bar(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        if config["x"]["field"] is None or config["y"]["field"] is None:
-            return None
         x = X(field=config["x"]["field"], aggregate=config["y"]["aggregation"])
         y = Y(field=config["y"]["field"])
         color = config["color"]["field"]
@@ -204,8 +200,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return bar + base.mark_text(align="center", baseline="bottom", dx=40) if config["label"] else bar
 
     def _generate_column(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        if config["x"]["field"] is None or config["y"]["field"] is None:
-            return None
         x = X(field=config["x"]["field"])
         y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         color = config["color"]["field"]
@@ -222,34 +216,32 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return bar + base.mark_text(align="center", baseline="bottom") if config["label"] else bar
 
     def _generate_area(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        if config["x"]["field"] is None or config["y"]["field"] is None:
-            return None
         x = X(field=config["x"]["field"])
         y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         color = config["color"]["field"]
-        params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y]}
+        params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y], "text": y}
         if color:
             params["color"] = color
             params["tooltip"] += [color]
             if SubChartType.PERCENT in config["subtype"]:
                 params["y"] = y.stack("normalize")
-        return base.encode(**params).mark_area()
+        base = base.encode(**params)
+        area = base.mark_area()
+        return area + base.mark_text(align="center", baseline="bottom") if config["label"] else area
 
     def _generate_line(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        if config["x"]["field"] is None or config["y"]["field"] is None:
-            return None
         x = X(field=config["x"]["field"])
         y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         color = config["color"]["field"]
-        params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y]}
+        params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y], "text": y}
         if color:
             params["color"] = color
             params["tooltip"] += [color]
-        return base.encode(**params).mark_line()
+        base = base.encode(**params)
+        line = base.mark_line()
+        return line + base.mark_text(align="center", baseline="bottom") if config["label"] else line
 
     def _generate_scatter(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        if config["x"]["field"] is None or config["y"]["field"] is None:
-            return None
         x = config["x"]["field"]
         y = config["y"]["field"]
         color = config["color"]["field"]
@@ -263,7 +255,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         """
         Generate combo based on the chart config. This could be a a line and stacked column or line and clustered column.
         """
-        if config["x"]["field"] is None or config["y"]["field"] is None or config["y2"]["field"] is None:
+        if config["y2"]["field"] is None:
             return None
         line = self._generate_line(base, config)
         config["y"] = config["y2"]
@@ -271,11 +263,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return line + column  # type: ignore
 
     def _generate_arc(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        """
-        Generate vega spec for pie chart with the given config.
-        """
-        if config["x"]["field"] is None or config["y"]["field"] is None:
-            return None
         color = config["x"]["field"]
         theta = Theta(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         params = {"color": color, "theta": theta.stack(True), "tooltip": [theta, color], "text": color}
@@ -312,12 +299,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
     @observe("chart_config")
     def on_chart_config(self, _):
         self.preview_vega = "{}"
+        self.chart = None
         assert type(self.chart_config) is str
         config: ChartConfig = json.loads(
             self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)").replace(".", "\\\\.")
         )
-        # Check the type of the chart is specified.
-        if config["type"] is None:
+        if config["type"] is None or config["x"]["field"] is None and config["y"]["field"] is None:
             return
         # Try to generate vega spec based on config.
         mapping = {
@@ -330,8 +317,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.COMBO: self._generate_combo,
             ChartType.FUNNEL: self._generate_funnel,
         }
-        base = Chart(self.get_value(self.data_name))
-        self.chart = mapping[config["type"]](base, config)
+        self.chart = mapping[config["type"]](Chart(self.get_value(self.data_name)), config)
         if self.chart:
             self.chart = self.chart.properties(width=config["width"], height=config["height"])
             if not config["legend"]["visible"]:
