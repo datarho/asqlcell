@@ -10,6 +10,8 @@ class ChartType(StrEnum):
     AREA = "area"
     PIE = "pie"
     SCATTER = "scatter"
+    COMBO = "combo"
+    FUNNEL = "funnel"
 
 
 class SubChartType(StrEnum):
@@ -21,15 +23,20 @@ class LegendConfig(TypedDict):
     visible: bool
 
 
+class AxisConfig(TypedDict):
+    label: Optional[str]
+    field: Optional[str]
+    aggregation: Optional[str]
+    sort: Optional[str]
+
+
 class ChartConfig(TypedDict):
     type: Optional[ChartType]
-    x: Optional[str]
-    y: Optional[str]
-    color: Optional[str]
-    theta: Optional[str]
-    aggregation: Optional[str]
+    x: AxisConfig
+    y: AxisConfig
+    y2: AxisConfig
+    color: AxisConfig
     subtype: List[str]
-    sort: Optional[str]
     height: int
     width: int
     legend: LegendConfig

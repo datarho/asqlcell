@@ -16,7 +16,7 @@ export const ChartConfig: FunctionComponent = () => {
 
             <Tabs.Panel value="config" pt="xs">
                 <ScrollArea
-                    h={500}
+                    h={600}
                     sx={{ padding: 5 }}
                 >
                     <Stack justify="flex-start">

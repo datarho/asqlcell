@@ -45,10 +45,6 @@ def get_value(shell: InteractiveShell, variable_name):
     return shell.user_global_ns.get(variable_name)
 
 
-def set_value(shell: InteractiveShell, variable_name, var):
-    shell.user_global_ns[variable_name] = var
-
-
 def get_vars(shell: InteractiveShell, is_df=False):
     vars = {}
     for v in shell.user_global_ns:
@@ -127,17 +123,6 @@ def get_histogram(df: DataFrame):
             )
 
     return hist
-
-
-def get_random_data(number=10):
-    return pd.DataFrame(
-        data={
-            "id": np.arange(number),
-            "price": [i for i in range(number)],
-            "normal": [True for i in range(number)],
-        },
-        index=np.arange(number),
-    )
 
 
 class NoTracebackException(Exception):

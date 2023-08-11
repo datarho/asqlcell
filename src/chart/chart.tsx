@@ -3,7 +3,6 @@ import React, { FunctionComponent } from "react";
 import { ChartConfig } from "./config";
 import { ChartPreview } from "./preview";
 
-
 export const Chart: FunctionComponent = () => {
     return (
         <Group noWrap>

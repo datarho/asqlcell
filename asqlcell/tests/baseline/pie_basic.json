@@ -1,0 +1,132 @@
+{
+    "config": {
+        "view": {
+            "continuousWidth": 300,
+            "continuousHeight": 300
+        }
+    },
+    "layer": [
+        {
+            "mark": {
+                "type": "arc",
+                "radius": 200.0
+            },
+            "encoding": {
+                "color": {
+                    "field": "Country",
+                    "type": "nominal"
+                },
+                "order": {
+                    "aggregate": "sum",
+                    "field": "Count",
+                    "sort": "descending"
+                },
+                "text": {
+                    "field": "Country",
+                    "type": "nominal"
+                },
+                "theta": {
+                    "aggregate": "sum",
+                    "field": "Count",
+                    "stack": true
+                },
+                "tooltip": [
+                    {
+                        "aggregate": "sum",
+                        "field": "Count"
+                    },
+                    {
+                        "field": "Country",
+                        "type": "nominal"
+                    }
+                ]
+            }
+        },
+        {
+            "mark": {
+                "type": "text",
+                "radius": 220.0
+            },
+            "encoding": {
+                "color": {
+                    "field": "Country",
+                    "type": "nominal"
+                },
+                "order": {
+                    "aggregate": "sum",
+                    "field": "Count",
+                    "sort": "descending"
+                },
+                "text": {
+                    "field": "Country",
+                    "type": "nominal"
+                },
+                "theta": {
+                    "aggregate": "sum",
+                    "field": "Count",
+                    "stack": true
+                },
+                "tooltip": [
+                    {
+                        "aggregate": "sum",
+                        "field": "Count"
+                    },
+                    {
+                        "field": "Country",
+                        "type": "nominal"
+                    }
+                ]
+            }
+        }
+    ],
+    "data": {
+        "name": "data-50f61702d93a607f09ab4df420eddcdf"
+    },
+    "height": 400,
+    "width": 500,
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
+    "datasets": {
+        "data-50f61702d93a607f09ab4df420eddcdf": [
+            {
+                "Country": "USA",
+                "Count": 13
+            },
+            {
+                "Country": "Canada",
+                "Count": 8
+            },
+            {
+                "Country": "France",
+                "Count": 5
+            },
+            {
+                "Country": "Brazil",
+                "Count": 5
+            },
+            {
+                "Country": "Germany",
+                "Count": 4
+            },
+            {
+                "Country": "United Kingdom",
+                "Count": 3
+            },
+            {
+                "Country": "Portugal",
+                "Count": 2
+            },
+            {
+                "Country": "India",
+                "Count": 2
+            },
+            {
+                "Country": "Czech Republic",
+                "Count": 2
+            },
+            {
+                "Country": "Sweden",
+                "Count": 1
+            }
+        ]
+    }
+}

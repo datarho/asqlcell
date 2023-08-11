@@ -1,450 +1,190 @@
-import { ActionIcon, Group, Menu, Select, Stack, Text } from "@mantine/core";
-import { IconArrowsSort, IconCheck, IconSettings, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
-import React, { FunctionComponent, useState } from "react";
+import { ActionIcon, Group, Select, Stack, Text, Tooltip } from "@mantine/core";
+import React, { FunctionComponent } from "react";
 import { useModelState } from "../hooks";
-import { ChartType, DataType, DataTypeIcons } from "./const";
+import { AggregationType, ChartType, ChartTypeComponents, ConfigItemWidth, DataType, DataTypeIcons, SortIcons, SortType } from "./const";
 import { IconItem } from "./item";
 
-enum SortType {
-    Ascending = "ascending",
-    Descending = "descending",
-    Naturally = "naturally",
+interface AxisProps {
+    major: string;
+    minor?: string;
+    extra?: string;
+    sort?: boolean;
+    clearable?: boolean;
 }
 
-const columns = (hist: string) => {
+export const SortToggle: FunctionComponent<AxisProps> = ({ major, minor, extra }) => {
+    const [config, setConfig] = useModelState("chart_config");
+
+    const payload = JSON.parse(config);
+    const selected = payload[major]["sort"] ? payload[major]["sort"] as SortType : SortType.None;
+
+    return (
+        <Tooltip label={selected.charAt(0).toUpperCase() + selected.slice(1)}>
+            <ActionIcon
+                onClick={() => {
+                    const candidates = [SortType.Ascending, SortType.Descending, SortType.None];
+                    const last = candidates.indexOf(selected);
+                    const next = (last + 1) % candidates.length;
+
+                    let updated = {
+                        ...payload,
+                        [major]: {
+                            ...payload[major],
+                            sort: candidates[next] === SortType.None ? null : candidates[next],
+                        },
+                    };
+
+                    if (minor) {
+                        updated = {
+                            ...updated,
+                            [minor]: {
+                                ...payload[minor],
+                                sort: null,
+                            }
+                        }
+                    }
+
+                    if (extra) {
+                        updated = {
+                            ...updated,
+                            [extra]: {
+                                ...payload[extra],
+                                sort: null,
+                            }
+                        }
+                    }
+
+                    setConfig(JSON.stringify(updated));
+                }}
+            >
+                {
+                    SortIcons[selected]
+                }
+            </ActionIcon>
+        </Tooltip >
+    )
+}
+
+export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, extra, sort, clearable }) => {
+    const [config, setConfig] = useModelState("chart_config");
+    const [hist] = useModelState("title_hist");
+
     const columns = JSON.parse(hist);
 
-    return [...columns].map((header: { columnName: string, dtype: DataType }) => ({
+    const items = [...columns].map((header: { columnName: string, dtype: DataType }) => ({
         value: header.columnName,
         label: header.columnName,
         icon: DataTypeIcons[header.dtype],
-    }))
-}
+    }));
 
+    const payload = JSON.parse(config);
+    const selected = payload[major]["field"];
 
-const QualitativeMenu: FunctionComponent = () => {
-    const [config, setConfig] = useModelState("chart_config");
+    const icon = items.find((entry) => entry.value === selected)?.icon;
 
-    const [opened, setOpened] = useState(false);
-
-    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
-    const type = ChartType[key as keyof typeof ChartType];
-
-    const sortValue = (type: ChartType, name: SortType) => {
-        switch (type) {
-            case ChartType.Pie:
-                return name === SortType.Ascending ? "+color" : "-color";
-            default:
-                return name === SortType.Naturally ? null : name;
-        }
-    }
-
-    const items = () => {
-        switch (type) {
-            case ChartType.Pie:
-            case ChartType.Area:
-                return [SortType.Ascending, SortType.Descending];
-            default:
-                return [SortType.Ascending, SortType.Descending, SortType.Naturally];
-        }
-    }
-
-    const sortItem = (name: SortType) => {
-        const icon = {
-            [SortType.Ascending]: <IconSortAscending stroke={1.5} size={12} />,
-            [SortType.Descending]: <IconSortDescending stroke={1.5} size={12} />,
-            [SortType.Naturally]: <IconArrowsSort stroke={1.5} size={12} />,
-        }[name];
-
-        return (
-            <Menu.Item
-                onClick={() => {
+    return (
+        <Group noWrap spacing="xs">
+            <Select
+                searchable
+                clearable={clearable}
+                data={items}
+                icon={icon}
+                value={selected}
+                itemComponent={IconItem}
+                onChange={(value) => {
                     const updated = {
-                        ...JSON.parse(config),
-                        sort: sortValue(type, name),
+                        ...payload,
+                        [major]: {
+                            ...payload[major],
+                            field: value
+                        },
                     };
                     setConfig(JSON.stringify(updated));
                 }}
-                icon={icon}
-            >
-                <Text tt="capitalize">{name}</Text>
-            </Menu.Item>
-        )
-    }
+                sx={{ width: ConfigItemWidth }}
+            />
 
-    return (
-        <Menu
-            width={160}
-            opened={opened}
-            onChange={setOpened}
-            position="right"
-            shadow="md"
-            withArrow
-        >
-            <Menu.Target>
-                <ActionIcon
-                    mt="xl"
-                    variant="transparent"
-                    onClick={() => setOpened(true)}
-                >
-                    <IconSettings size={16} />
-                </ActionIcon>
-            </Menu.Target>
-
-            <Menu.Dropdown>
-                <Menu.Label>Sort</Menu.Label>
-
-                {
-                    items().map(item => {
-                        return sortItem(item);
-                    })
-                }
-            </Menu.Dropdown>
-        </Menu>
+            {
+                sort ?
+                    <SortToggle major={major} minor={minor} extra={extra} sort={sort} />
+                    :
+                    undefined
+            }
+        </Group>
     )
 }
 
-const QuantitativeMenu: FunctionComponent = () => {
+export const AggregationSwitch: FunctionComponent<AxisProps> = ({ major }) => {
     const [config, setConfig] = useModelState("chart_config");
 
-    const [opened, setOpened] = useState(false);
+    const payload = JSON.parse(config);
+    const selected = payload[major]["aggregation"] as AggregationType;
 
-    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
-    const type = ChartType[key as keyof typeof ChartType];
-
-    const aggregation = JSON.parse(config)["aggregation"];
-
-    const aggregationItem = (name: string) => {
-        return (
-            <Menu.Item
-                onClick={() => {
-                    const updated = {
-                        ...JSON.parse(config),
-                        aggregation: name,
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-                icon={<IconCheck color={aggregation === name ? undefined : ""} size={12} />}
-            >
-                <Text tt="capitalize">{name}</Text>
-            </Menu.Item>
-        )
-    }
-
-    const sortValue = (type: ChartType, name: SortType) => {
-        switch (type) {
-            case ChartType.Bar:
-                return name === SortType.Ascending ? "x" : "-x";
-            case ChartType.Pie:
-                return name === SortType.Ascending ? "+theta" : "-theta";
-            default:
-                return name === SortType.Ascending ? "y" : "-y";
-        }
-    }
-
-    const sortItem = (type: ChartType, name: SortType) => {
-        const icon = {
-            [SortType.Ascending]: <IconSortAscending stroke={1.5} size={12} />,
-            [SortType.Descending]: <IconSortDescending stroke={1.5} size={12} />,
-            [SortType.Naturally]: <IconArrowsSort stroke={1.5} size={12} />,
-        }[name];
-
-        return (
-            <Menu.Item
-                onClick={() => {
-                    const updated = {
-                        ...JSON.parse(config),
-                        sort: sortValue(type, name),
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-                icon={icon}
-            >
-                <Text tt="capitalize">{name}</Text>
-            </Menu.Item>
-        )
-    }
+    const items = Object.values(AggregationType).map((operator) => ({
+        value: operator,
+        label: operator.charAt(0).toUpperCase() + operator.slice(1),
+    }))
 
     return (
-        <Menu
-            width={160}
-            opened={opened}
-            onChange={setOpened}
-            position="right"
-            shadow="md"
-            withArrow
+        <Group
+            noWrap
+            sx={{ width: ConfigItemWidth }}
         >
-            <Menu.Target>
-                <ActionIcon
-                    mt="xl"
-                    variant="transparent"
-                    onClick={() => setOpened(true)}
-                >
-                    <IconSettings size={16} />
-                </ActionIcon>
-            </Menu.Target>
+            <Text>
+                Aggregation
+            </Text>
 
-            <Menu.Dropdown>
-                <Menu.Label>Aggregation</Menu.Label>
-
-                {
-                    ["sum", "average", "max", "min", "count", "median"].map(item => {
-                        return aggregationItem(item);
-                    })
-                }
-
-                <Menu.Divider />
-
-                <Menu.Label>Sort</Menu.Label>
-
-                {
-                    [SortType.Ascending, SortType.Descending].map(item => {
-                        return sortItem(type, item);
-                    })
-                }
-            </Menu.Dropdown>
-        </Menu>
+            <Select
+                searchable
+                data={items}
+                value={selected}
+                onChange={(value) => {
+                    const updated = {
+                        ...payload,
+                        [major]: {
+                            ...payload[major],
+                            aggregation: value
+                        },
+                    };
+                    setConfig(JSON.stringify(updated));
+                }}
+            />
+        </Group>
     );
 }
 
-const HorizontalAxis: FunctionComponent = () => {
-    const [config, setConfig] = useModelState("chart_config");
-    const [hist] = useModelState("title_hist");
-
-    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
-    const type = ChartType[key as keyof typeof ChartType];
-
-    const items = columns(hist);
-    const selected = JSON.parse(config)["x"];
-    const icon = items.find((entry) => entry.value === selected)?.icon;
-
-    const menu = (type?: ChartType) => {
-        switch (type) {
-            case ChartType.Bar:
-                return <QuantitativeMenu />;
-            default:
-                return <QualitativeMenu />;
-        }
-    }
-
+export const HorizontalAxis: FunctionComponent = () => {
     return (
-        <Group noWrap spacing="xs">
-            <Select
-                label="X-Axis"
-                searchable
-                data={items}
-                icon={icon}
-                value={selected}
-                itemComponent={IconItem}
-                onChange={(value) => {
-                    const updated = {
-                        ...JSON.parse(config),
-                        x: value,
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-                sx={{ width: 240 }}
-            />
+        <Stack>
+            <Text>X-Axis</Text>
 
-            {
-                menu(type)
-            }
-        </Group>
+            <FieldSwitch major="x" minor="y" sort={true} />
+        </Stack>
     )
 }
 
-const VerticalAxis: FunctionComponent = () => {
-    const [config, setConfig] = useModelState("chart_config");
-    const [hist] = useModelState("title_hist");
-
-    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
-    const type = ChartType[key as keyof typeof ChartType];
-
-    const items = columns(hist);
-    const selected = JSON.parse(config)["y"];
-    const icon = items.find((entry) => entry.value === selected)?.icon;
-
-    const menu = (type: ChartType) => {
-        switch (type) {
-            case ChartType.Bar:
-                return <QualitativeMenu />;
-            default:
-                return <QuantitativeMenu />;
-        }
-    }
-
+export const VerticalAxis: FunctionComponent = () => {
     return (
-        <Group noWrap spacing="xs">
-            <Select
-                label="Y-Axis"
-                searchable
-                data={items}
-                icon={icon}
-                value={selected}
-                itemComponent={IconItem}
-                onChange={(value) => {
-                    const updated = {
-                        ...JSON.parse(config),
-                        y: value,
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-                sx={{ width: 240 }}
-            />
+        <Stack>
+            <Text>Y-Axis</Text>
 
-            {
-                menu(type)
-            }
-        </Group>
-    )
-}
+            <FieldSwitch major="y" minor="x" sort={true} />
 
-const ThetaAxis: FunctionComponent = () => {
-    const [config, setConfig] = useModelState("chart_config");
-    const [hist] = useModelState("title_hist");
-
-    const items = columns(hist);
-    const selected = JSON.parse(config)["theta"];
-    const icon = items.find((entry) => entry.value === selected)?.icon;
-
-    return (
-        <Group noWrap spacing="xs">
-            <Select
-                label="Size"
-                searchable
-                data={items}
-                icon={icon}
-                value={selected}
-                itemComponent={IconItem}
-                onChange={(value) => {
-                    const updated = {
-                        ...JSON.parse(config),
-                        theta: value,
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-                sx={{ width: 240 }}
-            />
-
-            <QuantitativeMenu />
-        </Group>
-    )
-}
-
-const ColorAxis: FunctionComponent = () => {
-    const [config, setConfig] = useModelState("chart_config");
-    const [hist] = useModelState("title_hist");
-
-    const items = columns(hist);
-    const selected = JSON.parse(config)["color"];
-    const icon = items.find((entry) => entry.value === selected)?.icon;
-
-    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
-    const type = ChartType[key as keyof typeof ChartType];
-
-    const menu = () => {
-        switch (type) {
-            case ChartType.Pie:
-                return <QualitativeMenu />;
-            default:
-                return undefined;
-        }
-    }
-
-    return (
-        <Group noWrap spacing="xs">
-            <Select
-                label="Color"
-                searchable
-                clearable
-                data={items}
-                icon={icon}
-                value={selected}
-                itemComponent={IconItem}
-                onChange={(value) => {
-                    const updated = {
-                        ...JSON.parse(config),
-                        color: value,
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-                sx={{ width: 240 }}
-            />
-
-            {
-                menu()
-            }
-        </Group>
+            <AggregationSwitch major="y" minor="x" sort={true} />
+        </Stack>
     )
 }
 
 export const ChartProperties: FunctionComponent = () => {
     const [config] = useModelState("chart_config");
 
-    const type: string = JSON.parse(config)["type"];
-
-    const render = () => {
-        switch (type) {
-            case ChartType.Column:
-                return (
-                    <>
-                        <HorizontalAxis />
-                        <VerticalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Bar:
-                return (
-                    <>
-                        <VerticalAxis />
-                        <HorizontalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Area:
-                return (
-                    <>
-                        <HorizontalAxis />
-                        <VerticalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Line:
-                return (
-                    <>
-                        <HorizontalAxis />
-                        <VerticalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Scatter:
-                return (
-                    <>
-                        <HorizontalAxis />
-                        <VerticalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Pie:
-                return (
-                    <>
-                        <ThetaAxis />
-                        <ColorAxis />
-                    </>
-                );
-        }
-    }
+    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
+    const type = ChartType[key as keyof typeof ChartType];
+    const chart = ChartTypeComponents[type];
 
     return (
         <Stack>
-            {
-                render()
-            }
+            {chart}
         </Stack>
     )
 }
