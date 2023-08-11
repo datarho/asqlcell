@@ -7,17 +7,17 @@ export const ComboChart: FunctionComponent = () => {
         <Stack>
             <Text fw={600}>X-Axis</Text>
 
-            <FieldSwitch major="x" minor="y" extra="y2" sort />
-
-            <Text fw={600}>Line</Text>
-
-            <FieldSwitch major="y" minor="y2" extra="x" sort />
-
-            <AggregationSwitch major="y" />
+            <FieldSwitch major="x" sort />
 
             <Text fw={600}>Column</Text>
 
-            <FieldSwitch major="y2" minor="x" extra="y" sort />
+            <FieldSwitch major="y" />
+
+            <AggregationSwitch major="y" />
+
+            <Text fw={600}>Line</Text>
+
+            <FieldSwitch major="y2" />
 
             <AggregationSwitch major="y2" />
         </Stack>
