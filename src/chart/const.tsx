@@ -1,4 +1,4 @@
-import { Icon123, IconAbc, IconCalendar } from "@tabler/icons-react";
+import { Icon123, IconAbc, IconArrowsSort, IconCalendar, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import React from "react";
 import { AreaChart } from "./area";
 import { BarChart } from "./bar";
@@ -47,4 +47,16 @@ export const DataTypeIcons: Record<DataType, JSX.Element> = {
     [DataType.String]: <IconAbc stroke={1.5} size={18} />,
     [DataType.Bool]: <IconAbc stroke={1.5} size={18} />,
     [DataType.Datetime]: <IconCalendar stroke={1.5} size={18} />,
-};
+}
+
+export enum SortType {
+    Ascending = "ascending",
+    Descending = "descending",
+    Naturally = "naturally",
+}
+
+export const SortIcons = {
+    [SortType.Ascending]: <IconSortAscending stroke={1.5} size={18} />,
+    [SortType.Descending]: <IconSortDescending stroke={1.5} size={18} />,
+    [SortType.Naturally]: <IconArrowsSort stroke={1.5} size={18} />,
+}

@@ -2,14 +2,8 @@ import { ActionIcon, Group, Menu, Select, Stack, Text } from "@mantine/core";
 import { IconArrowsSort, IconCheck, IconSettings, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
-import { ChartType, ChartTypeComponents, DataType, DataTypeIcons } from "./const";
+import { ChartType, ChartTypeComponents, DataType, DataTypeIcons, SortIcons, SortType } from "./const";
 import { IconItem } from "./item";
-
-enum SortType {
-    Ascending = "ascending",
-    Descending = "descending",
-    Naturally = "naturally",
-}
 
 const columns = (hist: string) => {
     const columns = JSON.parse(hist);
@@ -21,14 +15,13 @@ const columns = (hist: string) => {
     }))
 }
 
-
 const QualitativeMenu: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
 
     const [opened, setOpened] = useState(false);
 
-    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
-    const type = ChartType[key as keyof typeof ChartType];
+    const payload = JSON.parse(config);
+    const type = payload["type"] as ChartType;
 
     const sortValue = (type: ChartType, name: SortType) => {
         switch (type) {
@@ -50,11 +43,7 @@ const QualitativeMenu: FunctionComponent = () => {
     }
 
     const sortItem = (name: SortType) => {
-        const icon = {
-            [SortType.Ascending]: <IconSortAscending stroke={1.5} size={12} />,
-            [SortType.Descending]: <IconSortDescending stroke={1.5} size={12} />,
-            [SortType.Naturally]: <IconArrowsSort stroke={1.5} size={12} />,
-        }[name];
+        const icon = SortIcons[name];
 
         return (
             <Menu.Item
