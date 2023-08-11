@@ -1,0 +1,87 @@
+{
+    "config": {
+        "view": {
+            "continuousWidth": 300,
+            "continuousHeight": 300
+        }
+    },
+    "layer": [
+        {
+            "mark": {
+                "type": "bar"
+            },
+            "encoding": {
+                "color": {
+                    "field": "Step",
+                    "legend": null,
+                    "type": "nominal"
+                },
+                "x": {
+                    "field": "Count",
+                    "stack": "center",
+                    "type": "quantitative"
+                }
+            }
+        },
+        {
+            "mark": {
+                "type": "text"
+            },
+            "encoding": {
+                "text": {
+                    "field": "Count",
+                    "type": "quantitative"
+                }
+            }
+        }
+    ],
+    "data": {
+        "name": "data-e33dfd944f9dba7e5922721622d8ca95"
+    },
+    "encoding": {
+        "y": {
+            "field": "Step",
+            "sort": null,
+            "type": "nominal"
+        }
+    },
+    "height": 400,
+    "width": 500,
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
+    "datasets": {
+        "data-e33dfd944f9dba7e5922721622d8ca95": [
+            {
+                "Step": "Consultation",
+                "Count": 140000
+            },
+            {
+                "Step": "Prospect",
+                "Count": 120000
+            },
+            {
+                "Step": "Qualified",
+                "Count": 100000
+            },
+            {
+                "Step": "Negotiation",
+                "Count": 80000
+            },
+            {
+                "Step": "Prototype",
+                "Count": 60000
+            },
+            {
+                "Step": "Closing",
+                "Count": 40000
+            },
+            {
+                "Step": "Won",
+                "Count": 20000
+            },
+            {
+                "Step": "Finalized",
+                "Count": 10000
+            }
+        ]
+    }
+}

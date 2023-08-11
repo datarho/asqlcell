@@ -1,0 +1,93 @@
+{
+    "config": {
+        "view": {
+            "continuousWidth": 300,
+            "continuousHeight": 300
+        }
+    },
+    "layer": [
+        {
+            "mark": {
+                "type": "bar"
+            },
+            "encoding": {
+                "text": {
+                    "aggregate": "sum",
+                    "field": "Total"
+                },
+                "tooltip": [
+                    {
+                        "aggregate": "sum",
+                        "field": "Total"
+                    },
+                    {
+                        "field": "Sales Agent"
+                    }
+                ],
+                "x": {
+                    "aggregate": "sum",
+                    "field": "Total",
+                    "stack": "zero"
+                },
+                "y": {
+                    "field": "Sales Agent",
+                    "sort": null
+                }
+            }
+        },
+        {
+            "mark": {
+                "type": "text",
+                "align": "center",
+                "baseline": "bottom",
+                "dx": 40
+            },
+            "encoding": {
+                "text": {
+                    "aggregate": "sum",
+                    "field": "Total"
+                },
+                "tooltip": [
+                    {
+                        "aggregate": "sum",
+                        "field": "Total"
+                    },
+                    {
+                        "field": "Sales Agent"
+                    }
+                ],
+                "x": {
+                    "aggregate": "sum",
+                    "field": "Total",
+                    "stack": "zero"
+                },
+                "y": {
+                    "field": "Sales Agent",
+                    "sort": null
+                }
+            }
+        }
+    ],
+    "data": {
+        "name": "data-3c273fe8e6fc88ca1afd7550e98384a0"
+    },
+    "height": 200,
+    "width": 500,
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
+    "datasets": {
+        "data-3c273fe8e6fc88ca1afd7550e98384a0": [
+            {
+                "Total": 833.0400000000016,
+                "Sales Agent": "Jane Peacock"
+            },
+            {
+                "Total": 775.4000000000005,
+                "Sales Agent": "Margaret Park"
+            },
+            {
+                "Total": 720.1600000000011,
+                "Sales Agent": "Steve Johnson"
+            }
+        ]
+    }
+}

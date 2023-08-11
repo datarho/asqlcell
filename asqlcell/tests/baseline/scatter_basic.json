@@ -1,0 +1,169 @@
+{
+    "config": {
+        "view": {
+            "continuousWidth": 300,
+            "continuousHeight": 300
+        }
+    },
+    "data": {
+        "name": "data-97e1733b57ad2bc79282b9e87129708b"
+    },
+    "mark": {
+        "type": "point"
+    },
+    "encoding": {
+        "color": {
+            "field": "BillingCountry",
+            "type": "nominal"
+        },
+        "tooltip": [
+            {
+                "field": "Users",
+                "type": "quantitative"
+            },
+            {
+                "field": "Sales",
+                "type": "quantitative"
+            },
+            {
+                "field": "BillingCountry",
+                "type": "nominal"
+            }
+        ],
+        "x": {
+            "field": "Users",
+            "type": "quantitative"
+        },
+        "y": {
+            "field": "Sales",
+            "type": "quantitative"
+        }
+    },
+    "height": 600,
+    "width": 700,
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
+    "datasets": {
+        "data-97e1733b57ad2bc79282b9e87129708b": [
+            {
+                "BillingCountry": "Argentina",
+                "Users": 1,
+                "Sales": 37.620000000000005
+            },
+            {
+                "BillingCountry": "Australia",
+                "Users": 1,
+                "Sales": 37.620000000000005
+            },
+            {
+                "BillingCountry": "Austria",
+                "Users": 1,
+                "Sales": 42.62
+            },
+            {
+                "BillingCountry": "Belgium",
+                "Users": 1,
+                "Sales": 37.62
+            },
+            {
+                "BillingCountry": "Brazil",
+                "Users": 5,
+                "Sales": 190.09999999999997
+            },
+            {
+                "BillingCountry": "Canada",
+                "Users": 8,
+                "Sales": 303.9599999999999
+            },
+            {
+                "BillingCountry": "Chile",
+                "Users": 1,
+                "Sales": 46.62
+            },
+            {
+                "BillingCountry": "Czech Republic",
+                "Users": 2,
+                "Sales": 90.24000000000001
+            },
+            {
+                "BillingCountry": "Denmark",
+                "Users": 1,
+                "Sales": 37.620000000000005
+            },
+            {
+                "BillingCountry": "Finland",
+                "Users": 1,
+                "Sales": 41.620000000000005
+            },
+            {
+                "BillingCountry": "France",
+                "Users": 5,
+                "Sales": 195.09999999999994
+            },
+            {
+                "BillingCountry": "Germany",
+                "Users": 4,
+                "Sales": 156.48
+            },
+            {
+                "BillingCountry": "Hungary",
+                "Users": 1,
+                "Sales": 45.62
+            },
+            {
+                "BillingCountry": "India",
+                "Users": 2,
+                "Sales": 75.25999999999999
+            },
+            {
+                "BillingCountry": "Ireland",
+                "Users": 1,
+                "Sales": 45.62
+            },
+            {
+                "BillingCountry": "Italy",
+                "Users": 1,
+                "Sales": 37.620000000000005
+            },
+            {
+                "BillingCountry": "Netherlands",
+                "Users": 1,
+                "Sales": 40.62
+            },
+            {
+                "BillingCountry": "Norway",
+                "Users": 1,
+                "Sales": 39.62
+            },
+            {
+                "BillingCountry": "Poland",
+                "Users": 1,
+                "Sales": 37.620000000000005
+            },
+            {
+                "BillingCountry": "Portugal",
+                "Users": 2,
+                "Sales": 77.23999999999998
+            },
+            {
+                "BillingCountry": "Spain",
+                "Users": 1,
+                "Sales": 37.62
+            },
+            {
+                "BillingCountry": "Sweden",
+                "Users": 1,
+                "Sales": 38.620000000000005
+            },
+            {
+                "BillingCountry": "USA",
+                "Users": 13,
+                "Sales": 523.0600000000003
+            },
+            {
+                "BillingCountry": "United Kingdom",
+                "Users": 3,
+                "Sales": 112.85999999999999
+            }
+        ]
+    }
+}
