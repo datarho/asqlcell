@@ -176,6 +176,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 return "y" if config["y"]["sort"] == "ascending" else "-y"
         return None
 
+    def _add_color(self, color, params: dict) -> dict:
+        if color:
+            params["color"] = color
+            params["tooltip"] += [color]
+        return params
+
     def _generate_funnel(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         return (
             base.encode(
@@ -188,14 +194,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         x, y, color = X(field=config["x"]["field"]), Y(field=config["y"]["field"]), config["color"]["field"]
         x = x.aggregate(config["x"]["aggregation"])
         params = {"x": x.stack("zero"), "y": y.sort(self._get_sort_symbol(config)), "tooltip": [x, y], "text": x}
-        if color:
-            params["color"] = color
-            params["tooltip"] += [color]
-            if SubChartType.PERCENT in config["subtype"]:
-                params["x"] = x.stack("normalize")
-            if SubChartType.CLUSTERED in config["subtype"]:
-                params["yOffset"] = color
-        base = base.encode(**params)
+        if color and SubChartType.PERCENT in config["subtype"]:
+            params["x"] = x.stack("normalize")
+        if color and SubChartType.CLUSTERED in config["subtype"]:
+            params["yOffset"] = color
+        base = base.encode(**self._add_color(color, params))
         bar = base.mark_bar()
         return bar + base.mark_text(align="center", baseline="bottom", dx=40) if config["label"] else bar
 
@@ -204,26 +207,21 @@ class SqlCellWidget(DOMWidget, HasTraits):
         y = y.aggregate(config["y"]["aggregation"])
         params = {"x": x.sort(self._get_sort_symbol(config)), "y": y.stack("zero"), "tooltip": [x, y], "text": y}
         if color:
-            params["color"] = color
-            params["tooltip"] += [color]
             if SubChartType.PERCENT in config["subtype"]:
                 params["y"] = y.stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
                 params["xOffset"] = color
-        base = base.encode(**params)
+        base = base.encode(**self._add_color(color, params))
         bar = base.mark_bar()
         return bar + base.mark_text(align="center", baseline="bottom") if config["label"] else bar
 
     def _generate_area(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         x, y, color = X(field=config["x"]["field"]), Y(field=config["y"]["field"]), config["color"]["field"]
         y = y.aggregate(config["y"]["aggregation"])
-        params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y], "text": y}
-        if color:
-            params["color"] = color
-            params["tooltip"] += [color]
-            if SubChartType.PERCENT in config["subtype"]:
-                params["y"] = y.stack("normalize")
-        base = base.encode(**params)
+        params = {"x": x.sort(self._get_sort_symbol(config)), "y": y.stack("zero"), "tooltip": [x, y], "text": y}
+        if color and SubChartType.PERCENT in config["subtype"]:
+            params["y"] = y.stack("normalize")
+        base = base.encode(**self._add_color(color, params))
         area = base.mark_area()
         return area + base.mark_text(align="center", baseline="bottom") if config["label"] else area
 
@@ -231,44 +229,35 @@ class SqlCellWidget(DOMWidget, HasTraits):
         x, y, color = X(field=config["x"]["field"]), Y(field=config["y"]["field"]), config["color"]["field"]
         y = y.aggregate(config["y"]["aggregation"])
         params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y], "text": y}
-        if color:
-            params["color"] = color
-            params["tooltip"] += [color]
-        base = base.encode(**params)
+        base = base.encode(**self._add_color(color, params))
         line = base.mark_line()
         return line + base.mark_text(align="center", baseline="bottom") if config["label"] else line
 
     def _generate_scatter(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         x, y, color = config["x"]["field"], config["y"]["field"], config["color"]["field"]
         params = {"x": x, "y": y, "tooltip": [x, y]}
-        if color:
-            params["color"] = color
-            params["tooltip"] += [color]
-        return base.encode(**params).mark_point()
+        return base.encode(**self._add_color(color, params)).mark_point()
 
     def _generate_combo(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        """
-        Generate combo based on the chart config. This could be a a line and stacked column or line and clustered column.
-        """
         if config["y2"]["field"] is None:
             return None
-        line = self._generate_line(base, config)
+        line = self._generate_column(base, config)
         config["y"] = config["y2"]
-        column = self._generate_column(base, config)
-        return alt.layer(column, line).resolve_scale(y="independent").configure_line(color="orange")  # type: ignore
+        column = self._generate_line(base, config)
+        return alt.layer(column, line).resolve_scale(y="independent").configure_line(color="orange")
 
     def _generate_arc(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         theta, color = Theta(field=config["y"]["field"], aggregate=config["y"]["aggregation"]), config["x"]["field"]
-        params = {"color": color, "theta": theta.stack(True), "tooltip": [theta, color], "text": color}
+        params = {"theta": theta.stack(True), "tooltip": [theta], "text": color}
         if config["x"]["sort"]:
             params["order"] = Order(color).sort(config["x"]["sort"])  # type: ignore
         if config["y"]["sort"]:
             params["order"] = Order(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).sort(config["y"]["sort"])  # type: ignore
-        base = base.encode(**params)
+        base = base.encode(**self._add_color(color, params))
         width = config["width"]
         height = config["height"]
         r = 100 if width * height == 0 else min(width - 20, height) / 2
-        pie = base.mark_arc(outerRadius=r)
+        pie = base.mark_arc(radius=r)
         return pie + base.mark_text(radius=r + 20) if config["label"] else pie
 
     def check_duplicate(self, *args):
@@ -298,7 +287,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         config: ChartConfig = json.loads(
             self.chart_config.replace("(", "\\\\(").replace(")", "\\\\)").replace(".", "\\\\.")
         )
-        if config["type"] is None or config["x"]["field"] is None and config["y"]["field"] is None:
+        if config["type"] is None or config["x"]["field"] is None or config["y"]["field"] is None:
             return
         # Try to generate vega spec based on config.
         mapping = {

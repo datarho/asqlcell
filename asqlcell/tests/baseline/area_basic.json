@@ -38,7 +38,8 @@
                 },
                 "y": {
                     "aggregate": "sum",
-                    "field": "Total"
+                    "field": "Total",
+                    "stack": "zero"
                 }
             }
         },
@@ -76,7 +77,8 @@
                 },
                 "y": {
                     "aggregate": "sum",
-                    "field": "Total"
+                    "field": "Total",
+                    "stack": "zero"
                 }
             }
         }
