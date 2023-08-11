@@ -10,6 +10,7 @@ class ChartType(StrEnum):
     AREA = "area"
     PIE = "pie"
     SCATTER = "scatter"
+    COMBO = "combo"
 
 
 class SubChartType(StrEnum):
@@ -25,9 +26,11 @@ class ChartConfig(TypedDict):
     type: Optional[ChartType]
     x: Optional[str]
     y: Optional[str]
+    y2: Optional[str]
     color: Optional[str]
     theta: Optional[str]
     aggregation: Optional[str]
+    aggregation2: Optional[str]
     subtype: List[str]
     sort: Optional[str]
     height: int

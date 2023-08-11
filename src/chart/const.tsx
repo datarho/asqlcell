@@ -1,5 +1,12 @@
 import { Icon123, IconAbc, IconCalendar } from "@tabler/icons-react";
 import React from "react";
+import { AreaChart } from "./area";
+import { BarChart } from "./bar";
+import { ColumnChart } from "./column";
+import { ComboChart } from "./combo";
+import { LineChart } from "./line";
+import { PieChart } from "./pie";
+import { ScatterChart } from "./scatter";
 
 export const ViewHeight = 264;
 export const MenuHeight = 311;
@@ -13,6 +20,17 @@ export enum ChartType {
     Area = "area",
     Scatter = "scatter",
     Pie = "pie",
+    Combo = "combo",
+}
+
+export const ChartTypeComponents: Record<ChartType, JSX.Element> = {
+    [ChartType.Bar]: <BarChart />,
+    [ChartType.Column]: <ColumnChart />,
+    [ChartType.Line]: <LineChart />,
+    [ChartType.Area]: <AreaChart />,
+    [ChartType.Scatter]: <ScatterChart />,
+    [ChartType.Pie]: <PieChart />,
+    [ChartType.Combo]: <ComboChart />,
 }
 
 export enum DataType {

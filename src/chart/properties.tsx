@@ -2,7 +2,7 @@ import { ActionIcon, Group, Menu, Select, Stack, Text } from "@mantine/core";
 import { IconArrowsSort, IconCheck, IconSettings, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
-import { ChartType, DataType, DataTypeIcons } from "./const";
+import { ChartType, ChartTypeComponents, DataType, DataTypeIcons } from "./const";
 import { IconItem } from "./item";
 
 enum SortType {
@@ -207,7 +207,7 @@ const QuantitativeMenu: FunctionComponent = () => {
     );
 }
 
-const HorizontalAxis: FunctionComponent = () => {
+export const HorizontalAxis: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
@@ -253,7 +253,11 @@ const HorizontalAxis: FunctionComponent = () => {
     )
 }
 
-const VerticalAxis: FunctionComponent = () => {
+interface VerticalAixsProps {
+    axis?: string;
+}
+
+export const VerticalAxis: FunctionComponent<VerticalAixsProps> = ({ axis = "y" }) => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
@@ -261,7 +265,7 @@ const VerticalAxis: FunctionComponent = () => {
     const type = ChartType[key as keyof typeof ChartType];
 
     const items = columns(hist);
-    const selected = JSON.parse(config)["y"];
+    const selected = JSON.parse(config)[axis];
     const icon = items.find((entry) => entry.value === selected)?.icon;
 
     const menu = (type: ChartType) => {
@@ -285,7 +289,7 @@ const VerticalAxis: FunctionComponent = () => {
                 onChange={(value) => {
                     const updated = {
                         ...JSON.parse(config),
-                        y: value,
+                        [axis]: value,
                     };
                     setConfig(JSON.stringify(updated));
                 }}
@@ -299,7 +303,7 @@ const VerticalAxis: FunctionComponent = () => {
     )
 }
 
-const ThetaAxis: FunctionComponent = () => {
+export const ThetaAxis: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
@@ -331,7 +335,7 @@ const ThetaAxis: FunctionComponent = () => {
     )
 }
 
-const ColorAxis: FunctionComponent = () => {
+export const ColorAxis: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
@@ -381,70 +385,13 @@ const ColorAxis: FunctionComponent = () => {
 export const ChartProperties: FunctionComponent = () => {
     const [config] = useModelState("chart_config");
 
-    const type: string = JSON.parse(config)["type"];
-
-    const render = () => {
-        switch (type) {
-            case ChartType.Column:
-                return (
-                    <>
-                        <HorizontalAxis />
-                        <VerticalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Bar:
-                return (
-                    <>
-                        <VerticalAxis />
-                        <HorizontalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Area:
-                return (
-                    <>
-                        <HorizontalAxis />
-                        <VerticalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Line:
-                return (
-                    <>
-                        <HorizontalAxis />
-                        <VerticalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Scatter:
-                return (
-                    <>
-                        <HorizontalAxis />
-                        <VerticalAxis />
-                        <ColorAxis />
-                    </>
-                );
-
-            case ChartType.Pie:
-                return (
-                    <>
-                        <ThetaAxis />
-                        <ColorAxis />
-                    </>
-                );
-        }
-    }
+    const key = Object.keys(ChartType).find(key => ChartType[key as keyof typeof ChartType] === JSON.parse(config)["type"]);
+    const type = ChartType[key as keyof typeof ChartType];
+    const chart = ChartTypeComponents[type];
 
     return (
         <Stack>
-            {
-                render()
-            }
+            {chart}
         </Stack>
     )
 }

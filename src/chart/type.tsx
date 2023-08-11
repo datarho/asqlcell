@@ -35,7 +35,12 @@ const data = [
         icon: <IconChartPie stroke={1.5} size={18} />,
         value: ChartType.Pie,
         label: "Pie"
-    }
+    },
+    {
+        icon: <IconChartAreaLine stroke={1.5} size={18} />,
+        value: ChartType.Combo,
+        label: "Combo"
+    },
 ]
 
 export const ChartPicker: FunctionComponent = () => {

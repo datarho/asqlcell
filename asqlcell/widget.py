@@ -63,13 +63,15 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "type": None,
             "x": None,
             "y": None,
+            "y2": None,
             "color": None,
             "theta": None,
             "aggregation": "sum",
+            "aggregation2": "sum",
             "subtype": [],
             "sort": None,
-            "width": 0,
-            "height": 0,
+            "width": 500,
+            "height": 400,
             "legend": {
                 "visible": True,
             },
@@ -214,6 +216,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
             params["color"] = config["color"]
         return Chart(get_value(self.shell, self.data_name)).mark_point().encode(**params)
 
+    def _generate_combo(self, config: ChartConfig) -> Optional[Chart]:
+        """
+        Generate combo based on the chart config. This could be a a line and stacked column or line and clustered column.
+        """
+        return None
+
     def _generate_arc(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         # Ensure parameters are presented.
         if config["theta"] is None or config["color"] is None or config["aggregation"] is None:
@@ -281,6 +289,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.AREA: self._generate_area,
             ChartType.PIE: self._generate_arc,
             ChartType.SCATTER: self._generate_scatter,
+            ChartType.COMBO: self._generate_combo,
         }
         self.chart = mapping[chart_config["type"]](chart_config)
         if self.chart is None:
