@@ -227,7 +227,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # Generate parameters for altair.
         sort = self._get_sort_symbol(config)
         x = X(field=config["x"]["field"], type="ordinal", sort=sort if sort else "ascending")
-        y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).stack("zero")
+        y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         color = config["color"]["field"]
         tooltip = [
             Tooltip(field=config["x"]["field"]),
@@ -244,10 +244,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # Ensure parameters are presented.
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
+        print(config)
         # Generate parameters for altair.
         sort = self._get_sort_symbol(config)
         x = X(field=config["x"]["field"], sort=sort if sort else "ascending")
-        y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).stack("zero")
+        y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         color = config["color"]["field"]
         tooltip = [
             Tooltip(field=config["x"]["field"]),
@@ -264,7 +265,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             return None
         # Generate parameters for altair.
         x = X(field=config["x"]["field"], sort=self._get_sort_symbol(config))
-        y = Y(field=config["y"]["field"]).stack("zero")
+        y = Y(field=config["y"]["field"])
         color = config["color"]["field"]
         tooltip = [Tooltip(field=config["x"]["field"]), Tooltip(field=config["y"]["field"])]
         params = {"x": x, "y": y, "tooltip": tooltip}
@@ -286,7 +287,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             return None
         # Generate parameters for altair.
         theta = Theta(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).stack(True)
-        color = config["color"]["field"]
+        color = config["x"]["field"]
         tooltip = [
             Tooltip(field=config["x"]["field"]),
             Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"]),
