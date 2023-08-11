@@ -5,7 +5,8 @@ from typing import Optional, Union
 
 import pandas as pd
 import sqlparse
-from altair import Chart, Color, LayerChart, Order, Text, Theta, Tooltip, X, Y
+import altair as alt
+from altair import Chart, Color, LayerChart, Order, Theta, X, Y
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import update_display
 from ipywidgets import DOMWidget
@@ -184,9 +185,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         ).encode(y=Y(config["y"]["field"], sort=None))
 
     def _generate_bar(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        x = X(field=config["x"]["field"], aggregate=config["y"]["aggregation"])
-        y = Y(field=config["y"]["field"])
-        color = config["color"]["field"]
+        x, y, color = X(field=config["x"]["field"]), Y(field=config["y"]["field"]), config["color"]["field"]
+        x = x.aggregate(config["x"]["aggregation"])
         params = {"x": x.stack("zero"), "y": y.sort(self._get_sort_symbol(config)), "tooltip": [x, y], "text": x}
         if color:
             params["color"] = color
@@ -200,9 +200,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return bar + base.mark_text(align="center", baseline="bottom", dx=40) if config["label"] else bar
 
     def _generate_column(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        x = X(field=config["x"]["field"])
-        y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
-        color = config["color"]["field"]
+        x, y, color = X(field=config["x"]["field"]), Y(field=config["y"]["field"]), config["color"]["field"]
+        y = y.aggregate(config["y"]["aggregation"])
         params = {"x": x.sort(self._get_sort_symbol(config)), "y": y.stack("zero"), "tooltip": [x, y], "text": y}
         if color:
             params["color"] = color
@@ -216,9 +215,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return bar + base.mark_text(align="center", baseline="bottom") if config["label"] else bar
 
     def _generate_area(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        x = X(field=config["x"]["field"])
-        y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
-        color = config["color"]["field"]
+        x, y, color = X(field=config["x"]["field"]), Y(field=config["y"]["field"]), config["color"]["field"]
+        y = y.aggregate(config["y"]["aggregation"])
         params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y], "text": y}
         if color:
             params["color"] = color
@@ -230,9 +228,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return area + base.mark_text(align="center", baseline="bottom") if config["label"] else area
 
     def _generate_line(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        x = X(field=config["x"]["field"])
-        y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
-        color = config["color"]["field"]
+        x, y, color = X(field=config["x"]["field"]), Y(field=config["y"]["field"]), config["color"]["field"]
+        y = y.aggregate(config["y"]["aggregation"])
         params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y], "text": y}
         if color:
             params["color"] = color
@@ -242,9 +239,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         return line + base.mark_text(align="center", baseline="bottom") if config["label"] else line
 
     def _generate_scatter(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        x = config["x"]["field"]
-        y = config["y"]["field"]
-        color = config["color"]["field"]
+        x, y, color = config["x"]["field"], config["y"]["field"], config["color"]["field"]
         params = {"x": x, "y": y, "tooltip": [x, y]}
         if color:
             params["color"] = color
@@ -260,11 +255,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
         line = self._generate_line(base, config)
         config["y"] = config["y2"]
         column = self._generate_column(base, config)
-        return line + column  # type: ignore
+        return alt.layer(column, line).resolve_scale(y="independent").configure_line(color="orange")  # type: ignore
 
     def _generate_arc(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        color = config["x"]["field"]
-        theta = Theta(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
+        theta, color = Theta(field=config["y"]["field"], aggregate=config["y"]["aggregation"]), config["x"]["field"]
         params = {"color": color, "theta": theta.stack(True), "tooltip": [theta, color], "text": color}
         if config["x"]["sort"]:
             params["order"] = Order(color).sort(config["x"]["sort"])  # type: ignore
@@ -275,7 +269,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         height = config["height"]
         r = 100 if width * height == 0 else min(width - 20, height) / 2
         pie = base.mark_arc(outerRadius=r)
-        return pie + base.mark_text(radius=r + 20, size=10) if config["label"] else pie
+        return pie + base.mark_text(radius=r + 20) if config["label"] else pie
 
     def check_duplicate(self, *args):
         li = [item for item in args if item is not None]
