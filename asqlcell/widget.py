@@ -15,7 +15,7 @@ from traitlets import Bool, Float, HasTraits, Int, Tuple, Unicode, observe
 
 from asqlcell.chart import ChartConfig, ChartType, SubChartType
 from asqlcell.jinjasql import JinjaSql
-from asqlcell.utils import NoTracebackException, get_duckdb_result, get_histogram, get_value, get_vars, set_value
+from asqlcell.utils import NoTracebackException, get_duckdb_result, get_histogram, get_value, get_vars
 
 module_name = "asqlcell"
 module_version = "0.1.0"
@@ -104,17 +104,14 @@ class SqlCellWidget(DOMWidget, HasTraits):
             self.title_hist = ""
             self.column_color = ""
             self.column_sort = ("", 0)
+            df = None
             if con is None:
                 jsql = JinjaSql(param_style="qmark")
                 res, vlist = jsql.prepare_query(
                     sqlparse.format(sql, strip_comments=True, reindent=True),
                     get_vars(self.shell),
                 )
-                set_value(
-                    self.shell,
-                    self.data_name,
-                    get_duckdb_result(self.shell, res, vlist),
-                )
+                df = get_duckdb_result(self.shell, res, vlist)
             else:
                 df = read_sql(sql, con=con)
                 dt_columns = {}
@@ -124,11 +121,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
                             dt_columns[column] = "datetime64[ns]"
                             break
                 df = df.astype(dt_columns, copy=False, errors="ignore")
-                set_value(self.shell, self.data_name, df)
+            self.shell.user_global_ns[self.data_name] = df
             # Calculate time elapsed for running the sql queries.
             self.exec_time = time() - start
 
-            df = get_value(self.shell, self.data_name)
             assert type(df) is DataFrame
             self.title_hist = json.dumps(get_histogram(df))
             self.set_data_grid()
@@ -151,7 +147,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         """
         Get sort symbol used by vega spec.
         """
-        if config["type"] in {ChartType.BAR, ChartType.COLUMN, ChartType.AREA, ChartType.LINE}:
+        if config["type"] in {ChartType.BAR, ChartType.COLUMN, ChartType.AREA, ChartType.LINE, ChartType.SCATTER}:
             if config["x"]["sort"]:
                 return "x" if config["x"]["sort"] == "ascending" else "-x"
             elif config["y"]["sort"]:
