@@ -5,7 +5,6 @@ import { AggregationType, ChartType, ChartTypeComponents, ConfigItemWidth, DataT
 import { IconItem } from "./item";
 
 interface AxisProps {
-    label?: string;
     major: string;
     minor?: string;
     extra?: string;
@@ -66,7 +65,7 @@ export const SortToggle: FunctionComponent<AxisProps> = ({ major, minor, extra }
     )
 }
 
-export const FieldSwitch: FunctionComponent<AxisProps> = ({ label, major, minor, extra, sort, clearable }) => {
+export const FieldSwitch: FunctionComponent<AxisProps> = ({ major, minor, extra, sort, clearable }) => {
     const [config, setConfig] = useModelState("chart_config");
     const [hist] = useModelState("title_hist");
 
@@ -86,7 +85,6 @@ export const FieldSwitch: FunctionComponent<AxisProps> = ({ label, major, minor,
     return (
         <Group noWrap spacing="xs">
             <Select
-                label={label}
                 searchable
                 clearable={clearable}
                 data={items}

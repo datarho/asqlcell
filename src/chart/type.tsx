@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Menu, Select } from "@mantine/core";
+import { ActionIcon, Group, Menu, Select, Stack, Text } from "@mantine/core";
 import { IconChartAreaLine, IconChartBar, IconChartDots, IconChartLine, IconChartPie, IconFilter, IconPercentage, IconSettings, IconStack } from "@tabler/icons-react";
 import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
@@ -58,95 +58,99 @@ export const ChartPicker: FunctionComponent = () => {
     const icon = data.find((entry) => entry.value === type)?.icon;
 
     return (
-        <Group noWrap spacing="xs">
-            <Select
-                label="Chart type"
-                searchable
-                itemComponent={IconItem}
-                data={data}
-                icon={icon}
-                value={type}
-                onChange={(value) => {
-                    const updated = {
-                        ...JSON.parse(config),
-                        type: value,
-                    };
-                    setConfig(JSON.stringify(updated));
-                }}
-                sx={{ width: 240 }}
-            />
+        <Stack>
+            <Text fw={600}>Chart type</Text>
 
-            {
-                [ChartType.Column, ChartType.Bar, ChartType.Area].includes(type) ?
-                    <Menu
-                        width={160}
-                        opened={opened}
-                        onChange={setOpened}
-                        position="right"
-                        shadow="md"
-                        withArrow
-                    >
-                        <Menu.Target>
-                            <ActionIcon
-                                mt="xl"
-                                variant="transparent"
-                                onClick={() => setOpened(true)}
-                            >
-                                <IconSettings size={16} />
-                            </ActionIcon>
-                        </Menu.Target>
+            <Group noWrap spacing="xs">
+                <Select
+                    searchable
+                    itemComponent={IconItem}
+                    data={data}
+                    icon={icon}
+                    value={type}
+                    onChange={(value) => {
+                        const updated = {
+                            ...JSON.parse(config),
+                            type: value,
+                        };
+                        setConfig(JSON.stringify(updated));
+                    }}
+                    sx={{ width: 240 }}
+                />
 
-                        <Menu.Dropdown>
-                            <Menu.Label>Style</Menu.Label>
+                {
+                    [ChartType.Column, ChartType.Bar, ChartType.Area].includes(type) ?
+                        <Menu
+                            width={160}
+                            opened={opened}
+                            onChange={setOpened}
+                            position="right"
+                            shadow="md"
+                            withArrow
+                        >
+                            <Menu.Target>
+                                <ActionIcon
+                                    mt="xl"
+                                    variant="transparent"
+                                    onClick={() => setOpened(true)}
+                                >
+                                    <IconSettings size={16} />
+                                </ActionIcon>
+                            </Menu.Target>
 
-                            <Menu.Item
-                                onClick={() => {
-                                    const updated = {
-                                        ...JSON.parse(config),
-                                        subtype: [],
-                                    };
-                                    setConfig(JSON.stringify(updated));
-                                }}
-                                icon={<IconStack size={12} />}
-                            >
-                                Stack
-                            </Menu.Item>
+                            <Menu.Dropdown>
+                                <Menu.Label>Style</Menu.Label>
 
-                            {
-                                [ChartType.Area, ChartType.Area].includes(type) ?
-                                    undefined
-                                    :
-                                    <Menu.Item
-                                        onClick={() => {
-                                            const updated = {
-                                                ...JSON.parse(config),
-                                                subtype: ["clustered"],
-                                            };
-                                            setConfig(JSON.stringify(updated));
-                                        }}
-                                        icon={<IconChartBar size={12} />}
-                                    >
-                                        Clustered
-                                    </Menu.Item>
-                            }
+                                <Menu.Item
+                                    onClick={() => {
+                                        const updated = {
+                                            ...JSON.parse(config),
+                                            subtype: [],
+                                        };
+                                        setConfig(JSON.stringify(updated));
+                                    }}
+                                    icon={<IconStack size={12} />}
+                                >
+                                    Stack
+                                </Menu.Item>
 
-                            <Menu.Item
-                                onClick={() => {
-                                    const updated = {
-                                        ...JSON.parse(config),
-                                        subtype: ["100"],
-                                    };
-                                    setConfig(JSON.stringify(updated));
-                                }}
-                                icon={<IconPercentage size={12} />}
-                            >
-                                100% Stack
-                            </Menu.Item>
-                        </Menu.Dropdown>
-                    </Menu>
-                    :
-                    undefined
-            }
-        </Group>
+                                {
+                                    [ChartType.Area, ChartType.Area].includes(type) ?
+                                        undefined
+                                        :
+                                        <Menu.Item
+                                            onClick={() => {
+                                                const updated = {
+                                                    ...JSON.parse(config),
+                                                    subtype: ["clustered"],
+                                                };
+                                                setConfig(JSON.stringify(updated));
+                                            }}
+                                            icon={<IconChartBar size={12} />}
+                                        >
+                                            Clustered
+                                        </Menu.Item>
+                                }
+
+                                <Menu.Item
+                                    onClick={() => {
+                                        const updated = {
+                                            ...JSON.parse(config),
+                                            subtype: ["100"],
+                                        };
+                                        setConfig(JSON.stringify(updated));
+                                    }}
+                                    icon={<IconPercentage size={12} />}
+                                >
+                                    100% Stack
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu>
+                        :
+                        undefined
+                }
+            </Group>
+
+        </Stack>
     )
 }
