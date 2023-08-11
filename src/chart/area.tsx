@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from "react";
-import { Text } from "@mantine/core"
+import { Text } from "@mantine/core";
 import { FieldSwitch, HorizontalAxis, VerticalAxis } from "./properties";
 
 export const AreaChart: FunctionComponent = () => {

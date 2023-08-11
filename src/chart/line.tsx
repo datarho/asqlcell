@@ -1,12 +1,15 @@
 import React, { FunctionComponent } from "react";
-import { ColorAxis, HorizontalAxis, VerticalAxis } from "./properties";
+import { Text } from "@mantine/core";
+import { FieldSwitch, HorizontalAxis, VerticalAxis } from "./properties";
 
 export const LineChart: FunctionComponent = () => {
     return (
         <>
             <HorizontalAxis />
             <VerticalAxis />
-            <ColorAxis />
+            <Text fw={600}>Color</Text>
+
+            <FieldSwitch major="color" />
         </>
     );
 }
