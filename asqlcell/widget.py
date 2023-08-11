@@ -146,10 +146,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         # Generate vega spec for the chart.
         config["x"] = self.aggregation(config["aggregation"], config["x"])
         params = {
-            "x": X(config["x"]),
+            "x": X(config["x"]).stack("zero"),
             "y": Y(config["y"], sort=config["sort"]),
             "tooltip": [config["x"], config["y"]],
             "text": config["x"],
+            "detail": config["color"],
         }
         if config["color"]:
             params["color"] = config["color"]
@@ -158,10 +159,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 params["x"] = params["x"].stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
                 params["yOffset"] = config["color"]
-        # return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
         base = Chart(get_value(self.shell, self.data_name)).encode(**params)
         bar = base.mark_bar()
-        text = base.mark_text(align="center", baseline="middle", dx=25)
+        text = base.mark_text(align="center", baseline="bottom", dx=20)
         return (bar + text) if config["label"] else bar
 
     def _generate_column(self, config: ChartConfig) -> Union[Chart, LayerChart, None]:
@@ -172,8 +172,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
         config["y"] = self.aggregation(config["aggregation"], config["y"])
         params = {
             "x": X(config["x"], sort=config["sort"]),
-            "y": Y(config["y"]),
+            "y": Y(config["y"]).stack("zero"),
             "tooltip": [config["x"], config["y"]],
+            "detail": config["color"],
+            "text": config["y"],
         }
         if config["color"]:
             params["color"] = config["color"]
@@ -182,10 +184,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 params["y"] = params["y"].stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
                 params["xOffset"] = config["color"]
-        # return Chart(get_value(self.shell, self.data_name)).mark_bar().encode(**params)
         base = Chart(get_value(self.shell, self.data_name)).encode(**params)
         bar = base.mark_bar()
-        text = base.mark_text(align="center", baseline="bottom").encode(y=config["y"], text=config["y"])
+        text = base.mark_text(align="center", baseline="bottom")
         return (bar + text) if config["label"] else bar
 
     def _generate_area(self, config: ChartConfig) -> Optional[Chart]:
@@ -295,8 +296,6 @@ class SqlCellWidget(DOMWidget, HasTraits):
         cn = json.loads(change["new"])
         if co["type"] != cn["type"] and ChartType.PIE in (co["type"], cn["type"]):
             chart_config["sort"] = None
-        # ordinal_config: ChartConfig = json.loads(self.chart_config)
-        # self.check_duplicate(ordinal_config["x"], ordinal_config["y"], ordinal_config["color"])
 
         # Try to generate vega spec based on config.
         mapping = {
