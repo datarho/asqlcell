@@ -170,6 +170,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 return "y" if config["y"]["sort"] == "ascending" else "-y"
         return None
 
+    def _get_aggr(self, x: str, config: ChartConfig):
+        return {"field": config[x]["field"], "aggregate": config[x]["aggregation"]}
+
     def _generate_funnel(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         # Ensure parameters are presented.
         if config["x"]["field"] is None or config["y"]["field"] is None:
@@ -188,7 +191,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
         # Generate parameters for altair.
-        x = X(field=config["x"]["field"], aggregate=config["x"]["aggregation"]).stack("zero")
+        x = X(**self._get_aggr("x", config)).stack("zero")
         y = Y(field=config["y"]["field"], sort=self._get_sort_symbol(config))
         color = config["color"]["field"]
         tooltip = [
@@ -245,8 +248,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
         # Generate parameters for altair.
-        sort = self._get_sort_symbol(config)
-        x = X(field=config["x"]["field"], type="ordinal", sort=sort if sort else "ascending")
+        x = X(field=config["x"]["field"], sort=self._get_sort_symbol(config))
         y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         color = config["color"]["field"]
         tooltip = [config["x"]["field"], Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"])]
@@ -262,8 +264,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         if config["x"]["field"] is None or config["y"]["field"] is None:
             return None
         # Generate parameters for altair.
-        sort = self._get_sort_symbol(config)
-        x = X(field=config["x"]["field"], sort=sort if sort else "ascending")
+        x = X(field=config["x"]["field"], sort=self._get_sort_symbol(config))
         y = Y(field=config["y"]["field"], aggregate=config["y"]["aggregation"])
         color = config["color"]["field"]
         tooltip = [config["x"]["field"], Tooltip(field=config["y"]["field"], aggregate=config["y"]["aggregation"])]
