@@ -12,7 +12,7 @@ class ChartType(StrEnum):
     SCATTER = "scatter"
     COMBO = "combo"
     FUNNEL = "funnel"
-    DOUBLEPIE = "double_pie"
+    SUNBURST = "sunburst"
 
 
 class SubChartType(StrEnum):

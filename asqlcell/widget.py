@@ -244,10 +244,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
         pie = base.mark_arc(radius=r)
         return pie + base.mark_text(radius=r + 20) if config["label"] else pie
 
-    def _generate_double_arc(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        if config["y2"]["field"] is None:
+    def _generate_sunburst(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
+        if config["x2"]["field"] is None:
             return None
-        theta, color, color2 = config["y"]["field"], config["x"]["field"], config["x"]["field"]
+        theta, color, color2 = config["y"]["field"], config["x"]["field"], config["x2"]["field"]
         get_duckdb().register("data", base.data)
         data2 = get_duckdb().execute(f"select *, concat({color2}, ',', {theta}) label1q2w3e from data order by 1, 2")
         data = get_duckdb().execute(f"select * from data order by 1")
@@ -303,7 +303,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             ChartType.SCATTER: self._generate_scatter,
             ChartType.COMBO: self._generate_combo,
             ChartType.FUNNEL: self._generate_funnel,
-            ChartType.DOUBLEPIE: self._generate_double_arc,
+            ChartType.SUNBURST: self._generate_sunburst,
         }
         assert type(self.data_name) is str
         self.chart = mapping[config["type"]](Chart(self.shell.user_global_ns[self.data_name]), config)

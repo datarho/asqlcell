@@ -313,5 +313,5 @@ def test_generate_combo_basic(session):
     run_cmp(session, query, c, "combo_basic")
 
 
-def test_generate_double_pie_basic(session):
+def test_generate_sunburst_basic(session):
     pass
