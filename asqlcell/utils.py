@@ -1,6 +1,5 @@
 import duckdb
 import numpy as np
-import pandas as pd
 from IPython.core.interactiveshell import InteractiveShell
 from pandas import DataFrame
 
@@ -41,15 +40,11 @@ def get_duckdb_result(shell: InteractiveShell, sql, vlist=[]):
     return df
 
 
-def get_value(shell: InteractiveShell, variable_name):
-    return shell.user_global_ns.get(variable_name)
-
-
 def get_vars(shell: InteractiveShell, is_df=False):
     vars = {}
-    for v in shell.user_global_ns:
-        if not is_df or not v.startswith("_") and type(get_value(shell, v)) is DataFrame:
-            vars[v] = get_value(shell, v)
+    for k, v in shell.user_global_ns.items():
+        if not is_df or not k.startswith("_") and type(v) is DataFrame:
+            vars[k] = v
     return vars
 
 

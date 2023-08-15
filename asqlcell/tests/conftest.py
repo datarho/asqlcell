@@ -4,9 +4,6 @@ import pytest
 from ipykernel.comm import Comm
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.testing.globalipapp import start_ipython
-from ipywidgets import Widget
-
-from asqlcell.magic import SqlMagics
 
 
 @pytest.fixture(scope="session")
