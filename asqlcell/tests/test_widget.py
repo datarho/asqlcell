@@ -1,7 +1,7 @@
+import copy
 import filecmp
 import json
 from pathlib import Path
-import copy
 
 from sqlalchemy import create_engine
 
@@ -13,6 +13,12 @@ db = Path(dir, "chinook.sqlite")
 config: ChartConfig = {
     "type": None,
     "x": {
+        "label": None,
+        "field": None,
+        "aggregation": "sum",
+        "sort": None,
+    },
+    "x2": {
         "label": None,
         "field": None,
         "aggregation": "sum",

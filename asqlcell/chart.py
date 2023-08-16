@@ -34,6 +34,7 @@ class AxisConfig(TypedDict):
 class ChartConfig(TypedDict):
     type: Optional[ChartType]
     x: AxisConfig
+    x2: AxisConfig
     y: AxisConfig
     y2: AxisConfig
     color: AxisConfig

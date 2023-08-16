@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 import pandas as pd
 import sqlparse
-from altair import Chart, Color, LayerChart, layer, Order, Theta, X, Y
+from altair import Chart, Color, LayerChart, Order, Theta, X, Y, layer
 from IPython.core.interactiveshell import InteractiveShell
 from IPython.display import update_display
 from ipywidgets import DOMWidget
@@ -15,7 +15,7 @@ from traitlets import Bool, Float, HasTraits, Int, Tuple, Unicode, observe
 
 from asqlcell.chart import ChartConfig, ChartType, SubChartType
 from asqlcell.jinjasql import JinjaSql
-from asqlcell.utils import NoTracebackException, get_histogram, get_duckdb, get_vars, get_duckdb_result
+from asqlcell.utils import NoTracebackException, get_duckdb, get_duckdb_result, get_histogram, get_vars
 
 module_name = "asqlcell"
 module_version = "0.1.0"
@@ -48,6 +48,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
     config: ChartConfig = {
         "type": None,
         "x": {
+            "label": None,
+            "field": None,
+            "aggregation": "sum",
+            "sort": None,
+        },
+        "x2": {
             "label": None,
             "field": None,
             "aggregation": "sum",

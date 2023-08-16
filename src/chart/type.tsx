@@ -1,5 +1,5 @@
 import { ActionIcon, Group, Menu, Select, Stack, Text } from "@mantine/core";
-import { IconChartAreaLine, IconChartBar, IconChartDots, IconChartLine, IconChartPie, IconFilter, IconPercentage, IconSettings, IconStack } from "@tabler/icons-react";
+import { IconChartAreaLine, IconChartBar, IconChartDots, IconChartLine, IconChartPie, IconFilter, IconPercentage, IconSettings, IconStack, IconSun } from "@tabler/icons-react";
 import React, { FunctionComponent, useState } from "react";
 import { useModelState } from "../hooks";
 import { ChartType } from "./const";
@@ -45,6 +45,11 @@ const data = [
         icon: <IconFilter stroke={1.5} size={18} />,
         value: ChartType.Funnel,
         label: "Funnel"
+    },
+    {
+        icon: <IconSun stroke={1.5} size={18} />,
+        value: ChartType.Sunburst,
+        label: "Sunburst"
     },
 ]
 
