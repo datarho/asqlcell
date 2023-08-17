@@ -255,19 +255,24 @@ class SqlCellWidget(DOMWidget, HasTraits):
             return None
         theta, color, color2 = config["y"]["field"], config["x"]["field"], config["x2"]["field"]
         get_duckdb().register("data", base.data)
-        data2 = get_duckdb().execute(f"select *, concat({color2}, ',', {theta}) label1q2w3e from data order by 1, 2")
-        data = get_duckdb().execute(f"select * from data order by 1")
-        get_duckdb().unregister("table")
-        theta = Theta(theta).stack(True)
-        base2 = Chart(data2).encode(theta=theta, text="label1q2w3e", tooltip=[color, color2, theta])
-        base = Chart(data).encode(theta=theta.aggregate("sum"), text=color, tooltip=[color, theta.aggregate("sum")])
+        data2 = get_duckdb().execute(f"select *, concat({color2}, ',', {theta}) label1q2w3e from data").df()
+        get_duckdb().unregister("data")
+        order = Order(color).sort("ascending")
+        theta = Theta(theta)
+        base2 = Chart(data2).encode(
+            theta=theta.stack(True), text="label1q2w3e", tooltip=[color, color2, theta], order=order
+        )
+        base = base.encode(
+            theta=theta.aggregate("sum").stack(True), text=color, tooltip=[color, theta.aggregate("sum")], order=order
+        )
         width = config["width"]
         height = config["height"]
         r2 = 100 if width * height == 0 else min(width - 20, height) / 2
         r = r2 / 2
         return layer(
-            base2.encode(color=color2).mark_arc(radius=r2) + base2.mark_text(radius=r2 - 20, color="white"),
-            base.encode(color=color).mark_arc(radius=r) + base.mark_text(radius=r - 20, color="white"),
+            base2.encode(color=color2).mark_arc(radius=r2, padAngle=0.01)
+            + base2.mark_text(radius=r2 - 30, color="black"),
+            base.encode(color=color).mark_arc(radius=r, padAngle=0.01) + base.mark_text(radius=r - 30, color="black"),
         )
 
     def check_duplicate(self, *args):
@@ -314,7 +319,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
         assert type(self.data_name) is str
         self.chart = mapping[config["type"]](Chart(self.shell.user_global_ns[self.data_name]), config)
         if self.chart:
-            self.chart = self.chart.properties(width=config["width"], height=config["height"])
+            self.chart = self.chart.properties(width=config["width"], height=config["height"]).configure_scale(
+                bandPaddingInner=0.05
+            )
             if not config["legend"]["visible"]:
                 self.chart = self.chart.configure_legend(disable=True)
             self.preview_vega = self.chart.to_json()

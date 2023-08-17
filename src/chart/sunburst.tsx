@@ -15,13 +15,7 @@ export const SunburstChart: FunctionComponent = () => {
 
             <Text fw={600}>Value</Text>
 
-            {/* <FieldSwitch major="y" />
-
-            <AggregationSwitch major="y" minor="x2" /> */}
-
-            {/* <Text fw={600}>Color</Text>
-
-            <FieldSwitch major="color" clearable /> */}
+            <FieldSwitch major="y" minor="x" />
         </Stack>
     );
 }

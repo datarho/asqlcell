@@ -320,4 +320,36 @@ def test_generate_combo_basic(session):
 
 
 def test_generate_sunburst_basic(session):
-    pass
+    query = """
+        WITH Geo(Country, Continent) AS 
+        (
+            VALUES 
+            ('USA', 'North America'),
+            ('Canada', 'North America'),
+            ('France', 'Europe'),
+            ('Brazil', 'South America'),
+            ('Germany', 'Europe'),
+            ('United Kingdom', 'Europe'),
+            ('Portugal', 'Europe'),
+            ('India', 'Asia'),
+            ('Czech Republic', 'Europe'),
+            ('Sweden', 'Europe')
+        )
+        SELECT
+            Customer.Country,
+            Geo.Continent,
+            COUNT(Customer.CustomerId) AS Count
+        FROM Customer
+        JOIN Geo ON Customer.Country = Geo.Country
+        GROUP BY 1, 2
+        ORDER BY 3 DESC
+        LIMIT 10
+    """
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.SUNBURST
+    c["x"]["field"] = "Continent"
+    c["x2"]["field"] = "Country"
+    c["y"]["field"] = "Count"
+    c["width"] = 500
+    c["height"] = 400
+    run_cmp(session, query, c, "sunburst_basic")
