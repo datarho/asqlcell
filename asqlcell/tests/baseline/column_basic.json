@@ -3,72 +3,40 @@
         "view": {
             "continuousWidth": 300,
             "continuousHeight": 300
+        },
+        "legend": {
+            "disable": false
         }
     },
-    "layer": [
-        {
-            "mark": {
-                "type": "bar"
-            },
-            "encoding": {
-                "text": {
-                    "aggregate": "sum",
-                    "field": "Total"
-                },
-                "tooltip": [
-                    {
-                        "field": "Country"
-                    },
-                    {
-                        "aggregate": "sum",
-                        "field": "Total"
-                    }
-                ],
-                "x": {
-                    "field": "Country",
-                    "sort": null
-                },
-                "y": {
-                    "aggregate": "sum",
-                    "field": "Total",
-                    "stack": "zero"
-                }
-            }
-        },
-        {
-            "mark": {
-                "type": "text",
-                "align": "center",
-                "baseline": "bottom"
-            },
-            "encoding": {
-                "text": {
-                    "aggregate": "sum",
-                    "field": "Total"
-                },
-                "tooltip": [
-                    {
-                        "field": "Country"
-                    },
-                    {
-                        "aggregate": "sum",
-                        "field": "Total"
-                    }
-                ],
-                "x": {
-                    "field": "Country",
-                    "sort": null
-                },
-                "y": {
-                    "aggregate": "sum",
-                    "field": "Total",
-                    "stack": "zero"
-                }
-            }
-        }
-    ],
     "data": {
         "name": "data-b39687acf961882efa4ea21196a84cce"
+    },
+    "mark": {
+        "type": "bar"
+    },
+    "encoding": {
+        "text": {
+            "aggregate": "sum",
+            "field": "Total"
+        },
+        "tooltip": [
+            {
+                "field": "Country"
+            },
+            {
+                "aggregate": "sum",
+                "field": "Total"
+            }
+        ],
+        "x": {
+            "field": "Country",
+            "sort": null
+        },
+        "y": {
+            "aggregate": "sum",
+            "field": "Total",
+            "stack": "zero"
+        }
     },
     "height": 400,
     "width": 1000,

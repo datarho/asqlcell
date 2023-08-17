@@ -17,6 +17,9 @@
     "encoding": {
         "color": {
             "field": "BillingCountry",
+            "scale": {
+                "scheme": "tableau20"
+            },
             "type": "nominal"
         },
         "tooltip": [

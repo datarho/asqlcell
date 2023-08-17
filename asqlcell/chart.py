@@ -43,3 +43,4 @@ class ChartConfig(TypedDict):
     width: int
     legend: LegendConfig
     label: bool
+    theme: str

@@ -3,44 +3,95 @@
         "view": {
             "continuousWidth": 300,
             "continuousHeight": 300
+        },
+        "legend": {
+            "disable": false
         }
     },
+    "layer": [
+        {
+            "mark": {
+                "type": "line"
+            },
+            "encoding": {
+                "color": {
+                    "field": "BillingCountry",
+                    "scale": {
+                        "scheme": "tableau20"
+                    },
+                    "type": "nominal"
+                },
+                "text": {
+                    "aggregate": "sum",
+                    "field": "Total"
+                },
+                "tooltip": [
+                    {
+                        "field": "Date"
+                    },
+                    {
+                        "aggregate": "sum",
+                        "field": "Total"
+                    },
+                    {
+                        "field": "BillingCountry",
+                        "type": "nominal"
+                    }
+                ],
+                "x": {
+                    "field": "Date",
+                    "sort": "x"
+                },
+                "y": {
+                    "aggregate": "sum",
+                    "field": "Total"
+                }
+            }
+        },
+        {
+            "mark": {
+                "type": "text",
+                "align": "center",
+                "baseline": "bottom"
+            },
+            "encoding": {
+                "color": {
+                    "field": "BillingCountry",
+                    "scale": {
+                        "scheme": "tableau20"
+                    },
+                    "type": "nominal"
+                },
+                "text": {
+                    "aggregate": "sum",
+                    "field": "Total"
+                },
+                "tooltip": [
+                    {
+                        "field": "Date"
+                    },
+                    {
+                        "aggregate": "sum",
+                        "field": "Total"
+                    },
+                    {
+                        "field": "BillingCountry",
+                        "type": "nominal"
+                    }
+                ],
+                "x": {
+                    "field": "Date",
+                    "sort": "x"
+                },
+                "y": {
+                    "aggregate": "sum",
+                    "field": "Total"
+                }
+            }
+        }
+    ],
     "data": {
         "name": "data-dd0669fde849f82b10342f0553d983bd"
-    },
-    "mark": {
-        "type": "line"
-    },
-    "encoding": {
-        "color": {
-            "field": "BillingCountry",
-            "type": "nominal"
-        },
-        "text": {
-            "aggregate": "sum",
-            "field": "Total"
-        },
-        "tooltip": [
-            {
-                "field": "Date"
-            },
-            {
-                "aggregate": "sum",
-                "field": "Total"
-            },
-            {
-                "field": "BillingCountry",
-                "type": "nominal"
-            }
-        ],
-        "x": {
-            "field": "Date",
-            "sort": "x"
-        },
-        "y": {
-            "aggregate": "sum",
-            "field": "Total"
-        }
     },
     "height": 400,
     "width": 1000,

@@ -7,136 +7,70 @@
         "bar": {
             "opacity": 0.5
         },
+        "legend": {
+            "disable": false
+        },
         "line": {
             "color": "orange"
         }
     },
     "layer": [
         {
-            "layer": [
-                {
-                    "mark": {
-                        "type": "line"
-                    },
-                    "encoding": {
-                        "text": {
-                            "aggregate": "sum",
-                            "field": "Total"
-                        },
-                        "tooltip": [
-                            {
-                                "field": "BillingCountry"
-                            },
-                            {
-                                "aggregate": "sum",
-                                "field": "Total"
-                            }
-                        ],
-                        "x": {
-                            "field": "BillingCountry",
-                            "sort": null
-                        },
-                        "y": {
-                            "aggregate": "sum",
-                            "field": "Total"
-                        }
-                    }
+            "mark": {
+                "type": "line"
+            },
+            "encoding": {
+                "text": {
+                    "aggregate": "sum",
+                    "field": "Total"
                 },
-                {
-                    "mark": {
-                        "type": "text",
-                        "align": "center",
-                        "baseline": "bottom"
+                "tooltip": [
+                    {
+                        "field": "BillingCountry"
                     },
-                    "encoding": {
-                        "text": {
-                            "aggregate": "sum",
-                            "field": "Total"
-                        },
-                        "tooltip": [
-                            {
-                                "field": "BillingCountry"
-                            },
-                            {
-                                "aggregate": "sum",
-                                "field": "Total"
-                            }
-                        ],
-                        "x": {
-                            "field": "BillingCountry",
-                            "sort": null
-                        },
-                        "y": {
-                            "aggregate": "sum",
-                            "field": "Total"
-                        }
+                    {
+                        "aggregate": "sum",
+                        "field": "Total"
                     }
+                ],
+                "x": {
+                    "field": "BillingCountry",
+                    "sort": null
+                },
+                "y": {
+                    "aggregate": "sum",
+                    "field": "Total"
                 }
-            ]
+            }
         },
         {
-            "layer": [
-                {
-                    "mark": {
-                        "type": "bar"
-                    },
-                    "encoding": {
-                        "text": {
-                            "aggregate": "sum",
-                            "field": "Total"
-                        },
-                        "tooltip": [
-                            {
-                                "field": "BillingCountry"
-                            },
-                            {
-                                "aggregate": "sum",
-                                "field": "Total"
-                            }
-                        ],
-                        "x": {
-                            "field": "BillingCountry",
-                            "sort": null
-                        },
-                        "y": {
-                            "aggregate": "sum",
-                            "field": "Total",
-                            "stack": "zero"
-                        }
-                    }
+            "mark": {
+                "type": "bar"
+            },
+            "encoding": {
+                "text": {
+                    "aggregate": "sum",
+                    "field": "Total"
                 },
-                {
-                    "mark": {
-                        "type": "text",
-                        "align": "center",
-                        "baseline": "bottom"
+                "tooltip": [
+                    {
+                        "field": "BillingCountry"
                     },
-                    "encoding": {
-                        "text": {
-                            "aggregate": "sum",
-                            "field": "Total"
-                        },
-                        "tooltip": [
-                            {
-                                "field": "BillingCountry"
-                            },
-                            {
-                                "aggregate": "sum",
-                                "field": "Total"
-                            }
-                        ],
-                        "x": {
-                            "field": "BillingCountry",
-                            "sort": null
-                        },
-                        "y": {
-                            "aggregate": "sum",
-                            "field": "Total",
-                            "stack": "zero"
-                        }
+                    {
+                        "aggregate": "sum",
+                        "field": "Total"
                     }
+                ],
+                "x": {
+                    "field": "BillingCountry",
+                    "sort": null
+                },
+                "y": {
+                    "aggregate": "sum",
+                    "field": "Total",
+                    "stack": "zero"
                 }
-            ]
+            }
         }
     ],
     "data": {

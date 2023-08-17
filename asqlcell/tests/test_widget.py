@@ -48,7 +48,8 @@ config: ChartConfig = {
     "legend": {
         "visible": True,
     },
-    "label": True,
+    "label": False,
+    "theme": "tableau20",
 }
 
 
@@ -173,7 +174,7 @@ def test_generate_line_basic(session):
     run_cmp(session, query, c, "line_basic")
 
 
-def test_generate_line_with_no_label(session):
+def test_generate_line_with_label(session):
     """
     Check basic vega spec generated for line chart.
     """
@@ -194,8 +195,8 @@ def test_generate_line_with_no_label(session):
     c["color"]["field"] = "BillingCountry"
     c["width"] = 1000
     c["height"] = 400
-    c["label"] = False
-    run_cmp(session, query, c, "line_no_label")
+    c["label"] = True
+    run_cmp(session, query, c, "line_with_label")
 
 
 def test_generate_area_basic(session):

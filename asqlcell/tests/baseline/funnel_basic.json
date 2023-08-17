@@ -3,6 +3,9 @@
         "view": {
             "continuousWidth": 300,
             "continuousHeight": 300
+        },
+        "legend": {
+            "disable": false
         }
     },
     "layer": [
@@ -13,9 +16,17 @@
             "encoding": {
                 "color": {
                     "field": "Step",
-                    "legend": null,
+                    "scale": {
+                        "scheme": "tableau20"
+                    },
                     "type": "nominal"
                 },
+                "tooltip": [
+                    {
+                        "field": "Step",
+                        "type": "nominal"
+                    }
+                ],
                 "x": {
                     "field": "Count",
                     "stack": "center",

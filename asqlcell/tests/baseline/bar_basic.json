@@ -3,73 +3,40 @@
         "view": {
             "continuousWidth": 300,
             "continuousHeight": 300
+        },
+        "legend": {
+            "disable": false
         }
     },
-    "layer": [
-        {
-            "mark": {
-                "type": "bar"
-            },
-            "encoding": {
-                "text": {
-                    "aggregate": "sum",
-                    "field": "Total"
-                },
-                "tooltip": [
-                    {
-                        "aggregate": "sum",
-                        "field": "Total"
-                    },
-                    {
-                        "field": "Sales Agent"
-                    }
-                ],
-                "x": {
-                    "aggregate": "sum",
-                    "field": "Total",
-                    "stack": "zero"
-                },
-                "y": {
-                    "field": "Sales Agent",
-                    "sort": null
-                }
-            }
-        },
-        {
-            "mark": {
-                "type": "text",
-                "align": "center",
-                "baseline": "bottom",
-                "dx": 40
-            },
-            "encoding": {
-                "text": {
-                    "aggregate": "sum",
-                    "field": "Total"
-                },
-                "tooltip": [
-                    {
-                        "aggregate": "sum",
-                        "field": "Total"
-                    },
-                    {
-                        "field": "Sales Agent"
-                    }
-                ],
-                "x": {
-                    "aggregate": "sum",
-                    "field": "Total",
-                    "stack": "zero"
-                },
-                "y": {
-                    "field": "Sales Agent",
-                    "sort": null
-                }
-            }
-        }
-    ],
     "data": {
         "name": "data-3c273fe8e6fc88ca1afd7550e98384a0"
+    },
+    "mark": {
+        "type": "bar"
+    },
+    "encoding": {
+        "text": {
+            "aggregate": "sum",
+            "field": "Total"
+        },
+        "tooltip": [
+            {
+                "aggregate": "sum",
+                "field": "Total"
+            },
+            {
+                "field": "Sales Agent"
+            }
+        ],
+        "x": {
+            "aggregate": "sum",
+            "field": "Total",
+            "stack": "zero"
+        },
+        "y": {
+            "field": "Sales Agent",
+            "sort": null
+        }
     },
     "height": 200,
     "width": 500,

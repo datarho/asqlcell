@@ -83,7 +83,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         "legend": {
             "visible": True,
         },
-        "label": True,
+        "label": False,
+        "theme": "tableau20",
     }
 
     def __init__(self, shell: InteractiveShell, cell_id="", sql=""):
@@ -164,19 +165,18 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 return "y" if config["y"]["sort"] == "ascending" else "-y"
         return None
 
-    def _add_color(self, color, params: dict) -> dict:
+    def _add_color(self, theme, color, params: dict) -> dict:
         if color:
-            params["color"] = color
+            params["color"] = Color(color).scale(scheme=theme)
             params["tooltip"] += [color]
         return params
 
     def _generate_funnel(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
+        x, y, color = config["x"]["field"], config["y"]["field"], config["y"]["field"]
+        params = {"x": X(x).stack("center"), "tooltip": []}
         return (
-            base.encode(
-                x=X(config["x"]["field"]).stack("center"), color=Color(config["y"]["field"], legend=None)
-            ).mark_bar()
-            + base.encode(text=config["x"]["field"]).mark_text()
-        ).encode(y=Y(config["y"]["field"], sort=None))
+            base.encode(**self._add_color(config["theme"], color, params)).mark_bar() + base.encode(text=x).mark_text()
+        ).encode(y=Y(y).sort(None))
 
     def _generate_bar(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         x, y, color = X(field=config["x"]["field"]), Y(field=config["y"]["field"]), config["color"]["field"]
@@ -186,7 +186,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             params["x"] = x.stack("normalize")
         if color and SubChartType.CLUSTERED in config["subtype"]:
             params["yOffset"] = color
-        base = base.encode(**self._add_color(color, params))
+        base = base.encode(**self._add_color(config["theme"], color, params))
         bar = base.mark_bar()
         return bar + base.mark_text(align="center", baseline="bottom", dx=40) if config["label"] else bar
 
@@ -199,7 +199,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 params["y"] = y.stack("normalize")
             if SubChartType.CLUSTERED in config["subtype"]:
                 params["xOffset"] = color
-        base = base.encode(**self._add_color(color, params))
+        base = base.encode(**self._add_color(config["theme"], color, params))
         bar = base.mark_bar()
         return bar + base.mark_text(align="center", baseline="bottom") if config["label"] else bar
 
@@ -209,7 +209,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         params = {"x": x.sort(self._get_sort_symbol(config)), "y": y.stack("zero"), "tooltip": [x, y], "text": y}
         if color and SubChartType.PERCENT in config["subtype"]:
             params["y"] = y.stack("normalize")
-        base = base.encode(**self._add_color(color, params))
+        base = base.encode(**self._add_color(config["theme"], color, params))
         area = base.mark_area()
         return area + base.mark_text(align="center", baseline="bottom") if config["label"] else area
 
@@ -217,14 +217,14 @@ class SqlCellWidget(DOMWidget, HasTraits):
         x, y, color = X(field=config["x"]["field"]), Y(field=config["y"]["field"]), config["color"]["field"]
         y = y.aggregate(config["y"]["aggregation"])
         params = {"x": x.sort(self._get_sort_symbol(config)), "y": y, "tooltip": [x, y], "text": y}
-        base = base.encode(**self._add_color(color, params))
+        base = base.encode(**self._add_color(config["theme"], color, params))
         line = base.mark_line()
         return line + base.mark_text(align="center", baseline="bottom") if config["label"] else line
 
     def _generate_scatter(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         x, y, color = config["x"]["field"], config["y"]["field"], config["color"]["field"]
         params = {"x": x, "y": y, "tooltip": [x, y]}
-        return base.encode(**self._add_color(color, params)).mark_point()
+        return base.encode(**self._add_color(config["theme"], color, params)).mark_point()
 
     def _generate_combo(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
         if config["y2"]["field"] is None:
@@ -237,16 +237,16 @@ class SqlCellWidget(DOMWidget, HasTraits):
         )
 
     def _generate_arc(self, base: Chart, config: ChartConfig) -> Union[Chart, LayerChart, None]:
-        theta, color = Theta(field=config["y"]["field"], aggregate=config["y"]["aggregation"]), config["x"]["field"]
+        theta, color = Theta(config["y"]["field"]).aggregate(config["y"]["aggregation"]), config["x"]["field"]
         params = {"theta": theta.stack(True), "tooltip": [theta], "text": color}
         if config["x"]["sort"]:
             params["order"] = Order(color).sort(config["x"]["sort"])  # type: ignore
         if config["y"]["sort"]:
-            params["order"] = Order(field=config["y"]["field"], aggregate=config["y"]["aggregation"]).sort(config["y"]["sort"])  # type: ignore
-        base = base.encode(**self._add_color(color, params))
+            params["order"] = Order(config["y"]["field"]).aggregate(config["y"]["aggregation"]).sort(config["y"]["sort"])  # type: ignore
+        base = base.encode(**self._add_color(config["theme"], color, params))
         width = config["width"]
         height = config["height"]
-        r = 100 if width * height == 0 else min(width - 20, height) / 2
+        r = 100 if width * height == 0 else min(max(width - 20, 0), height) / 2
         pie = base.mark_arc(radius=r)
         return pie + base.mark_text(radius=r + 20) if config["label"] else pie
 
@@ -259,20 +259,24 @@ class SqlCellWidget(DOMWidget, HasTraits):
         get_duckdb().unregister("data")
         order = Order(color).sort("ascending")
         theta = Theta(theta)
-        base2 = Chart(data2).encode(
-            theta=theta.stack(True), text="label1q2w3e", tooltip=[color, color2, theta], order=order
-        )
-        base = base.encode(
-            theta=theta.aggregate("sum").stack(True), text=color, tooltip=[color, theta.aggregate("sum")], order=order
-        )
+        params2 = {"theta": theta.stack(True), "text": "label1q2w3e", "tooltip": [color, theta], "order": order}
+        params = {
+            "theta": theta.aggregate("sum").stack(True),
+            "text": color,
+            "tooltip": [theta.aggregate("sum")],
+            "order": order,
+        }
+        base2 = Chart(data2).encode(**self._add_color(config["theme"], color2, params2))
+        base = base.encode(**self._add_color(config["theme"], color, params))
         width = config["width"]
         height = config["height"]
-        r2 = 100 if width * height == 0 else min(width - 20, height) / 2
+        r2 = 100 if width * height == 0 else min(max(width - 20, 0), height) / 2
         r = r2 / 2
+        pie2 = base2.mark_arc(radius=r2)
+        pie = base.mark_arc(radius=r)
         return layer(
-            base2.encode(color=color2).mark_arc(radius=r2, padAngle=0.01)
-            + base2.mark_text(radius=r2 - 30, color="black"),
-            base.encode(color=color).mark_arc(radius=r, padAngle=0.01) + base.mark_text(radius=r - 30, color="black"),
+            pie2 + base2.mark_text(radius=max(r2 - 30, 0), color="black") if config["label"] else pie2,
+            pie + base.mark_text(radius=max(r - 30, 0), color="black") if config["label"] else pie,
         )
 
     def check_duplicate(self, *args):
@@ -319,11 +323,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
         assert type(self.data_name) is str
         self.chart = mapping[config["type"]](Chart(self.shell.user_global_ns[self.data_name]), config)
         if self.chart:
-            self.chart = self.chart.properties(width=config["width"], height=config["height"]).configure_scale(
-                bandPaddingInner=0.05
+            self.chart = self.chart.properties(width=config["width"], height=config["height"]).configure_legend(
+                disable=not config["legend"]["visible"]
             )
-            if not config["legend"]["visible"]:
-                self.chart = self.chart.configure_legend(disable=True)
             self.preview_vega = self.chart.to_json()
 
     @observe("row_range")

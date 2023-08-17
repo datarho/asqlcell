@@ -3,84 +3,53 @@
         "view": {
             "continuousWidth": 300,
             "continuousHeight": 300
+        },
+        "legend": {
+            "disable": false
         }
     },
-    "layer": [
-        {
-            "mark": {
-                "type": "arc",
-                "radius": 200.0
-            },
-            "encoding": {
-                "color": {
-                    "field": "Country",
-                    "type": "nominal"
-                },
-                "order": {
-                    "aggregate": "sum",
-                    "field": "Count",
-                    "sort": "descending"
-                },
-                "text": {
-                    "field": "Country",
-                    "type": "nominal"
-                },
-                "theta": {
-                    "aggregate": "sum",
-                    "field": "Count",
-                    "stack": true
-                },
-                "tooltip": [
-                    {
-                        "aggregate": "sum",
-                        "field": "Count"
-                    },
-                    {
-                        "field": "Country",
-                        "type": "nominal"
-                    }
-                ]
-            }
-        },
-        {
-            "mark": {
-                "type": "text",
-                "radius": 220.0
-            },
-            "encoding": {
-                "color": {
-                    "field": "Country",
-                    "type": "nominal"
-                },
-                "order": {
-                    "aggregate": "sum",
-                    "field": "Count",
-                    "sort": "descending"
-                },
-                "text": {
-                    "field": "Country",
-                    "type": "nominal"
-                },
-                "theta": {
-                    "aggregate": "sum",
-                    "field": "Count",
-                    "stack": true
-                },
-                "tooltip": [
-                    {
-                        "aggregate": "sum",
-                        "field": "Count"
-                    },
-                    {
-                        "field": "Country",
-                        "type": "nominal"
-                    }
-                ]
-            }
-        }
-    ],
     "data": {
         "name": "data-50f61702d93a607f09ab4df420eddcdf"
+    },
+    "mark": {
+        "type": "arc",
+        "radius": 200.0
+    },
+    "encoding": {
+        "color": {
+            "field": "Country",
+            "scale": {
+                "scheme": "tableau20"
+            },
+            "type": "nominal"
+        },
+        "order": {
+            "aggregate": "sum",
+            "field": "Count",
+            "sort": "descending",
+            "type": "quantitative"
+        },
+        "text": {
+            "field": "Country",
+            "type": "nominal"
+        },
+        "theta": {
+            "aggregate": "sum",
+            "field": "Count",
+            "stack": true,
+            "type": "quantitative"
+        },
+        "tooltip": [
+            {
+                "aggregate": "sum",
+                "field": "Count",
+                "type": "quantitative"
+            },
+            {
+                "field": "Country",
+                "type": "nominal"
+            }
+        ]
     },
     "height": 400,
     "width": 500,
