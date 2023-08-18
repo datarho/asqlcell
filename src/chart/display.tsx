@@ -2,6 +2,7 @@ import { Group, NumberInput, Stack, Switch, Text } from "@mantine/core";
 import { IconArrowAutofitHeight, IconArrowAutofitWidth } from "@tabler/icons-react";
 import React, { FunctionComponent } from "react";
 import { useModelState } from "../hooks";
+import { ThemeSelect } from "./theme";
 
 export const DisplaySize: FunctionComponent = () => {
     const [config, setConfig] = useModelState("chart_config");
@@ -97,6 +98,8 @@ export const DisplaySize: FunctionComponent = () => {
                     }}
                 />
             </Group>
+
+            <ThemeSelect />
         </Stack>
     )
 }
