@@ -1,0 +1,222 @@
+{
+    "config": {
+        "view": {
+            "continuousWidth": 300,
+            "continuousHeight": 300
+        },
+        "legend": {
+            "disable": false
+        }
+    },
+    "layer": [
+        {
+            "data": {
+                "name": "data-5c96125ca825f8c919be47eef653c89c"
+            },
+            "mark": {
+                "type": "arc",
+                "radius": 200.0
+            },
+            "encoding": {
+                "color": {
+                    "field": "Country",
+                    "scale": {
+                        "scheme": "tableau20"
+                    },
+                    "type": "nominal"
+                },
+                "order": {
+                    "field": "Continent",
+                    "sort": "ascending",
+                    "type": "nominal"
+                },
+                "text": {
+                    "field": "label1q2w3e",
+                    "type": "nominal"
+                },
+                "theta": {
+                    "field": "Count",
+                    "stack": true,
+                    "type": "quantitative"
+                },
+                "tooltip": [
+                    {
+                        "field": "Continent",
+                        "type": "nominal"
+                    },
+                    {
+                        "field": "Count",
+                        "type": "quantitative"
+                    },
+                    {
+                        "field": "Country",
+                        "type": "nominal"
+                    }
+                ]
+            }
+        },
+        {
+            "data": {
+                "name": "data-f39af84dafec496d1bd5f2e7abda2aac"
+            },
+            "mark": {
+                "type": "arc",
+                "radius": 100.0
+            },
+            "encoding": {
+                "color": {
+                    "field": "Continent",
+                    "scale": {
+                        "scheme": "tableau20"
+                    },
+                    "type": "nominal"
+                },
+                "order": {
+                    "field": "Continent",
+                    "sort": "ascending",
+                    "type": "nominal"
+                },
+                "text": {
+                    "field": "Continent",
+                    "type": "nominal"
+                },
+                "theta": {
+                    "aggregate": "sum",
+                    "field": "Count",
+                    "stack": true,
+                    "type": "quantitative"
+                },
+                "tooltip": [
+                    {
+                        "aggregate": "sum",
+                        "field": "Count",
+                        "type": "quantitative"
+                    },
+                    {
+                        "field": "Continent",
+                        "type": "nominal"
+                    }
+                ]
+            }
+        }
+    ],
+    "height": 400,
+    "width": 500,
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
+    "datasets": {
+        "data-5c96125ca825f8c919be47eef653c89c": [
+            {
+                "Country": "USA",
+                "Continent": "North America",
+                "Count": 13,
+                "label1q2w3e": "USA,13"
+            },
+            {
+                "Country": "Canada",
+                "Continent": "North America",
+                "Count": 8,
+                "label1q2w3e": "Canada,8"
+            },
+            {
+                "Country": "Brazil",
+                "Continent": "South America",
+                "Count": 5,
+                "label1q2w3e": "Brazil,5"
+            },
+            {
+                "Country": "France",
+                "Continent": "Europe",
+                "Count": 5,
+                "label1q2w3e": "France,5"
+            },
+            {
+                "Country": "Germany",
+                "Continent": "Europe",
+                "Count": 4,
+                "label1q2w3e": "Germany,4"
+            },
+            {
+                "Country": "United Kingdom",
+                "Continent": "Europe",
+                "Count": 3,
+                "label1q2w3e": "United Kingdom,3"
+            },
+            {
+                "Country": "Czech Republic",
+                "Continent": "Europe",
+                "Count": 2,
+                "label1q2w3e": "Czech Republic,2"
+            },
+            {
+                "Country": "India",
+                "Continent": "Asia",
+                "Count": 2,
+                "label1q2w3e": "India,2"
+            },
+            {
+                "Country": "Portugal",
+                "Continent": "Europe",
+                "Count": 2,
+                "label1q2w3e": "Portugal,2"
+            },
+            {
+                "Country": "Sweden",
+                "Continent": "Europe",
+                "Count": 1,
+                "label1q2w3e": "Sweden,1"
+            }
+        ],
+        "data-f39af84dafec496d1bd5f2e7abda2aac": [
+            {
+                "Country": "USA",
+                "Continent": "North America",
+                "Count": 13
+            },
+            {
+                "Country": "Canada",
+                "Continent": "North America",
+                "Count": 8
+            },
+            {
+                "Country": "Brazil",
+                "Continent": "South America",
+                "Count": 5
+            },
+            {
+                "Country": "France",
+                "Continent": "Europe",
+                "Count": 5
+            },
+            {
+                "Country": "Germany",
+                "Continent": "Europe",
+                "Count": 4
+            },
+            {
+                "Country": "United Kingdom",
+                "Continent": "Europe",
+                "Count": 3
+            },
+            {
+                "Country": "Czech Republic",
+                "Continent": "Europe",
+                "Count": 2
+            },
+            {
+                "Country": "India",
+                "Continent": "Asia",
+                "Count": 2
+            },
+            {
+                "Country": "Portugal",
+                "Continent": "Europe",
+                "Count": 2
+            },
+            {
+                "Country": "Sweden",
+                "Continent": "Europe",
+                "Count": 1
+            }
+        ]
+    }
+}

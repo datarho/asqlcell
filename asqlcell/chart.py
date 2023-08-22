@@ -12,6 +12,7 @@ class ChartType(StrEnum):
     SCATTER = "scatter"
     COMBO = "combo"
     FUNNEL = "funnel"
+    SUNBURST = "sunburst"
 
 
 class SubChartType(StrEnum):
@@ -33,6 +34,7 @@ class AxisConfig(TypedDict):
 class ChartConfig(TypedDict):
     type: Optional[ChartType]
     x: AxisConfig
+    x2: AxisConfig
     y: AxisConfig
     y2: AxisConfig
     color: AxisConfig
@@ -41,3 +43,4 @@ class ChartConfig(TypedDict):
     width: int
     legend: LegendConfig
     label: bool
+    theme: str

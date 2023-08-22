@@ -5,7 +5,7 @@
             "continuousHeight": 300
         },
         "legend": {
-            "disable": false
+            "disable": true
         }
     },
     "data": {

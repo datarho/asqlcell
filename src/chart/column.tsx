@@ -15,6 +15,8 @@ export const ColumnChart: FunctionComponent = () => {
 
             <AggregationSwitch major="y" minor="x" />
 
+            <Text fw={600}>Color</Text>
+
             <FieldSwitch major="color" clearable />
         </Stack>
     );

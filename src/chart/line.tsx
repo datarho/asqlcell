@@ -13,7 +13,7 @@ export const LineChart: FunctionComponent = () => {
 
             <FieldSwitch major="y" minor="x" sort />
 
-            <AggregationSwitch major="x" minor="y" />
+            <AggregationSwitch major="y" minor="x" />
 
             <Text fw={600}>Color</Text>
 

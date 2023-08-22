@@ -1,3 +1,4 @@
+import copy
 import filecmp
 import json
 from pathlib import Path
@@ -8,6 +9,61 @@ from asqlcell.chart import ChartConfig, ChartType
 from asqlcell.widget import SqlCellWidget
 
 dir = Path(__file__).parent.resolve()
+db = Path(dir, "chinook.sqlite")
+config: ChartConfig = {
+    "type": None,
+    "x": {
+        "label": None,
+        "field": None,
+        "aggregation": "sum",
+        "sort": None,
+    },
+    "x2": {
+        "label": None,
+        "field": None,
+        "aggregation": "sum",
+        "sort": None,
+    },
+    "y": {
+        "label": None,
+        "field": None,
+        "aggregation": "sum",
+        "sort": None,
+    },
+    "y2": {
+        "label": None,
+        "field": None,
+        "aggregation": "sum",
+        "sort": None,
+    },
+    "color": {
+        "label": None,
+        "field": None,
+        "aggregation": "sum",
+        "sort": None,
+    },
+    "subtype": [],
+    "width": 500,
+    "height": 400,
+    "legend": {
+        "visible": True,
+    },
+    "label": False,
+    "theme": "tableau20",
+}
+
+
+def run_cmp(session, query, config: ChartConfig, filename):
+    con = create_engine(f"sqlite:///{db}").connect()
+    widget = SqlCellWidget(session)
+    widget.run_sql(query, con)
+    widget.chart_config = json.dumps(config)
+    assert widget.chart is not None
+    actual = Path(dir, "actual", f"{filename}.json")
+    actual.parent.mkdir(exist_ok=True, parents=True)
+    with open(actual, "w") as file:
+        json.dump(widget.chart.to_dict(), file, indent=4)
+    assert filecmp.cmp(actual, Path(dir, "baseline", f"{filename}.json"))
 
 
 def test_widget_creation_blank(session):
@@ -28,9 +84,6 @@ def test_generate_column_basic(session):
     """
     Check basic vega spec generated for column chart.
     """
-    db = Path(dir, "chinook.sqlite")
-    con = create_engine(f"sqlite:///{db}").connect()
-
     query = """
         SELECT
             Customer.Country,
@@ -40,43 +93,19 @@ def test_generate_column_basic(session):
         GROUP BY 1
         ORDER BY 2 DESC
     """
-    widget = SqlCellWidget(session)
-
-    widget.run_sql(query, con)
-
-    config: ChartConfig = {
-        "type": ChartType.COLUMN,
-        "x": {"label": None, "field": "Country", "aggregation": "sum", "sort": None},
-        "y": {"label": None, "field": "Total", "aggregation": "sum", "sort": None},
-        "y2": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "color": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "subtype": [],
-        "width": 1000,
-        "height": 400,
-        "legend": {"visible": True},
-        "label": True,
-    }
-
-    widget.chart_config = json.dumps(config)
-
-    assert widget.chart is not None
-
-    actual = Path(dir, "actual", "column_basic.json")
-    actual.parent.mkdir(exist_ok=True, parents=True)
-
-    with open(actual, "w") as file:
-        json.dump(widget.chart.to_dict(), file, indent=4)
-
-    assert filecmp.cmp(Path(dir, "baseline", "column_basic.json"), Path(dir, "actual", "column_basic.json"))
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.COLUMN
+    c["x"]["field"] = "Country"
+    c["y"]["field"] = "Total"
+    c["width"] = 1000
+    c["height"] = 400
+    run_cmp(session, query, c, "column_basic")
 
 
 def test_generate_bar_basic(session):
     """
     Check basic vega spec generated for bar chart.
     """
-    db = Path(dir, "chinook.sqlite")
-    con = create_engine(f"sqlite:///{db}").connect()
-
     query = """
         SELECT
             SUM(Invoice.Total) AS Total,
@@ -88,43 +117,19 @@ def test_generate_bar_basic(session):
         ORDER BY 1
         DESC
     """
-    widget = SqlCellWidget(session)
-
-    widget.run_sql(query, con)
-
-    config: ChartConfig = {
-        "type": ChartType.BAR,
-        "x": {"label": None, "field": "Total", "aggregation": "sum", "sort": None},
-        "y": {"label": None, "field": "Sales Agent", "aggregation": "sum", "sort": None},
-        "y2": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "color": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "subtype": [],
-        "width": 500,
-        "height": 200,
-        "legend": {"visible": True},
-        "label": True,
-    }
-
-    widget.chart_config = json.dumps(config)
-
-    assert widget.chart is not None
-
-    actual = Path(dir, "actual", "bar_basic.json")
-    actual.parent.mkdir(exist_ok=True, parents=True)
-
-    with open(actual, "w") as file:
-        json.dump(widget.chart.to_dict(), file, indent=4)
-
-    assert filecmp.cmp(Path(dir, "baseline", "bar_basic.json"), Path(dir, "actual", "bar_basic.json"))
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.BAR
+    c["x"]["field"] = "Total"
+    c["y"]["field"] = "Sales Agent"
+    c["width"] = 500
+    c["height"] = 200
+    run_cmp(session, query, c, "bar_basic")
 
 
 def test_generate_pie_basic(session):
     """
     Check basic vega spec generated for pie chart.
     """
-    db = Path(dir, "chinook.sqlite")
-    con = create_engine(f"sqlite:///{db}").connect()
-
     query = """
         SELECT
             Country,
@@ -135,43 +140,20 @@ def test_generate_pie_basic(session):
         DESC
         LIMIT 10
     """
-    widget = SqlCellWidget(session)
-
-    widget.run_sql(query, con)
-
-    config: ChartConfig = {
-        "type": ChartType.PIE,
-        "x": {"label": None, "field": "Country", "aggregation": "sum", "sort": None},
-        "y": {"label": None, "field": "Count", "aggregation": "sum", "sort": "descending"},
-        "y2": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "color": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "subtype": [],
-        "width": 500,
-        "height": 400,
-        "legend": {"visible": True},
-        "label": True,
-    }
-
-    widget.chart_config = json.dumps(config)
-
-    assert widget.chart is not None
-
-    actual = Path(dir, "actual", "pie_basic.json")
-    actual.parent.mkdir(exist_ok=True, parents=True)
-
-    with open(actual, "w") as file:
-        json.dump(widget.chart.to_dict(), file, indent=4)
-
-    assert filecmp.cmp(Path(dir, "baseline", "pie_basic.json"), Path(dir, "actual", "pie_basic.json"))
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.PIE
+    c["x"]["field"] = "Country"
+    c["y"]["field"] = "Count"
+    c["y"]["sort"] = "descending"
+    c["width"] = 500
+    c["height"] = 400
+    run_cmp(session, query, c, "pie_basic")
 
 
 def test_generate_line_basic(session):
     """
     Check basic vega spec generated for line chart.
     """
-    db = Path(dir, "chinook.sqlite")
-    con = create_engine(f"sqlite:///{db}").connect()
-
     query = """
         SELECT
             BillingCountry,
@@ -181,43 +163,46 @@ def test_generate_line_basic(session):
         GROUP BY 1, 2
         HAVING BillingCountry IN ('USA', 'Canada', 'France')
     """
-    widget = SqlCellWidget(session)
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.LINE
+    c["x"]["field"] = "Date"
+    c["x"]["sort"] = "ascending"
+    c["y"]["field"] = "Total"
+    c["color"]["field"] = "BillingCountry"
+    c["width"] = 1000
+    c["height"] = 400
+    run_cmp(session, query, c, "line_basic")
 
-    widget.run_sql(query, con)
 
-    config: ChartConfig = {
-        "type": ChartType.LINE,
-        "x": {"label": None, "field": "Date", "aggregation": "sum", "sort": "ascending"},
-        "y": {"label": None, "field": "Total", "aggregation": "sum", "sort": None},
-        "y2": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "color": {"label": None, "field": "BillingCountry", "aggregation": "sum", "sort": None},
-        "subtype": [],
-        "width": 1000,
-        "height": 400,
-        "legend": {"visible": True},
-        "label": True,
-    }
-
-    widget.chart_config = json.dumps(config)
-
-    assert widget.chart is not None
-
-    actual = Path(dir, "actual", "line_basic.json")
-    actual.parent.mkdir(exist_ok=True, parents=True)
-
-    with open(actual, "w") as file:
-        json.dump(widget.chart.to_dict(), file, indent=4)
-
-    assert filecmp.cmp(Path(dir, "baseline", "line_basic.json"), Path(dir, "actual", "line_basic.json"))
+def test_generate_line_with_label(session):
+    """
+    Check basic vega spec generated for line chart.
+    """
+    query = """
+        SELECT
+            BillingCountry,
+            date(InvoiceDate, 'start of month') AS Date,
+            SUM(Total) AS Total
+        FROM Invoice
+        GROUP BY 1, 2
+        HAVING BillingCountry IN ('USA', 'Canada', 'France')
+    """
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.LINE
+    c["x"]["field"] = "Date"
+    c["x"]["sort"] = "ascending"
+    c["y"]["field"] = "Total"
+    c["color"]["field"] = "BillingCountry"
+    c["width"] = 1000
+    c["height"] = 400
+    c["label"] = True
+    run_cmp(session, query, c, "line_with_label")
 
 
 def test_generate_area_basic(session):
     """
     Check basic vega spec generated for area chart.
     """
-    db = Path(dir, "chinook.sqlite")
-    con = create_engine(f"sqlite:///{db}").connect()
-
     query = """
         SELECT
             BillingCountry,
@@ -227,43 +212,21 @@ def test_generate_area_basic(session):
         GROUP BY 1, 2
         HAVING BillingCountry IN ('USA', 'Canada', 'France')
     """
-    widget = SqlCellWidget(session)
-
-    widget.run_sql(query, con)
-
-    config: ChartConfig = {
-        "type": ChartType.AREA,
-        "x": {"label": None, "field": "Date", "aggregation": "sum", "sort": "ascending"},
-        "y": {"label": None, "field": "Total", "aggregation": "sum", "sort": None},
-        "y2": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "color": {"label": None, "field": "BillingCountry", "aggregation": "sum", "sort": None},
-        "subtype": [],
-        "width": 1000,
-        "height": 400,
-        "legend": {"visible": True},
-        "label": True,
-    }
-
-    widget.chart_config = json.dumps(config)
-
-    assert widget.chart is not None
-
-    actual = Path(dir, "actual", "area_basic.json")
-    actual.parent.mkdir(exist_ok=True, parents=True)
-
-    with open(actual, "w") as file:
-        json.dump(widget.chart.to_dict(), file, indent=4)
-
-    assert filecmp.cmp(Path(dir, "baseline", "area_basic.json"), Path(dir, "actual", "area_basic.json"))
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.AREA
+    c["x"]["field"] = "Date"
+    c["x"]["sort"] = "ascending"
+    c["y"]["field"] = "Total"
+    c["color"]["field"] = "BillingCountry"
+    c["width"] = 1000
+    c["height"] = 400
+    run_cmp(session, query, c, "area_basic")
 
 
 def test_generate_scatter_basic(session):
     """
     Check basic vega spec generated for scatter chart.
     """
-    db = Path(dir, "chinook.sqlite")
-    con = create_engine(f"sqlite:///{db}").connect()
-
     query = """
         SELECT
             BillingCountry,
@@ -272,43 +235,43 @@ def test_generate_scatter_basic(session):
         FROM Invoice
         GROUP BY 1
     """
-    widget = SqlCellWidget(session)
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.SCATTER
+    c["x"]["field"] = "Users"
+    c["y"]["field"] = "Sales"
+    c["color"]["field"] = "BillingCountry"
+    c["width"] = 700
+    c["height"] = 600
+    run_cmp(session, query, c, "scatter_basic")
 
-    widget.run_sql(query, con)
 
-    config: ChartConfig = {
-        "type": ChartType.SCATTER,
-        "x": {"label": None, "field": "Users", "aggregation": "sum", "sort": None},
-        "y": {"label": None, "field": "Sales", "aggregation": "sum", "sort": None},
-        "y2": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "color": {"label": None, "field": "BillingCountry", "aggregation": "sum", "sort": None},
-        "subtype": [],
-        "width": 700,
-        "height": 600,
-        "legend": {"visible": True},
-        "label": True,
-    }
-
-    widget.chart_config = json.dumps(config)
-
-    assert widget.chart is not None
-
-    actual = Path(dir, "actual", "scatter_basic.json")
-    actual.parent.mkdir(exist_ok=True, parents=True)
-
-    with open(actual, "w") as file:
-        json.dump(widget.chart.to_dict(), file, indent=4)
-
-    assert filecmp.cmp(Path(dir, "baseline", "scatter_basic.json"), Path(dir, "actual", "scatter_basic.json"))
+def test_generate_scatter_with_no_legend(session):
+    """
+    Check basic vega spec generated for scatter chart.
+    """
+    query = """
+        SELECT
+            BillingCountry,
+            COUNT(DISTINCT CustomerId) AS Users,
+            SUM(Total) AS Sales
+        FROM Invoice
+        GROUP BY 1
+    """
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.SCATTER
+    c["x"]["field"] = "Users"
+    c["y"]["field"] = "Sales"
+    c["color"]["field"] = "BillingCountry"
+    c["width"] = 700
+    c["height"] = 600
+    c["legend"]["visible"] = False
+    run_cmp(session, query, c, "scatter_no_legend")
 
 
 def test_generate_funnel_basic(session):
     """
     Check basic vega spec generated for funnel chart.
     """
-    db = Path(dir, "chinook.sqlite")
-    con = create_engine(f"sqlite:///{db}").connect()
-
     query = """
         SELECT
             V.column1 AS Step,
@@ -325,31 +288,69 @@ def test_generate_funnel_basic(session):
             ('Finalized', 10000)
         ) [V]
     """
-    widget = SqlCellWidget(session)
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.FUNNEL
+    c["x"]["field"] = "Count"
+    c["y"]["field"] = "Step"
+    c["width"] = 500
+    c["height"] = 400
+    run_cmp(session, query, c, "funnel_basic")
 
-    widget.run_sql(query, con)
 
-    config: ChartConfig = {
-        "type": ChartType.FUNNEL,
-        "x": {"label": None, "field": "Count", "aggregation": "sum", "sort": None},
-        "y": {"label": None, "field": "Step", "aggregation": "sum", "sort": None},
-        "y2": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "color": {"label": None, "field": None, "aggregation": "sum", "sort": None},
-        "subtype": [],
-        "width": 500,
-        "height": 400,
-        "legend": {"visible": True},
-        "label": True,
-    }
+def test_generate_combo_basic(session):
+    """
+    Check basic vega spec generated for combo chart.
+    """
+    query = """
+        SELECT
+            BillingCountry,
+            date(InvoiceDate, 'start of month') AS Date,
+            SUM(Total) AS Total
+        FROM Invoice
+        GROUP BY 1, 2
+        HAVING BillingCountry IN ('USA', 'Canada', 'France')
+    """
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.COMBO
+    c["x"]["field"] = "BillingCountry"
+    c["y"]["field"] = "Total"
+    c["y2"]["field"] = "Total"
+    c["width"] = 100
+    c["height"] = 500
+    run_cmp(session, query, c, "combo_basic")
 
-    widget.chart_config = json.dumps(config)
 
-    assert widget.chart is not None
-
-    actual = Path(dir, "actual", "funnel_basic.json")
-    actual.parent.mkdir(exist_ok=True, parents=True)
-
-    with open(actual, "w") as file:
-        json.dump(widget.chart.to_dict(), file, indent=4)
-
-    assert filecmp.cmp(Path(dir, "baseline", "funnel_basic.json"), Path(dir, "actual", "funnel_basic.json"))
+def test_generate_sunburst_basic(session):
+    query = """
+        WITH Geo(Country, Continent) AS 
+        (
+            VALUES 
+            ('USA', 'North America'),
+            ('Canada', 'North America'),
+            ('France', 'Europe'),
+            ('Brazil', 'South America'),
+            ('Germany', 'Europe'),
+            ('United Kingdom', 'Europe'),
+            ('Portugal', 'Europe'),
+            ('India', 'Asia'),
+            ('Czech Republic', 'Europe'),
+            ('Sweden', 'Europe')
+        )
+        SELECT
+            Customer.Country,
+            Geo.Continent,
+            COUNT(Customer.CustomerId) AS Count
+        FROM Customer
+        JOIN Geo ON Customer.Country = Geo.Country
+        GROUP BY 1, 2
+        ORDER BY 3 DESC
+        LIMIT 10
+    """
+    c = copy.deepcopy(config)
+    c["type"] = ChartType.SUNBURST
+    c["x"]["field"] = "Continent"
+    c["x2"]["field"] = "Country"
+    c["y"]["field"] = "Count"
+    c["width"] = 500
+    c["height"] = 400
+    run_cmp(session, query, c, "sunburst_basic")

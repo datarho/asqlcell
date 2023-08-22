@@ -8,6 +8,7 @@ import { FunnelChart } from "./funnel";
 import { LineChart } from "./line";
 import { PieChart } from "./pie";
 import { ScatterChart } from "./scatter";
+import { SunburstChart } from "./sunburst";
 
 export const ViewHeight = 264;
 export const MenuHeight = 311;
@@ -24,6 +25,7 @@ export enum ChartType {
     Pie = "pie",
     Combo = "combo",
     Funnel = "funnel",
+    Sunburst = "sunburst",
 }
 
 export const ChartTypeComponents: Record<ChartType, JSX.Element> = {
@@ -35,6 +37,7 @@ export const ChartTypeComponents: Record<ChartType, JSX.Element> = {
     [ChartType.Pie]: <PieChart />,
     [ChartType.Combo]: <ComboChart />,
     [ChartType.Funnel]: <FunnelChart />,
+    [ChartType.Sunburst]: <SunburstChart />
 }
 
 export enum DataType {
