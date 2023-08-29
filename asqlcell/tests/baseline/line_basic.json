@@ -1,598 +1,936 @@
 {
-    "config": {
-        "view": {
-            "continuousWidth": 300,
-            "continuousHeight": 300
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "axes": [
+        {
+            "aria": false,
+            "domain": false,
+            "grid": true,
+            "gridScale": "x",
+            "labels": false,
+            "maxExtent": 0,
+            "minExtent": 0,
+            "orient": "left",
+            "scale": "y",
+            "tickCount": {
+                "signal": "ceil(height/40)"
+            },
+            "ticks": false,
+            "zindex": 0
         },
+        {
+            "grid": false,
+            "labelAlign": "right",
+            "labelAngle": 270,
+            "labelBaseline": "middle",
+            "orient": "bottom",
+            "scale": "x",
+            "title": "Date",
+            "zindex": 0
+        },
+        {
+            "grid": false,
+            "labelOverlap": true,
+            "orient": "left",
+            "scale": "y",
+            "tickCount": {
+                "signal": "ceil(height/40)"
+            },
+            "title": "Sum of Total",
+            "zindex": 0
+        }
+    ],
+    "background": "white",
+    "config": {
         "legend": {
             "disable": false
         }
     },
-    "data": {
-        "name": "data-dd0669fde849f82b10342f0553d983bd"
-    },
-    "mark": {
-        "type": "line"
-    },
-    "encoding": {
-        "color": {
-            "field": "BillingCountry",
-            "scale": {
+    "data": [
+        {
+            "name": "source_0"
+        },
+        {
+            "name": "data_0",
+            "values": [
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2009-01-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2009-03-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2009-04-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2009-06-01",
+                    "sum_Total": 1.98
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2009-07-01",
+                    "sum_Total": 14.85
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2009-08-01",
+                    "sum_Total": 3.96
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2009-09-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2009-11-01",
+                    "sum_Total": 3.96
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2010-02-01",
+                    "sum_Total": 5.94
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2010-03-01",
+                    "sum_Total": 13.89
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2010-04-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2010-05-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2010-08-01",
+                    "sum_Total": 1.98
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2010-10-01",
+                    "sum_Total": 4.949999999999999
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2010-11-01",
+                    "sum_Total": 17.82
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2010-12-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2011-01-01",
+                    "sum_Total": 5.9399999999999995
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2011-02-01",
+                    "sum_Total": 19.8
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2011-04-01",
+                    "sum_Total": 5.94
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2011-07-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2011-10-01",
+                    "sum_Total": 11.879999999999999
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2011-12-01",
+                    "sum_Total": 2.9699999999999998
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2012-01-01",
+                    "sum_Total": 3.96
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2012-03-01",
+                    "sum_Total": 5.9399999999999995
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2012-04-01",
+                    "sum_Total": 5.94
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2012-05-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2012-06-01",
+                    "sum_Total": 5.94
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2012-07-01",
+                    "sum_Total": 1.98
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2012-10-01",
+                    "sum_Total": 3.96
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2012-12-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2013-01-01",
+                    "sum_Total": 14.850000000000001
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2013-02-01",
+                    "sum_Total": 2.9699999999999998
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2013-03-01",
+                    "sum_Total": 1.98
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2013-05-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2013-06-01",
+                    "sum_Total": 7.92
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2013-07-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2013-09-01",
+                    "sum_Total": 10.89
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Date": "2013-12-01",
+                    "sum_Total": 5.94
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2009-02-01",
+                    "sum_Total": 5.9399999999999995
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2009-03-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2009-05-01",
+                    "sum_Total": 5.94
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2009-11-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2009-12-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2010-01-01",
+                    "sum_Total": 1.98
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2010-04-01",
+                    "sum_Total": 7.92
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2010-05-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2010-07-01",
+                    "sum_Total": 9.9
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2010-10-01",
+                    "sum_Total": 5.94
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2011-01-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2011-03-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2011-06-01",
+                    "sum_Total": 8.95
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2011-07-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2011-09-01",
+                    "sum_Total": 3.96
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2011-12-01",
+                    "sum_Total": 5.94
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2012-03-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2012-08-01",
+                    "sum_Total": 4.949999999999999
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2012-10-01",
+                    "sum_Total": 16.86
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2012-11-01",
+                    "sum_Total": 5.9399999999999995
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2013-01-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2013-03-01",
+                    "sum_Total": 5.94
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2013-06-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2013-09-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2013-10-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "France",
+                    "Date": "2013-11-01",
+                    "sum_Total": 1.98
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2009-01-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2009-02-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2009-03-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2009-04-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2009-06-01",
+                    "sum_Total": 18.810000000000002
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2009-09-01",
+                    "sum_Total": 14.850000000000001
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2009-10-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2009-11-01",
+                    "sum_Total": 3.96
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2009-12-01",
+                    "sum_Total": 22.77
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2010-01-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2010-02-01",
+                    "sum_Total": 7.92
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2010-03-01",
+                    "sum_Total": 15.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2010-04-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2010-05-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2010-06-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2010-08-01",
+                    "sum_Total": 20.79
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2010-09-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2010-11-01",
+                    "sum_Total": 14.850000000000001
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2011-01-01",
+                    "sum_Total": 2.9699999999999998
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2011-02-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2011-04-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2011-05-01",
+                    "sum_Total": 27.77
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2011-07-01",
+                    "sum_Total": 14.850000000000001
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2011-08-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2011-10-01",
+                    "sum_Total": 11.879999999999999
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2011-12-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2012-01-01",
+                    "sum_Total": 14.850000000000001
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2012-03-01",
+                    "sum_Total": 2.9699999999999998
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2012-04-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2012-06-01",
+                    "sum_Total": 8.91
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2012-07-01",
+                    "sum_Total": 10.91
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2012-08-01",
+                    "sum_Total": 23.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2012-09-01",
+                    "sum_Total": 29.85
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2012-11-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2012-12-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2013-02-01",
+                    "sum_Total": 13.86
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2013-04-01",
+                    "sum_Total": 18.810000000000002
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2013-05-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2013-07-01",
+                    "sum_Total": 14.850000000000001
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2013-08-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2013-09-01",
+                    "sum_Total": 3.96
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2013-10-01",
+                    "sum_Total": 22.77
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2013-11-01",
+                    "sum_Total": 0.99
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Date": "2013-12-01",
+                    "sum_Total": 7.92
+                }
+            ]
+        },
+        {
+            "name": "source_0_x_domain_Date",
+            "values": [
+                {
+                    "Date": "2009-01-01"
+                },
+                {
+                    "Date": "2009-03-01"
+                },
+                {
+                    "Date": "2009-04-01"
+                },
+                {
+                    "Date": "2009-06-01"
+                },
+                {
+                    "Date": "2009-07-01"
+                },
+                {
+                    "Date": "2009-08-01"
+                },
+                {
+                    "Date": "2009-09-01"
+                },
+                {
+                    "Date": "2009-11-01"
+                },
+                {
+                    "Date": "2010-02-01"
+                },
+                {
+                    "Date": "2010-03-01"
+                },
+                {
+                    "Date": "2010-04-01"
+                },
+                {
+                    "Date": "2010-05-01"
+                },
+                {
+                    "Date": "2010-08-01"
+                },
+                {
+                    "Date": "2010-10-01"
+                },
+                {
+                    "Date": "2010-11-01"
+                },
+                {
+                    "Date": "2010-12-01"
+                },
+                {
+                    "Date": "2011-01-01"
+                },
+                {
+                    "Date": "2011-02-01"
+                },
+                {
+                    "Date": "2011-04-01"
+                },
+                {
+                    "Date": "2011-07-01"
+                },
+                {
+                    "Date": "2011-10-01"
+                },
+                {
+                    "Date": "2011-12-01"
+                },
+                {
+                    "Date": "2012-01-01"
+                },
+                {
+                    "Date": "2012-03-01"
+                },
+                {
+                    "Date": "2012-04-01"
+                },
+                {
+                    "Date": "2012-05-01"
+                },
+                {
+                    "Date": "2012-06-01"
+                },
+                {
+                    "Date": "2012-07-01"
+                },
+                {
+                    "Date": "2012-10-01"
+                },
+                {
+                    "Date": "2012-12-01"
+                },
+                {
+                    "Date": "2013-01-01"
+                },
+                {
+                    "Date": "2013-02-01"
+                },
+                {
+                    "Date": "2013-03-01"
+                },
+                {
+                    "Date": "2013-05-01"
+                },
+                {
+                    "Date": "2013-06-01"
+                },
+                {
+                    "Date": "2013-07-01"
+                },
+                {
+                    "Date": "2013-09-01"
+                },
+                {
+                    "Date": "2013-12-01"
+                },
+                {
+                    "Date": "2009-02-01"
+                },
+                {
+                    "Date": "2009-05-01"
+                },
+                {
+                    "Date": "2009-12-01"
+                },
+                {
+                    "Date": "2010-01-01"
+                },
+                {
+                    "Date": "2010-07-01"
+                },
+                {
+                    "Date": "2011-03-01"
+                },
+                {
+                    "Date": "2011-06-01"
+                },
+                {
+                    "Date": "2011-09-01"
+                },
+                {
+                    "Date": "2012-08-01"
+                },
+                {
+                    "Date": "2012-11-01"
+                },
+                {
+                    "Date": "2013-10-01"
+                },
+                {
+                    "Date": "2013-11-01"
+                },
+                {
+                    "Date": "2009-10-01"
+                },
+                {
+                    "Date": "2010-06-01"
+                },
+                {
+                    "Date": "2010-09-01"
+                },
+                {
+                    "Date": "2011-05-01"
+                },
+                {
+                    "Date": "2011-08-01"
+                },
+                {
+                    "Date": "2012-09-01"
+                },
+                {
+                    "Date": "2013-04-01"
+                },
+                {
+                    "Date": "2013-08-01"
+                }
+            ]
+        },
+        {
+            "name": "data_0_y_domain_sum_Total",
+            "values": [
+                {
+                    "max": 29.85,
+                    "min": 0.99
+                }
+            ]
+        },
+        {
+            "name": "data_0_color_domain_BillingCountry",
+            "values": [
+                {
+                    "BillingCountry": "Canada"
+                },
+                {
+                    "BillingCountry": "France"
+                },
+                {
+                    "BillingCountry": "USA"
+                }
+            ]
+        }
+    ],
+    "height": 400,
+    "legends": [
+        {
+            "stroke": "color",
+            "symbolType": "stroke",
+            "title": "BillingCountry"
+        }
+    ],
+    "marks": [
+        {
+            "encode": {
+                "update": {
+                    "height": {
+                        "field": {
+                            "datum": null,
+                            "group": "height",
+                            "parent": null,
+                            "signal": null
+                        }
+                    },
+                    "width": {
+                        "field": {
+                            "datum": null,
+                            "group": "width",
+                            "parent": null,
+                            "signal": null
+                        }
+                    }
+                }
+            },
+            "from": {
+                "facet": {
+                    "data": "data_0",
+                    "groupby": [
+                        "BillingCountry"
+                    ],
+                    "name": "faceted_path_main"
+                }
+            },
+            "marks": [
+                {
+                    "encode": {
+                        "update": {
+                            "defined": {
+                                "signal": "isValid(datum[\"sum_Total\"]) && isFinite(+datum[\"sum_Total\"])"
+                            },
+                            "description": {
+                                "signal": "\"Date: \" + (isValid(datum[\"Date\"]) ? datum[\"Date\"] : \"\"+datum[\"Date\"]) + \"; Sum of Total: \" + (format(datum[\"sum_Total\"], \"\")) + \"; BillingCountry: \" + (isValid(datum[\"BillingCountry\"]) ? datum[\"BillingCountry\"] : \"\"+datum[\"BillingCountry\"])"
+                            },
+                            "stroke": {
+                                "field": "BillingCountry",
+                                "scale": "color"
+                            },
+                            "tooltip": {
+                                "signal": "{\"Date\": isValid(datum[\"Date\"]) ? datum[\"Date\"] : \"\"+datum[\"Date\"], \"Sum of Total\": format(datum[\"sum_Total\"], \"\"), \"BillingCountry\": isValid(datum[\"BillingCountry\"]) ? datum[\"BillingCountry\"] : \"\"+datum[\"BillingCountry\"]}"
+                            },
+                            "x": {
+                                "field": "Date",
+                                "scale": "x"
+                            },
+                            "y": {
+                                "field": "sum_Total",
+                                "scale": "y"
+                            }
+                        }
+                    },
+                    "from": {
+                        "data": "faceted_path_main"
+                    },
+                    "name": "marks",
+                    "sort": {
+                        "field": "datum[\"Date\"]"
+                    },
+                    "style": [
+                        "line"
+                    ],
+                    "type": "line"
+                }
+            ],
+            "name": "pathgroup",
+            "type": "group"
+        }
+    ],
+    "padding": 5,
+    "scales": [
+        {
+            "domain": {
+                "data": "source_0_x_domain_Date",
+                "field": "Date",
+                "sort": true
+            },
+            "name": "x",
+            "padding": 0.5,
+            "range": [
+                0,
+                {
+                    "signal": "width"
+                }
+            ],
+            "type": "point"
+        },
+        {
+            "domain": [
+                {
+                    "signal": "(data(\"data_0_y_domain_sum_Total\")[0] || {}).min"
+                },
+                {
+                    "signal": "(data(\"data_0_y_domain_sum_Total\")[0] || {}).max"
+                }
+            ],
+            "name": "y",
+            "nice": true,
+            "range": [
+                {
+                    "signal": "height"
+                },
+                0
+            ],
+            "type": "linear",
+            "zero": true
+        },
+        {
+            "domain": {
+                "data": "data_0_color_domain_BillingCountry",
+                "field": "BillingCountry",
+                "sort": true
+            },
+            "name": "color",
+            "range": {
                 "scheme": "tableau20"
             },
-            "type": "nominal"
-        },
-        "text": {
-            "aggregate": "sum",
-            "field": "Total"
-        },
-        "tooltip": [
-            {
-                "field": "Date"
-            },
-            {
-                "aggregate": "sum",
-                "field": "Total"
-            },
-            {
-                "field": "BillingCountry",
-                "type": "nominal"
-            }
-        ],
-        "x": {
-            "field": "Date",
-            "sort": "x"
-        },
-        "y": {
-            "aggregate": "sum",
-            "field": "Total"
+            "type": "ordinal"
         }
-    },
-    "height": 400,
-    "width": 1000,
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
-    "datasets": {
-        "data-dd0669fde849f82b10342f0553d983bd": [
-            {
-                "BillingCountry": "Canada",
-                "Date": "2009-01-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2009-03-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2009-04-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2009-06-01",
-                "Total": 1.98
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2009-07-01",
-                "Total": 14.85
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2009-08-01",
-                "Total": 3.96
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2009-09-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2009-11-01",
-                "Total": 3.96
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2010-02-01",
-                "Total": 5.94
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2010-03-01",
-                "Total": 13.89
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2010-04-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2010-05-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2010-08-01",
-                "Total": 1.98
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2010-10-01",
-                "Total": 4.949999999999999
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2010-11-01",
-                "Total": 17.82
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2010-12-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2011-01-01",
-                "Total": 5.9399999999999995
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2011-02-01",
-                "Total": 19.8
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2011-04-01",
-                "Total": 5.94
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2011-07-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2011-10-01",
-                "Total": 11.879999999999999
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2011-12-01",
-                "Total": 2.9699999999999998
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2012-01-01",
-                "Total": 3.96
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2012-03-01",
-                "Total": 5.9399999999999995
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2012-04-01",
-                "Total": 5.94
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2012-05-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2012-06-01",
-                "Total": 5.94
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2012-07-01",
-                "Total": 1.98
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2012-10-01",
-                "Total": 3.96
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2012-12-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2013-01-01",
-                "Total": 14.850000000000001
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2013-02-01",
-                "Total": 2.9699999999999998
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2013-03-01",
-                "Total": 1.98
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2013-05-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2013-06-01",
-                "Total": 7.92
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2013-07-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2013-09-01",
-                "Total": 10.89
-            },
-            {
-                "BillingCountry": "Canada",
-                "Date": "2013-12-01",
-                "Total": 5.94
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2009-02-01",
-                "Total": 5.9399999999999995
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2009-03-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2009-05-01",
-                "Total": 5.94
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2009-11-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2009-12-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2010-01-01",
-                "Total": 1.98
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2010-04-01",
-                "Total": 7.92
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2010-05-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2010-07-01",
-                "Total": 9.9
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2010-10-01",
-                "Total": 5.94
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2011-01-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2011-03-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2011-06-01",
-                "Total": 8.95
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2011-07-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2011-09-01",
-                "Total": 3.96
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2011-12-01",
-                "Total": 5.94
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2012-03-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2012-08-01",
-                "Total": 4.949999999999999
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2012-10-01",
-                "Total": 16.86
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2012-11-01",
-                "Total": 5.9399999999999995
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2013-01-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2013-03-01",
-                "Total": 5.94
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2013-06-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2013-09-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2013-10-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "France",
-                "Date": "2013-11-01",
-                "Total": 1.98
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2009-01-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2009-02-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2009-03-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2009-04-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2009-06-01",
-                "Total": 18.810000000000002
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2009-09-01",
-                "Total": 14.850000000000001
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2009-10-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2009-11-01",
-                "Total": 3.96
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2009-12-01",
-                "Total": 22.77
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2010-01-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2010-02-01",
-                "Total": 7.92
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2010-03-01",
-                "Total": 15.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2010-04-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2010-05-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2010-06-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2010-08-01",
-                "Total": 20.79
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2010-09-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2010-11-01",
-                "Total": 14.850000000000001
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2011-01-01",
-                "Total": 2.9699999999999998
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2011-02-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2011-04-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2011-05-01",
-                "Total": 27.77
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2011-07-01",
-                "Total": 14.850000000000001
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2011-08-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2011-10-01",
-                "Total": 11.879999999999999
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2011-12-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2012-01-01",
-                "Total": 14.850000000000001
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2012-03-01",
-                "Total": 2.9699999999999998
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2012-04-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2012-06-01",
-                "Total": 8.91
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2012-07-01",
-                "Total": 10.91
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2012-08-01",
-                "Total": 23.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2012-09-01",
-                "Total": 29.85
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2012-11-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2012-12-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2013-02-01",
-                "Total": 13.86
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2013-04-01",
-                "Total": 18.810000000000002
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2013-05-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2013-07-01",
-                "Total": 14.850000000000001
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2013-08-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2013-09-01",
-                "Total": 3.96
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2013-10-01",
-                "Total": 22.77
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2013-11-01",
-                "Total": 0.99
-            },
-            {
-                "BillingCountry": "USA",
-                "Date": "2013-12-01",
-                "Total": 7.92
-            }
-        ]
-    }
+    ],
+    "style": "cell",
+    "width": 1000
 }

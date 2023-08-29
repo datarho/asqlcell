@@ -1,101 +1,203 @@
 {
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "background": "white",
     "config": {
-        "view": {
-            "continuousWidth": 300,
-            "continuousHeight": 300
-        },
         "legend": {
             "disable": false
         }
     },
-    "data": {
-        "name": "data-50f61702d93a607f09ab4df420eddcdf"
-    },
-    "mark": {
-        "type": "arc",
-        "radius": 200.0
-    },
-    "encoding": {
-        "color": {
-            "field": "Country",
-            "scale": {
+    "data": [
+        {
+            "name": "source_0",
+            "values": [
+                {
+                    "Country": "USA",
+                    "sum_Count": 13,
+                    "sum_Count_end": 13.0,
+                    "sum_Count_start": 0.0
+                },
+                {
+                    "Country": "Canada",
+                    "sum_Count": 8,
+                    "sum_Count_end": 21.0,
+                    "sum_Count_start": 13.0
+                },
+                {
+                    "Country": "France",
+                    "sum_Count": 5,
+                    "sum_Count_end": 26.0,
+                    "sum_Count_start": 21.0
+                },
+                {
+                    "Country": "Brazil",
+                    "sum_Count": 5,
+                    "sum_Count_end": 31.0,
+                    "sum_Count_start": 26.0
+                },
+                {
+                    "Country": "Germany",
+                    "sum_Count": 4,
+                    "sum_Count_end": 35.0,
+                    "sum_Count_start": 31.0
+                },
+                {
+                    "Country": "United Kingdom",
+                    "sum_Count": 3,
+                    "sum_Count_end": 38.0,
+                    "sum_Count_start": 35.0
+                },
+                {
+                    "Country": "Portugal",
+                    "sum_Count": 2,
+                    "sum_Count_end": 40.0,
+                    "sum_Count_start": 38.0
+                },
+                {
+                    "Country": "India",
+                    "sum_Count": 2,
+                    "sum_Count_end": 42.0,
+                    "sum_Count_start": 40.0
+                },
+                {
+                    "Country": "Czech Republic",
+                    "sum_Count": 2,
+                    "sum_Count_end": 44.0,
+                    "sum_Count_start": 42.0
+                },
+                {
+                    "Country": "Sweden",
+                    "sum_Count": 1,
+                    "sum_Count_end": 45.0,
+                    "sum_Count_start": 44.0
+                }
+            ]
+        },
+        {
+            "name": "source_0_color_domain_Country",
+            "values": [
+                {
+                    "Country": "USA"
+                },
+                {
+                    "Country": "Canada"
+                },
+                {
+                    "Country": "France"
+                },
+                {
+                    "Country": "Brazil"
+                },
+                {
+                    "Country": "Germany"
+                },
+                {
+                    "Country": "United Kingdom"
+                },
+                {
+                    "Country": "Portugal"
+                },
+                {
+                    "Country": "India"
+                },
+                {
+                    "Country": "Czech Republic"
+                },
+                {
+                    "Country": "Sweden"
+                }
+            ]
+        }
+    ],
+    "height": 400,
+    "legends": [
+        {
+            "fill": "color",
+            "symbolType": "circle",
+            "title": "Country"
+        }
+    ],
+    "marks": [
+        {
+            "encode": {
+                "update": {
+                    "description": {
+                        "signal": "\"Sum of Count: \" + (format(datum[\"sum_Count\"], \"\")) + \"; Country: \" + (isValid(datum[\"Country\"]) ? datum[\"Country\"] : \"\"+datum[\"Country\"])"
+                    },
+                    "endAngle": {
+                        "field": "sum_Count_start",
+                        "scale": "theta"
+                    },
+                    "fill": {
+                        "field": "Country",
+                        "scale": "color"
+                    },
+                    "innerRadius": {
+                        "value": 0
+                    },
+                    "outerRadius": {
+                        "value": 200
+                    },
+                    "radius": {
+                        "value": 200
+                    },
+                    "startAngle": {
+                        "field": "sum_Count_end",
+                        "scale": "theta"
+                    },
+                    "tooltip": {
+                        "signal": "{\"Sum of Count\": format(datum[\"sum_Count\"], \"\"), \"Country\": isValid(datum[\"Country\"]) ? datum[\"Country\"] : \"\"+datum[\"Country\"]}"
+                    },
+                    "x": {
+                        "mult": 0.5,
+                        "signal": "width"
+                    },
+                    "y": {
+                        "mult": 0.5,
+                        "signal": "height"
+                    }
+                }
+            },
+            "from": {
+                "data": "source_0"
+            },
+            "name": "marks",
+            "style": [
+                "arc"
+            ],
+            "type": "arc"
+        }
+    ],
+    "padding": 5,
+    "scales": [
+        {
+            "domain": {
+                "data": "source_0",
+                "fields": [
+                    "sum_Count_start",
+                    "sum_Count_end"
+                ]
+            },
+            "name": "theta",
+            "range": [
+                0,
+                6.283185307179586
+            ],
+            "type": "linear",
+            "zero": true
+        },
+        {
+            "domain": {
+                "data": "source_0_color_domain_Country",
+                "field": "Country",
+                "sort": true
+            },
+            "name": "color",
+            "range": {
                 "scheme": "tableau20"
             },
-            "type": "nominal"
-        },
-        "order": {
-            "aggregate": "sum",
-            "field": "Count",
-            "sort": "descending",
-            "type": "quantitative"
-        },
-        "text": {
-            "field": "Country",
-            "type": "nominal"
-        },
-        "theta": {
-            "aggregate": "sum",
-            "field": "Count",
-            "stack": true,
-            "type": "quantitative"
-        },
-        "tooltip": [
-            {
-                "aggregate": "sum",
-                "field": "Count",
-                "type": "quantitative"
-            },
-            {
-                "field": "Country",
-                "type": "nominal"
-            }
-        ]
-    },
-    "height": 400,
-    "width": 500,
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
-    "datasets": {
-        "data-50f61702d93a607f09ab4df420eddcdf": [
-            {
-                "Country": "USA",
-                "Count": 13
-            },
-            {
-                "Country": "Canada",
-                "Count": 8
-            },
-            {
-                "Country": "France",
-                "Count": 5
-            },
-            {
-                "Country": "Brazil",
-                "Count": 5
-            },
-            {
-                "Country": "Germany",
-                "Count": 4
-            },
-            {
-                "Country": "United Kingdom",
-                "Count": 3
-            },
-            {
-                "Country": "Portugal",
-                "Count": 2
-            },
-            {
-                "Country": "India",
-                "Count": 2
-            },
-            {
-                "Country": "Czech Republic",
-                "Count": 2
-            },
-            {
-                "Country": "Sweden",
-                "Count": 1
-            }
-        ]
-    }
+            "type": "ordinal"
+        }
+    ],
+    "style": "view",
+    "width": 500
 }
