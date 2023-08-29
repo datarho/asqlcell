@@ -89,6 +89,8 @@ setup_args = dict(
         "openai>= 0.27.10",
         "requests>=2.28.1",
         "vegafusion>=1.4.0",
+        "vl-convert-python>=0.13.0",
+        "vegafusion-python-embed>=1.4.0",
     ],
     extras_require={
         "test": [
