@@ -43,7 +43,7 @@ GROUP BY continent
 
 In the above sample, `%%sql` is a cell magic indicating that the cell block will be executed as a SQL statement.
 
-![Screenshot](gapminder.mov)
+![Screenshot](gapminder.gif)
 
 ### Data Load
 
