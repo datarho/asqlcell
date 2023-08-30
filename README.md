@@ -41,7 +41,7 @@ WHERE year=2007
 GROUP BY continent
 ```
 
-In the above sample, `%%sql` is a cell magic indicating that the cell block will be executed as a SQL statement.
+In the above sample, `%%sql` is a cell magic indicating that the cell block will be executed as a SQL statement. File are used as data source for querying with SQL.
 
 ![Screenshot](gapminder.gif)
 
@@ -57,16 +57,34 @@ DuckDB is the default engine of Analytical SQL Cell. Please find more details at
 
 With the SQL query being executed in an Analytical SQL Cell, the result set is presented as a table.
 
-In case of multiple SQL statements being executed in an Analytical SQL Cell, only the result set of the last SQL statement will be presented.
+![Result Table](result-table.png)
 
-If the last SQL statement didn't have any result set, then only the count of executed data rows is shown.
+### Chart Builder
 
-![sample result table](screenshot.jpg)
+You can further visualize the result set by clicking the Chart tab.
+
+![Chart Builder](chart-builder.png)
+
+Here are the chart types supported:
+
+* Column chart
+* Bar chart
+* Line chart
+* Area chart
+* Scatter chart
+* Pie chart
+* Combo chart
+* Funnel chart
+* Sunburst chart
 
 ### Tutorial
 
 - [Introduction](examples/introduction.ipynb)
 - [World Development in Numbers](examples/gapminder.ipynb)
+- [Visualise Netflix Data With Analytical SQL](examples/netflix.ipynb)
+- [Learn SQL with Jupyter Lab](examples/chinook.sqlite.ipynb)
+- [Business Questions on Chinook Music Store](examples/chinook.duckdb.ipynb)
+- [Use the Right Chart for Data Visualization](examples/visualization.ipynb)
 
 ## Development
 
