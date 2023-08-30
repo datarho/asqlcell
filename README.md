@@ -1,6 +1,20 @@
 # Analytical SQL Cell
 
-Analytical SQL cell for Jupyter.
+For the last decade, the data ecosystem has mainly focused on the technologies to store and process big datasets — the bigger the better. Later on, Modern Data Stack emerged as a cloud-native suite of products used for data integration and data analytics by the more technology-forward companies. Data warehouses are now a default piece of the Modern Data Stack and Snowflake’s rapid rise has been the poster child of this trend.
+
+But in real life, most analytical workloads aren’t massive. Users prefer easy and fast answers to their questions instead of waiting for the cloud to spin. Instead of a distributed database in the cloud, most analyses can be handled with an optimized engine on our laptop and the cloud can be leveraged when needed.
+
+To fill the gap, we built Analytical SQL Cell, a free and open-source Jupyter Widget that offers a Personal Data Lake experience for Jupyter Notebook users.
+
+Analytical SQL has the following features:
+
+* Pain-free setup (pip install asqlcell and you are in).
+* Unleash the power of SQL for analytical workloads.
+* Lightning speed for data loading.
+* Built-in visualization.
+* Low footprint for analytical processing.
+* Interleave Python and SQL programming.
+* Free and open source.
 
 ## Installation
 
@@ -14,15 +28,22 @@ pip install asqlcell
 
 Here's a quick example to get you started with Analytical SQL Cell in Jupyter:
 
-```%%sql result_set
+```sql
+%%sql
 
 SELECT
-    *
-FROM 'data.csv'
-LIMIT 10
+    continent,
+    AVG(life_exp) AS health,
+    AVG(gdp_cap) AS wealth,
+    SUM(population) AS population
+FROM 'gapminder.csv.gz'
+WHERE year=2007
+GROUP BY continent
 ```
 
-In the above sample, `%%sql` is a cell magic indicating that the cell block will be executed as a SQL statement. The following `result_set` is required to be the name of Pandas dataframe holding the result set.
+In the above sample, `%%sql` is a cell magic indicating that the cell block will be executed as a SQL statement.
+
+![Screenshot](gapminder.mov)
 
 ### Data Load
 
