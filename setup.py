@@ -82,7 +82,7 @@ setup_args = dict(
         "fastparquet>=2023.4.0",
         "ipywidgets>=8.0.0",
         "jinja2>=3.1.2",
-        "pandas>=2.0.3",
+        "pandas==2.0.3",
         "StrEnum>=0.4.15",
         "sqlparse>=0.4.3",
         "sqlalchemy>=2.0.19",
