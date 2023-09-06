@@ -1,98 +1,375 @@
 {
-    "config": {
-        "view": {
-            "continuousWidth": 300,
-            "continuousHeight": 300
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "axes": [
+        {
+            "aria": false,
+            "domain": false,
+            "grid": true,
+            "gridScale": "y",
+            "labels": false,
+            "maxExtent": 0,
+            "minExtent": 0,
+            "orient": "bottom",
+            "scale": "x",
+            "tickCount": {
+                "signal": "ceil(width/40)"
+            },
+            "ticks": false,
+            "zindex": 0
         },
+        {
+            "grid": false,
+            "labelFlush": true,
+            "labelOverlap": true,
+            "orient": "bottom",
+            "scale": "x",
+            "tickCount": {
+                "signal": "ceil(width/40)"
+            },
+            "title": "Count",
+            "zindex": 0
+        },
+        {
+            "grid": false,
+            "orient": "left",
+            "scale": "y",
+            "title": "Step",
+            "zindex": 0
+        }
+    ],
+    "background": "white",
+    "config": {
         "legend": {
             "disable": false
         }
     },
-    "layer": [
+    "data": [
         {
-            "mark": {
-                "type": "bar"
-            },
-            "encoding": {
-                "color": {
-                    "field": "Step",
-                    "scale": {
-                        "scheme": "tableau20"
-                    },
-                    "type": "nominal"
+            "name": "source_0",
+            "values": [
+                {
+                    "Count": 140000,
+                    "Step": "Consultation"
                 },
-                "tooltip": [
-                    {
-                        "field": "Step",
-                        "type": "nominal"
-                    }
-                ],
-                "x": {
-                    "field": "Count",
-                    "stack": "center",
-                    "type": "quantitative"
+                {
+                    "Count": 120000,
+                    "Step": "Prospect"
+                },
+                {
+                    "Count": 100000,
+                    "Step": "Qualified"
+                },
+                {
+                    "Count": 80000,
+                    "Step": "Negotiation"
+                },
+                {
+                    "Count": 60000,
+                    "Step": "Prototype"
+                },
+                {
+                    "Count": 40000,
+                    "Step": "Closing"
+                },
+                {
+                    "Count": 20000,
+                    "Step": "Won"
+                },
+                {
+                    "Count": 10000,
+                    "Step": "Finalized"
                 }
-            }
+            ]
         },
         {
-            "mark": {
-                "type": "text"
-            },
-            "encoding": {
-                "text": {
-                    "field": "Count",
-                    "type": "quantitative"
+            "name": "data_0",
+            "values": [
+                {
+                    "Count": 140000,
+                    "Count_end": 140000.0,
+                    "Count_start": 0.0,
+                    "Step": "Consultation"
+                },
+                {
+                    "Count": 120000,
+                    "Count_end": 130000.0,
+                    "Count_start": 10000.0,
+                    "Step": "Prospect"
+                },
+                {
+                    "Count": 100000,
+                    "Count_end": 120000.0,
+                    "Count_start": 20000.0,
+                    "Step": "Qualified"
+                },
+                {
+                    "Count": 80000,
+                    "Count_end": 110000.0,
+                    "Count_start": 30000.0,
+                    "Step": "Negotiation"
+                },
+                {
+                    "Count": 60000,
+                    "Count_end": 100000.0,
+                    "Count_start": 40000.0,
+                    "Step": "Prototype"
+                },
+                {
+                    "Count": 40000,
+                    "Count_end": 90000.0,
+                    "Count_start": 50000.0,
+                    "Step": "Closing"
+                },
+                {
+                    "Count": 20000,
+                    "Count_end": 80000.0,
+                    "Count_start": 60000.0,
+                    "Step": "Won"
+                },
+                {
+                    "Count": 10000,
+                    "Count_end": 75000.0,
+                    "Count_start": 65000.0,
+                    "Step": "Finalized"
                 }
-            }
+            ]
+        },
+        {
+            "name": "data_0_y_domain_Step_0",
+            "values": [
+                {
+                    "Step": "Consultation"
+                },
+                {
+                    "Step": "Prospect"
+                },
+                {
+                    "Step": "Qualified"
+                },
+                {
+                    "Step": "Negotiation"
+                },
+                {
+                    "Step": "Prototype"
+                },
+                {
+                    "Step": "Closing"
+                },
+                {
+                    "Step": "Won"
+                },
+                {
+                    "Step": "Finalized"
+                }
+            ]
+        },
+        {
+            "name": "source_0_y_domain_Step_1",
+            "values": [
+                {
+                    "Step": "Consultation"
+                },
+                {
+                    "Step": "Prospect"
+                },
+                {
+                    "Step": "Qualified"
+                },
+                {
+                    "Step": "Negotiation"
+                },
+                {
+                    "Step": "Prototype"
+                },
+                {
+                    "Step": "Closing"
+                },
+                {
+                    "Step": "Won"
+                },
+                {
+                    "Step": "Finalized"
+                }
+            ]
+        },
+        {
+            "name": "data_0_color_domain_Step",
+            "values": [
+                {
+                    "Step": "Consultation"
+                },
+                {
+                    "Step": "Prospect"
+                },
+                {
+                    "Step": "Qualified"
+                },
+                {
+                    "Step": "Negotiation"
+                },
+                {
+                    "Step": "Prototype"
+                },
+                {
+                    "Step": "Closing"
+                },
+                {
+                    "Step": "Won"
+                },
+                {
+                    "Step": "Finalized"
+                }
+            ]
         }
     ],
-    "data": {
-        "name": "data-e33dfd944f9dba7e5922721622d8ca95"
-    },
-    "encoding": {
-        "y": {
-            "field": "Step",
-            "sort": null,
-            "type": "nominal"
-        }
-    },
     "height": 400,
-    "width": 500,
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
-    "datasets": {
-        "data-e33dfd944f9dba7e5922721622d8ca95": [
-            {
-                "Step": "Consultation",
-                "Count": 140000
+    "legends": [
+        {
+            "fill": "color",
+            "symbolType": "square",
+            "title": "Step"
+        }
+    ],
+    "marks": [
+        {
+            "encode": {
+                "update": {
+                    "ariaRoleDescription": {
+                        "value": "bar"
+                    },
+                    "description": {
+                        "signal": "\"Count: \" + (format(datum[\"Count\"], \"\")) + \"; Step: \" + (isValid(datum[\"Step\"]) ? datum[\"Step\"] : \"\"+datum[\"Step\"])"
+                    },
+                    "fill": {
+                        "field": "Step",
+                        "scale": "color"
+                    },
+                    "height": {
+                        "signal": "max(0.25, bandwidth('y'))"
+                    },
+                    "tooltip": {
+                        "signal": "{\"Step\": isValid(datum[\"Step\"]) ? datum[\"Step\"] : \"\"+datum[\"Step\"]}"
+                    },
+                    "x": {
+                        "field": "Count_end",
+                        "scale": "x"
+                    },
+                    "x2": {
+                        "field": "Count_start",
+                        "scale": "x"
+                    },
+                    "y": {
+                        "field": "Step",
+                        "scale": "y"
+                    }
+                }
             },
-            {
-                "Step": "Prospect",
-                "Count": 120000
+            "from": {
+                "data": "data_0"
             },
-            {
-                "Step": "Qualified",
-                "Count": 100000
+            "name": "layer_0_marks",
+            "style": [
+                "bar"
+            ],
+            "type": "rect"
+        },
+        {
+            "encode": {
+                "update": {
+                    "align": {
+                        "value": "center"
+                    },
+                    "baseline": {
+                        "value": "middle"
+                    },
+                    "description": {
+                        "signal": "\"Step: \" + (isValid(datum[\"Step\"]) ? datum[\"Step\"] : \"\"+datum[\"Step\"]) + \"; Count: \" + (format(datum[\"Count\"], \"\"))"
+                    },
+                    "fill": {
+                        "value": "black"
+                    },
+                    "text": {
+                        "signal": "format(datum[\"Count\"], \"\")"
+                    },
+                    "x": {
+                        "mult": 0.5,
+                        "signal": "width"
+                    },
+                    "y": {
+                        "band": 0.5,
+                        "field": "Step",
+                        "scale": "y"
+                    }
+                }
             },
-            {
-                "Step": "Negotiation",
-                "Count": 80000
+            "from": {
+                "data": "source_0"
             },
-            {
-                "Step": "Prototype",
-                "Count": 60000
+            "name": "layer_1_marks",
+            "style": [
+                "text"
+            ],
+            "type": "text"
+        }
+    ],
+    "padding": 5,
+    "scales": [
+        {
+            "domain": {
+                "data": "data_0",
+                "fields": [
+                    "Count_start",
+                    "Count_end"
+                ]
             },
-            {
-                "Step": "Closing",
-                "Count": 40000
+            "name": "x",
+            "nice": true,
+            "range": [
+                0,
+                {
+                    "signal": "width"
+                }
+            ],
+            "type": "linear",
+            "zero": true
+        },
+        {
+            "domain": {
+                "fields": [
+                    {
+                        "data": "data_0_y_domain_Step_0",
+                        "field": "Step"
+                    },
+                    {
+                        "data": "source_0_y_domain_Step_1",
+                        "field": "Step"
+                    }
+                ]
             },
-            {
-                "Step": "Won",
-                "Count": 20000
+            "name": "y",
+            "paddingInner": 0.1,
+            "paddingOuter": 0.05,
+            "range": [
+                0,
+                {
+                    "signal": "height"
+                }
+            ],
+            "type": "band"
+        },
+        {
+            "domain": {
+                "data": "data_0_color_domain_Step",
+                "field": "Step",
+                "sort": true
             },
-            {
-                "Step": "Finalized",
-                "Count": 10000
-            }
-        ]
-    }
+            "name": "color",
+            "range": {
+                "scheme": "tableau20"
+            },
+            "type": "ordinal"
+        }
+    ],
+    "style": "cell",
+    "width": 500
 }

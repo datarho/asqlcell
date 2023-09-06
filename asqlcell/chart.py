@@ -1,4 +1,4 @@
-from typing import List, Optional, TypedDict
+from typing import List, Literal, Optional, TypedDict
 
 from strenum import StrEnum
 
@@ -28,7 +28,7 @@ class AxisConfig(TypedDict):
     label: Optional[str]
     field: Optional[str]
     aggregation: Optional[str]
-    sort: Optional[str]
+    sort: Optional[Literal["ascending", "descending"]]
 
 
 class ChartConfig(TypedDict):

@@ -1,175 +1,408 @@
 {
-    "config": {
-        "view": {
-            "continuousWidth": 300,
-            "continuousHeight": 300
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "axes": [
+        {
+            "aria": false,
+            "domain": false,
+            "grid": true,
+            "gridScale": "y",
+            "labels": false,
+            "maxExtent": 0,
+            "minExtent": 0,
+            "orient": "bottom",
+            "scale": "x",
+            "tickCount": {
+                "signal": "ceil(width/40)"
+            },
+            "ticks": false,
+            "zindex": 0
         },
+        {
+            "aria": false,
+            "domain": false,
+            "grid": true,
+            "gridScale": "x",
+            "labels": false,
+            "maxExtent": 0,
+            "minExtent": 0,
+            "orient": "left",
+            "scale": "y",
+            "tickCount": {
+                "signal": "ceil(height/40)"
+            },
+            "ticks": false,
+            "zindex": 0
+        },
+        {
+            "grid": false,
+            "labelFlush": true,
+            "labelOverlap": true,
+            "orient": "bottom",
+            "scale": "x",
+            "tickCount": {
+                "signal": "ceil(width/40)"
+            },
+            "title": "Users",
+            "zindex": 0
+        },
+        {
+            "grid": false,
+            "labelOverlap": true,
+            "orient": "left",
+            "scale": "y",
+            "tickCount": {
+                "signal": "ceil(height/40)"
+            },
+            "title": "Sales",
+            "zindex": 0
+        }
+    ],
+    "background": "white",
+    "config": {
         "legend": {
             "disable": false
         }
     },
-    "data": {
-        "name": "data-97e1733b57ad2bc79282b9e87129708b"
-    },
-    "mark": {
-        "type": "point"
-    },
-    "encoding": {
-        "color": {
-            "field": "BillingCountry",
-            "scale": {
+    "data": [
+        {
+            "name": "source_0",
+            "values": [
+                {
+                    "BillingCountry": "Argentina",
+                    "Sales": 37.620000000000005,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Australia",
+                    "Sales": 37.620000000000005,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Austria",
+                    "Sales": 42.62,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Belgium",
+                    "Sales": 37.62,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Brazil",
+                    "Sales": 190.09999999999997,
+                    "Users": 5
+                },
+                {
+                    "BillingCountry": "Canada",
+                    "Sales": 303.9599999999999,
+                    "Users": 8
+                },
+                {
+                    "BillingCountry": "Chile",
+                    "Sales": 46.62,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Czech Republic",
+                    "Sales": 90.24000000000001,
+                    "Users": 2
+                },
+                {
+                    "BillingCountry": "Denmark",
+                    "Sales": 37.620000000000005,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Finland",
+                    "Sales": 41.620000000000005,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "France",
+                    "Sales": 195.09999999999994,
+                    "Users": 5
+                },
+                {
+                    "BillingCountry": "Germany",
+                    "Sales": 156.48,
+                    "Users": 4
+                },
+                {
+                    "BillingCountry": "Hungary",
+                    "Sales": 45.62,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "India",
+                    "Sales": 75.25999999999999,
+                    "Users": 2
+                },
+                {
+                    "BillingCountry": "Ireland",
+                    "Sales": 45.62,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Italy",
+                    "Sales": 37.620000000000005,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Netherlands",
+                    "Sales": 40.62,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Norway",
+                    "Sales": 39.62,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Poland",
+                    "Sales": 37.620000000000005,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Portugal",
+                    "Sales": 77.23999999999998,
+                    "Users": 2
+                },
+                {
+                    "BillingCountry": "Spain",
+                    "Sales": 37.62,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "Sweden",
+                    "Sales": 38.620000000000005,
+                    "Users": 1
+                },
+                {
+                    "BillingCountry": "USA",
+                    "Sales": 523.0600000000003,
+                    "Users": 13
+                },
+                {
+                    "BillingCountry": "United Kingdom",
+                    "Sales": 112.85999999999999,
+                    "Users": 3
+                }
+            ]
+        },
+        {
+            "name": "source_0_x_domain_Users",
+            "values": [
+                {
+                    "max": 13,
+                    "min": 1
+                }
+            ]
+        },
+        {
+            "name": "source_0_y_domain_Sales",
+            "values": [
+                {
+                    "max": 523.0600000000003,
+                    "min": 37.62
+                }
+            ]
+        },
+        {
+            "name": "source_0_color_domain_BillingCountry",
+            "values": [
+                {
+                    "BillingCountry": "Argentina"
+                },
+                {
+                    "BillingCountry": "Australia"
+                },
+                {
+                    "BillingCountry": "Austria"
+                },
+                {
+                    "BillingCountry": "Belgium"
+                },
+                {
+                    "BillingCountry": "Brazil"
+                },
+                {
+                    "BillingCountry": "Canada"
+                },
+                {
+                    "BillingCountry": "Chile"
+                },
+                {
+                    "BillingCountry": "Czech Republic"
+                },
+                {
+                    "BillingCountry": "Denmark"
+                },
+                {
+                    "BillingCountry": "Finland"
+                },
+                {
+                    "BillingCountry": "France"
+                },
+                {
+                    "BillingCountry": "Germany"
+                },
+                {
+                    "BillingCountry": "Hungary"
+                },
+                {
+                    "BillingCountry": "India"
+                },
+                {
+                    "BillingCountry": "Ireland"
+                },
+                {
+                    "BillingCountry": "Italy"
+                },
+                {
+                    "BillingCountry": "Netherlands"
+                },
+                {
+                    "BillingCountry": "Norway"
+                },
+                {
+                    "BillingCountry": "Poland"
+                },
+                {
+                    "BillingCountry": "Portugal"
+                },
+                {
+                    "BillingCountry": "Spain"
+                },
+                {
+                    "BillingCountry": "Sweden"
+                },
+                {
+                    "BillingCountry": "USA"
+                },
+                {
+                    "BillingCountry": "United Kingdom"
+                }
+            ]
+        }
+    ],
+    "height": 600,
+    "legends": [
+        {
+            "encode": {
+                "symbols": {
+                    "update": {
+                        "fill": {
+                            "value": "transparent"
+                        },
+                        "opacity": {
+                            "value": 0.7
+                        }
+                    }
+                }
+            },
+            "stroke": "color",
+            "symbolType": "circle",
+            "title": "BillingCountry"
+        }
+    ],
+    "marks": [
+        {
+            "encode": {
+                "update": {
+                    "ariaRoleDescription": {
+                        "value": "point"
+                    },
+                    "description": {
+                        "signal": "\"Users: \" + (format(datum[\"Users\"], \"\")) + \"; Sales: \" + (format(datum[\"Sales\"], \"\")) + \"; BillingCountry: \" + (isValid(datum[\"BillingCountry\"]) ? datum[\"BillingCountry\"] : \"\"+datum[\"BillingCountry\"])"
+                    },
+                    "fill": {
+                        "value": "transparent"
+                    },
+                    "opacity": {
+                        "value": 0.7
+                    },
+                    "stroke": {
+                        "field": "BillingCountry",
+                        "scale": "color"
+                    },
+                    "tooltip": {
+                        "signal": "{\"Users\": format(datum[\"Users\"], \"\"), \"Sales\": format(datum[\"Sales\"], \"\"), \"BillingCountry\": isValid(datum[\"BillingCountry\"]) ? datum[\"BillingCountry\"] : \"\"+datum[\"BillingCountry\"]}"
+                    },
+                    "x": {
+                        "field": "Users",
+                        "scale": "x"
+                    },
+                    "y": {
+                        "field": "Sales",
+                        "scale": "y"
+                    }
+                }
+            },
+            "from": {
+                "data": "source_0"
+            },
+            "name": "marks",
+            "style": [
+                "point"
+            ],
+            "type": "symbol"
+        }
+    ],
+    "padding": 5,
+    "scales": [
+        {
+            "domain": [
+                {
+                    "signal": "(data(\"source_0_x_domain_Users\")[0] || {}).min"
+                },
+                {
+                    "signal": "(data(\"source_0_x_domain_Users\")[0] || {}).max"
+                }
+            ],
+            "name": "x",
+            "nice": true,
+            "range": [
+                0,
+                {
+                    "signal": "width"
+                }
+            ],
+            "type": "linear",
+            "zero": true
+        },
+        {
+            "domain": [
+                {
+                    "signal": "(data(\"source_0_y_domain_Sales\")[0] || {}).min"
+                },
+                {
+                    "signal": "(data(\"source_0_y_domain_Sales\")[0] || {}).max"
+                }
+            ],
+            "name": "y",
+            "nice": true,
+            "range": [
+                {
+                    "signal": "height"
+                },
+                0
+            ],
+            "type": "linear",
+            "zero": true
+        },
+        {
+            "domain": {
+                "data": "source_0_color_domain_BillingCountry",
+                "field": "BillingCountry",
+                "sort": true
+            },
+            "name": "color",
+            "range": {
                 "scheme": "tableau20"
             },
-            "type": "nominal"
-        },
-        "tooltip": [
-            {
-                "field": "Users",
-                "type": "quantitative"
-            },
-            {
-                "field": "Sales",
-                "type": "quantitative"
-            },
-            {
-                "field": "BillingCountry",
-                "type": "nominal"
-            }
-        ],
-        "x": {
-            "field": "Users",
-            "type": "quantitative"
-        },
-        "y": {
-            "field": "Sales",
-            "type": "quantitative"
+            "type": "ordinal"
         }
-    },
-    "height": 600,
-    "width": 700,
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
-    "datasets": {
-        "data-97e1733b57ad2bc79282b9e87129708b": [
-            {
-                "BillingCountry": "Argentina",
-                "Users": 1,
-                "Sales": 37.620000000000005
-            },
-            {
-                "BillingCountry": "Australia",
-                "Users": 1,
-                "Sales": 37.620000000000005
-            },
-            {
-                "BillingCountry": "Austria",
-                "Users": 1,
-                "Sales": 42.62
-            },
-            {
-                "BillingCountry": "Belgium",
-                "Users": 1,
-                "Sales": 37.62
-            },
-            {
-                "BillingCountry": "Brazil",
-                "Users": 5,
-                "Sales": 190.09999999999997
-            },
-            {
-                "BillingCountry": "Canada",
-                "Users": 8,
-                "Sales": 303.9599999999999
-            },
-            {
-                "BillingCountry": "Chile",
-                "Users": 1,
-                "Sales": 46.62
-            },
-            {
-                "BillingCountry": "Czech Republic",
-                "Users": 2,
-                "Sales": 90.24000000000001
-            },
-            {
-                "BillingCountry": "Denmark",
-                "Users": 1,
-                "Sales": 37.620000000000005
-            },
-            {
-                "BillingCountry": "Finland",
-                "Users": 1,
-                "Sales": 41.620000000000005
-            },
-            {
-                "BillingCountry": "France",
-                "Users": 5,
-                "Sales": 195.09999999999994
-            },
-            {
-                "BillingCountry": "Germany",
-                "Users": 4,
-                "Sales": 156.48
-            },
-            {
-                "BillingCountry": "Hungary",
-                "Users": 1,
-                "Sales": 45.62
-            },
-            {
-                "BillingCountry": "India",
-                "Users": 2,
-                "Sales": 75.25999999999999
-            },
-            {
-                "BillingCountry": "Ireland",
-                "Users": 1,
-                "Sales": 45.62
-            },
-            {
-                "BillingCountry": "Italy",
-                "Users": 1,
-                "Sales": 37.620000000000005
-            },
-            {
-                "BillingCountry": "Netherlands",
-                "Users": 1,
-                "Sales": 40.62
-            },
-            {
-                "BillingCountry": "Norway",
-                "Users": 1,
-                "Sales": 39.62
-            },
-            {
-                "BillingCountry": "Poland",
-                "Users": 1,
-                "Sales": 37.620000000000005
-            },
-            {
-                "BillingCountry": "Portugal",
-                "Users": 2,
-                "Sales": 77.23999999999998
-            },
-            {
-                "BillingCountry": "Spain",
-                "Users": 1,
-                "Sales": 37.62
-            },
-            {
-                "BillingCountry": "Sweden",
-                "Users": 1,
-                "Sales": 38.620000000000005
-            },
-            {
-                "BillingCountry": "USA",
-                "Users": 13,
-                "Sales": 523.0600000000003
-            },
-            {
-                "BillingCountry": "United Kingdom",
-                "Users": 3,
-                "Sales": 112.85999999999999
-            }
-        ]
-    }
+    ],
+    "style": "cell",
+    "width": 700
 }

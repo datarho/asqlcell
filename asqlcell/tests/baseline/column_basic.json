@@ -1,144 +1,322 @@
 {
-    "config": {
-        "view": {
-            "continuousWidth": 300,
-            "continuousHeight": 300
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "axes": [
+        {
+            "aria": false,
+            "domain": false,
+            "grid": true,
+            "gridScale": "x",
+            "labels": false,
+            "maxExtent": 0,
+            "minExtent": 0,
+            "orient": "left",
+            "scale": "y",
+            "tickCount": {
+                "signal": "ceil(height/40)"
+            },
+            "ticks": false,
+            "zindex": 0
         },
+        {
+            "grid": false,
+            "labelAlign": "right",
+            "labelAngle": 270,
+            "labelBaseline": "middle",
+            "orient": "bottom",
+            "scale": "x",
+            "title": "Country",
+            "zindex": 0
+        },
+        {
+            "grid": false,
+            "labelOverlap": true,
+            "orient": "left",
+            "scale": "y",
+            "tickCount": {
+                "signal": "ceil(height/40)"
+            },
+            "title": "Sum of Total",
+            "zindex": 0
+        }
+    ],
+    "background": "white",
+    "config": {
         "legend": {
             "disable": false
         }
     },
-    "data": {
-        "name": "data-b39687acf961882efa4ea21196a84cce"
-    },
-    "mark": {
-        "type": "bar"
-    },
-    "encoding": {
-        "text": {
-            "aggregate": "sum",
-            "field": "Total"
+    "data": [
+        {
+            "name": "source_0",
+            "values": [
+                {
+                    "Country": "USA",
+                    "sum_Total": 523.0600000000003
+                },
+                {
+                    "Country": "Canada",
+                    "sum_Total": 303.9599999999999
+                },
+                {
+                    "Country": "France",
+                    "sum_Total": 195.09999999999994
+                },
+                {
+                    "Country": "Brazil",
+                    "sum_Total": 190.09999999999997
+                },
+                {
+                    "Country": "Germany",
+                    "sum_Total": 156.48
+                },
+                {
+                    "Country": "United Kingdom",
+                    "sum_Total": 112.85999999999999
+                },
+                {
+                    "Country": "Czech Republic",
+                    "sum_Total": 90.24000000000001
+                },
+                {
+                    "Country": "Portugal",
+                    "sum_Total": 77.23999999999998
+                },
+                {
+                    "Country": "India",
+                    "sum_Total": 75.25999999999999
+                },
+                {
+                    "Country": "Chile",
+                    "sum_Total": 46.62
+                },
+                {
+                    "Country": "Ireland",
+                    "sum_Total": 45.62
+                },
+                {
+                    "Country": "Hungary",
+                    "sum_Total": 45.62
+                },
+                {
+                    "Country": "Austria",
+                    "sum_Total": 42.62
+                },
+                {
+                    "Country": "Finland",
+                    "sum_Total": 41.620000000000005
+                },
+                {
+                    "Country": "Netherlands",
+                    "sum_Total": 40.62
+                },
+                {
+                    "Country": "Norway",
+                    "sum_Total": 39.62
+                },
+                {
+                    "Country": "Sweden",
+                    "sum_Total": 38.620000000000005
+                },
+                {
+                    "Country": "Poland",
+                    "sum_Total": 37.620000000000005
+                },
+                {
+                    "Country": "Italy",
+                    "sum_Total": 37.620000000000005
+                },
+                {
+                    "Country": "Denmark",
+                    "sum_Total": 37.620000000000005
+                },
+                {
+                    "Country": "Australia",
+                    "sum_Total": 37.620000000000005
+                },
+                {
+                    "Country": "Argentina",
+                    "sum_Total": 37.620000000000005
+                },
+                {
+                    "Country": "Spain",
+                    "sum_Total": 37.62
+                },
+                {
+                    "Country": "Belgium",
+                    "sum_Total": 37.62
+                }
+            ]
         },
-        "tooltip": [
-            {
+        {
+            "name": "source_0_x_domain_Country",
+            "values": [
+                {
+                    "Country": "USA"
+                },
+                {
+                    "Country": "Canada"
+                },
+                {
+                    "Country": "France"
+                },
+                {
+                    "Country": "Brazil"
+                },
+                {
+                    "Country": "Germany"
+                },
+                {
+                    "Country": "United Kingdom"
+                },
+                {
+                    "Country": "Czech Republic"
+                },
+                {
+                    "Country": "Portugal"
+                },
+                {
+                    "Country": "India"
+                },
+                {
+                    "Country": "Chile"
+                },
+                {
+                    "Country": "Ireland"
+                },
+                {
+                    "Country": "Hungary"
+                },
+                {
+                    "Country": "Austria"
+                },
+                {
+                    "Country": "Finland"
+                },
+                {
+                    "Country": "Netherlands"
+                },
+                {
+                    "Country": "Norway"
+                },
+                {
+                    "Country": "Sweden"
+                },
+                {
+                    "Country": "Poland"
+                },
+                {
+                    "Country": "Italy"
+                },
+                {
+                    "Country": "Denmark"
+                },
+                {
+                    "Country": "Australia"
+                },
+                {
+                    "Country": "Argentina"
+                },
+                {
+                    "Country": "Spain"
+                },
+                {
+                    "Country": "Belgium"
+                }
+            ]
+        },
+        {
+            "name": "source_0_y_domain_sum_Total",
+            "values": [
+                {
+                    "max": 523.0600000000003,
+                    "min": 37.62
+                }
+            ]
+        }
+    ],
+    "height": 400,
+    "marks": [
+        {
+            "encode": {
+                "update": {
+                    "ariaRoleDescription": {
+                        "value": "bar"
+                    },
+                    "description": {
+                        "signal": "\"Country: \" + (isValid(datum[\"Country\"]) ? datum[\"Country\"] : \"\"+datum[\"Country\"]) + \"; Sum of Total: \" + (format(datum[\"sum_Total\"], \"\"))"
+                    },
+                    "fill": {
+                        "value": "#4c78a8"
+                    },
+                    "tooltip": {
+                        "signal": "{\"Country\": isValid(datum[\"Country\"]) ? datum[\"Country\"] : \"\"+datum[\"Country\"], \"Sum of Total\": format(datum[\"sum_Total\"], \"\")}"
+                    },
+                    "width": {
+                        "signal": "max(0.25, bandwidth('x'))"
+                    },
+                    "x": {
+                        "field": "Country",
+                        "scale": "x"
+                    },
+                    "y": {
+                        "field": "sum_Total",
+                        "scale": "y"
+                    },
+                    "y2": {
+                        "scale": "y",
+                        "value": 0
+                    }
+                }
+            },
+            "from": {
+                "data": "source_0"
+            },
+            "name": "marks",
+            "style": [
+                "bar"
+            ],
+            "type": "rect"
+        }
+    ],
+    "padding": 5,
+    "scales": [
+        {
+            "domain": {
+                "data": "source_0_x_domain_Country",
                 "field": "Country"
             },
-            {
-                "aggregate": "sum",
-                "field": "Total"
-            }
-        ],
-        "x": {
-            "field": "Country",
-            "sort": null
+            "name": "x",
+            "paddingInner": 0.1,
+            "paddingOuter": 0.05,
+            "range": [
+                0,
+                {
+                    "signal": "width"
+                }
+            ],
+            "type": "band"
         },
-        "y": {
-            "aggregate": "sum",
-            "field": "Total",
-            "stack": "zero"
+        {
+            "domain": [
+                {
+                    "signal": "(data(\"source_0_y_domain_sum_Total\")[0] || {}).min"
+                },
+                {
+                    "signal": "(data(\"source_0_y_domain_sum_Total\")[0] || {}).max"
+                }
+            ],
+            "name": "y",
+            "nice": true,
+            "range": [
+                {
+                    "signal": "height"
+                },
+                0
+            ],
+            "type": "linear",
+            "zero": true
         }
-    },
-    "height": 400,
-    "width": 1000,
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
-    "datasets": {
-        "data-b39687acf961882efa4ea21196a84cce": [
-            {
-                "Country": "USA",
-                "Total": 523.0600000000003
-            },
-            {
-                "Country": "Canada",
-                "Total": 303.9599999999999
-            },
-            {
-                "Country": "France",
-                "Total": 195.09999999999994
-            },
-            {
-                "Country": "Brazil",
-                "Total": 190.09999999999997
-            },
-            {
-                "Country": "Germany",
-                "Total": 156.48
-            },
-            {
-                "Country": "United Kingdom",
-                "Total": 112.85999999999999
-            },
-            {
-                "Country": "Czech Republic",
-                "Total": 90.24000000000001
-            },
-            {
-                "Country": "Portugal",
-                "Total": 77.23999999999998
-            },
-            {
-                "Country": "India",
-                "Total": 75.25999999999999
-            },
-            {
-                "Country": "Chile",
-                "Total": 46.62
-            },
-            {
-                "Country": "Ireland",
-                "Total": 45.62
-            },
-            {
-                "Country": "Hungary",
-                "Total": 45.62
-            },
-            {
-                "Country": "Austria",
-                "Total": 42.62
-            },
-            {
-                "Country": "Finland",
-                "Total": 41.620000000000005
-            },
-            {
-                "Country": "Netherlands",
-                "Total": 40.62
-            },
-            {
-                "Country": "Norway",
-                "Total": 39.62
-            },
-            {
-                "Country": "Sweden",
-                "Total": 38.620000000000005
-            },
-            {
-                "Country": "Poland",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Italy",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Denmark",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Australia",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Argentina",
-                "Total": 37.620000000000005
-            },
-            {
-                "Country": "Spain",
-                "Total": 37.62
-            },
-            {
-                "Country": "Belgium",
-                "Total": 37.62
-            }
-        ]
-    }
+    ],
+    "style": "cell",
+    "width": 1000
 }

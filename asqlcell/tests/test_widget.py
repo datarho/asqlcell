@@ -58,11 +58,11 @@ def run_cmp(session, query, config: ChartConfig, filename):
     widget = SqlCellWidget(session)
     widget.run_sql(query, con)
     widget.chart_config = json.dumps(config)
-    assert widget.chart is not None
     actual = Path(dir, "actual", f"{filename}.json")
     actual.parent.mkdir(exist_ok=True, parents=True)
     with open(actual, "w") as file:
-        json.dump(widget.chart.to_dict(), file, indent=4)
+        assert type(widget.preview_vega) is str
+        file.write(widget.preview_vega)
     assert filecmp.cmp(actual, Path(dir, "baseline", f"{filename}.json"))
 
 

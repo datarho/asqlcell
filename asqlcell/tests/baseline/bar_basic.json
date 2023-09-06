@@ -1,60 +1,173 @@
 {
-    "config": {
-        "view": {
-            "continuousWidth": 300,
-            "continuousHeight": 300
+    "$schema": "https://vega.github.io/schema/vega/v5.json",
+    "axes": [
+        {
+            "aria": false,
+            "domain": false,
+            "grid": true,
+            "gridScale": "y",
+            "labels": false,
+            "maxExtent": 0,
+            "minExtent": 0,
+            "orient": "bottom",
+            "scale": "x",
+            "tickCount": {
+                "signal": "ceil(width/40)"
+            },
+            "ticks": false,
+            "zindex": 0
         },
+        {
+            "grid": false,
+            "labelFlush": true,
+            "labelOverlap": true,
+            "orient": "bottom",
+            "scale": "x",
+            "tickCount": {
+                "signal": "ceil(width/40)"
+            },
+            "title": "Sum of Total",
+            "zindex": 0
+        },
+        {
+            "grid": false,
+            "orient": "left",
+            "scale": "y",
+            "title": "Sales Agent",
+            "zindex": 0
+        }
+    ],
+    "background": "white",
+    "config": {
         "legend": {
             "disable": false
         }
     },
-    "data": {
-        "name": "data-3c273fe8e6fc88ca1afd7550e98384a0"
-    },
-    "mark": {
-        "type": "bar"
-    },
-    "encoding": {
-        "text": {
-            "aggregate": "sum",
-            "field": "Total"
+    "data": [
+        {
+            "name": "source_0",
+            "values": [
+                {
+                    "Sales Agent": "Jane Peacock",
+                    "sum_Total": 833.0400000000016
+                },
+                {
+                    "Sales Agent": "Margaret Park",
+                    "sum_Total": 775.4000000000005
+                },
+                {
+                    "Sales Agent": "Steve Johnson",
+                    "sum_Total": 720.1600000000011
+                }
+            ]
         },
-        "tooltip": [
-            {
-                "aggregate": "sum",
-                "field": "Total"
-            },
-            {
-                "field": "Sales Agent"
-            }
-        ],
-        "x": {
-            "aggregate": "sum",
-            "field": "Total",
-            "stack": "zero"
+        {
+            "name": "source_0_x_domain_sum_Total",
+            "values": [
+                {
+                    "max": 833.0400000000016,
+                    "min": 720.1600000000011
+                }
+            ]
         },
-        "y": {
-            "field": "Sales Agent",
-            "sort": null
+        {
+            "name": "source_0_y_domain_Sales Agent",
+            "values": [
+                {
+                    "Sales Agent": "Jane Peacock"
+                },
+                {
+                    "Sales Agent": "Margaret Park"
+                },
+                {
+                    "Sales Agent": "Steve Johnson"
+                }
+            ]
         }
-    },
+    ],
     "height": 200,
-    "width": 500,
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.8.0.json",
-    "datasets": {
-        "data-3c273fe8e6fc88ca1afd7550e98384a0": [
-            {
-                "Total": 833.0400000000016,
-                "Sales Agent": "Jane Peacock"
+    "marks": [
+        {
+            "encode": {
+                "update": {
+                    "ariaRoleDescription": {
+                        "value": "bar"
+                    },
+                    "description": {
+                        "signal": "\"Sum of Total: \" + (format(datum[\"sum_Total\"], \"\")) + \"; Sales Agent: \" + (isValid(datum[\"Sales Agent\"]) ? datum[\"Sales Agent\"] : \"\"+datum[\"Sales Agent\"])"
+                    },
+                    "fill": {
+                        "value": "#4c78a8"
+                    },
+                    "height": {
+                        "signal": "max(0.25, bandwidth('y'))"
+                    },
+                    "tooltip": {
+                        "signal": "{\"Sum of Total\": format(datum[\"sum_Total\"], \"\"), \"Sales Agent\": isValid(datum[\"Sales Agent\"]) ? datum[\"Sales Agent\"] : \"\"+datum[\"Sales Agent\"]}"
+                    },
+                    "x": {
+                        "field": "sum_Total",
+                        "scale": "x"
+                    },
+                    "x2": {
+                        "scale": "x",
+                        "value": 0
+                    },
+                    "y": {
+                        "field": "Sales Agent",
+                        "scale": "y"
+                    }
+                }
             },
-            {
-                "Total": 775.4000000000005,
-                "Sales Agent": "Margaret Park"
+            "from": {
+                "data": "source_0"
             },
-            {
-                "Total": 720.1600000000011,
-                "Sales Agent": "Steve Johnson"
-            }
-        ]
-    }
+            "name": "marks",
+            "style": [
+                "bar"
+            ],
+            "type": "rect"
+        }
+    ],
+    "padding": 5,
+    "scales": [
+        {
+            "domain": [
+                {
+                    "signal": "(data(\"source_0_x_domain_sum_Total\")[0] || {}).min"
+                },
+                {
+                    "signal": "(data(\"source_0_x_domain_sum_Total\")[0] || {}).max"
+                }
+            ],
+            "name": "x",
+            "nice": true,
+            "range": [
+                0,
+                {
+                    "signal": "width"
+                }
+            ],
+            "type": "linear",
+            "zero": true
+        },
+        {
+            "domain": {
+                "data": "source_0_y_domain_Sales Agent",
+                "field": "Sales Agent"
+            },
+            "name": "y",
+            "paddingInner": 0.1,
+            "paddingOuter": 0.05,
+            "range": [
+                0,
+                {
+                    "signal": "height"
+                }
+            ],
+            "type": "band"
+        }
+    ],
+    "style": "cell",
+    "width": 500
 }

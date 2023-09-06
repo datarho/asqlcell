@@ -16,6 +16,8 @@ from traitlets import Bool, Float, HasTraits, Int, Tuple, Unicode, observe
 from asqlcell.chart import ChartConfig, ChartType, SubChartType
 from asqlcell.jinjasql import JinjaSql
 from asqlcell.utils import NoTracebackException, get_duckdb, get_duckdb_result, get_histogram, get_vars
+import vegafusion as vf
+from vegafusion.renderer import spec_to_mime_bundle
 
 module_name = "asqlcell"
 module_version = "0.1.0"
@@ -89,6 +91,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     def __init__(self, shell: InteractiveShell, cell_id="", sql=""):
         super(SqlCellWidget, self).__init__()
+        vf.runtime.set_connection("duckdb")
+        vf.enable()
         self._model_name = "SqlCellModel"
         self._model_module = module_name
         self._model_module_version = module_version
@@ -240,9 +244,11 @@ class SqlCellWidget(DOMWidget, HasTraits):
         theta, color = Theta(config["y"]["field"]).aggregate(config["y"]["aggregation"]), config["x"]["field"]
         params = {"theta": theta.stack(True), "tooltip": [theta], "text": color}
         if config["x"]["sort"]:
-            params["order"] = Order(color).sort(config["x"]["sort"])  # type: ignore
+            params["order"] = Order(color).sort(config["x"]["sort"])
         if config["y"]["sort"]:
-            params["order"] = Order(config["y"]["field"]).aggregate(config["y"]["aggregation"]).sort(config["y"]["sort"])  # type: ignore
+            params["order"] = (
+                Order(config["y"]["field"]).aggregate(config["y"]["aggregation"]).sort(config["y"]["sort"])
+            )
         base = base.encode(**self._add_color(config["theme"], color, params))
         width = config["width"]
         height = config["height"]
@@ -289,14 +295,14 @@ class SqlCellWidget(DOMWidget, HasTraits):
         tmp = get_duckdb_result(self.shell, f"select {select} from {name} group by {group} having count(*) > 1")
         self.need_aggr = len(tmp) > 0
 
+    def to_json(self, chart):
+        bundle = spec_to_mime_bundle(spec=chart.to_dict(), mimetype="vega")[0]  # type: ignore
+        return json.dumps(bundle["application/vnd.vega.v5+json"], indent=4, sort_keys=True)  # type: ignore
+
     @observe("persist_vega")
     def on_persist_vega(self, _):
-        if self.chart is None:
-            return
-        update_display(
-            self.chart,
-            display_id=self.cell_id,
-        )
+        if self.chart is not None:
+            update_display(self.chart, display_id=self.cell_id)
 
     @observe("chart_config")
     def on_chart_config(self, _):
@@ -326,7 +332,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             self.chart = self.chart.properties(width=config["width"], height=config["height"]).configure_legend(
                 disable=not config["legend"]["visible"]
             )
-            self.preview_vega = self.chart.to_json()
+            self.preview_vega = self.to_json(self.chart)
 
     @observe("row_range")
     def on_row_range(self, _):
@@ -358,4 +364,4 @@ class SqlCellWidget(DOMWidget, HasTraits):
             f"select {select} from (SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM {name}) using SAMPLE reservoir (100 rows) REPEATABLE(42) order by index_rn1qaz2wsx",
         )
         df = df.reset_index()
-        self.quickview_vega = Chart(df).mark_line().encode(x="index", y=select).to_json()
+        self.quickview_vega = self.to_json(Chart(df).mark_line().encode(x="index", y=select))
