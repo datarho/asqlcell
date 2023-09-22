@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 from time import time
 from typing import Optional, Union
 
@@ -41,6 +42,9 @@ class SqlCellWidget(DOMWidget, HasTraits):
     quickview_var = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
     quickview_vega = Unicode().tag(sync=True)
     cache = Unicode().tag(sync=True)
+
+    export_to = Unicode().tag(sync=True)
+    export_report = Unicode().tag(sync=True)
 
     need_aggr = Bool().tag(sync=True)
     preview_vega = Unicode().tag(sync=True)
@@ -365,3 +369,23 @@ class SqlCellWidget(DOMWidget, HasTraits):
         )
         df = df.reset_index()
         self.quickview_vega = self.to_json(Chart(df).mark_line().encode(x="index", y=select))
+
+    @observe("export_to")
+    def on_export_to(self, _):
+        assert type(self.export_to) is str
+        assert type(self.data_name) is str
+        try:
+            df = self.shell.user_global_ns[self.data_name]
+            assert type(df) is DataFrame
+            if self.export_to.endswith("csv"):
+                df.to_csv(self.export_to, index=False)
+            elif self.export_to.endswith("xlsx"):
+                df.to_excel(self.export_to, index=False)
+            if os.path.exists(self.export_to):
+                file_size = os.path.getsize(self.export_to)
+                res = {"file_size": file_size, "preview": df[:10], "time_stamp": time()}
+                self.export_report = json.dumps(res)
+            else:
+                self.export_report = "Something wrong!"
+        except Exception as r:
+            raise NoTracebackException(r)
