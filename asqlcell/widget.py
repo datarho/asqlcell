@@ -43,7 +43,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
     quickview_vega = Unicode().tag(sync=True)
     cache = Unicode().tag(sync=True)
 
-    export_to = Unicode().tag(sync=True)
+    export_to = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
     export_report = Unicode().tag(sync=True)
 
     need_aggr = Bool().tag(sync=True)
@@ -372,20 +372,21 @@ class SqlCellWidget(DOMWidget, HasTraits):
 
     @observe("export_to")
     def on_export_to(self, _):
-        assert type(self.export_to) is str
+        assert type(self.export_to) is tuple
+        assert type(self.export_to[0]) is str
         assert type(self.data_name) is str
         try:
             df = self.shell.user_global_ns[self.data_name]
             assert type(df) is DataFrame
-            if self.export_to.endswith("csv"):
-                df.to_csv(self.export_to, index=False)
-            elif self.export_to.endswith("xlsx"):
+            if self.export_to[0].endswith("csv"):
+                df.to_csv(self.export_to[0], index=False)
+            elif self.export_to[0].endswith("xlsx"):
                 df.to_excel(self.export_to, index=False)
-            if os.path.exists(self.export_to):
-                file_size = os.path.getsize(self.export_to)
-                res = {"file_size": file_size, "preview": df[:10], "time_stamp": time()}
+            if os.path.exists(self.export_to[0]):
+                file_size = os.path.getsize(self.export_to[0])
+                res = {"file_size": file_size, "preview": df[:5], "time_stamp": time(), "note": self.export_to[1]}
                 self.export_report = json.dumps(res)
             else:
-                self.export_report = "Something wrong!"
+                self.export_report = "ERROR"
         except Exception as r:
             raise NoTracebackException(r)
