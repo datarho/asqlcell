@@ -8,9 +8,8 @@ from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
 from IPython.core.magic_arguments import argument, magic_arguments, parse_argstring
 from IPython.display import display
 from pandas import DataFrame
-from sqlalchemy import Connection
 
-from asqlcell.utils import get_cell_id, get_duckdb_result
+from asqlcell.utils import get_cell_id, get_duckdb_result, get_connection
 from asqlcell.widget import SqlCellWidget
 
 
@@ -71,7 +70,7 @@ class SqlMagics(Magics):
         if args.out:
             widget.data_name = args.out
         if args.con:
-            con = self._get_con(args.con)
+            con = get_connection(self.shell, args.con)
             widget.run_sql(cell, con)
         else:
             widget.run_sql(cell)
@@ -91,15 +90,6 @@ class SqlMagics(Magics):
         Set new sql cell widget with the given name.
         """
         self.shell.user_global_ns[cell_id] = SqlCellWidget(shell=self.shell, cell_id=cell_id)
-
-    def _get_con(self, var_name: str) -> Connection:
-        """
-        Get sql alchemy connection by the given name. Error will be thrown if type is incorrect.
-        """
-        var = self.shell.user_global_ns.get(var_name)
-        if type(var) is not Connection:
-            raise NameError("Failed to find connection variable")
-        return var
 
     def displayAns(self, q, a):
         from IPython.core.display import Markdown, display

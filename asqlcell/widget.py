@@ -16,7 +16,14 @@ from traitlets import Bool, Float, HasTraits, Int, Tuple, Unicode, observe
 
 from asqlcell.chart import ChartConfig, ChartType, SubChartType
 from asqlcell.jinjasql import JinjaSql
-from asqlcell.utils import NoTracebackException, get_duckdb, get_duckdb_result, get_histogram, get_vars
+from asqlcell.utils import (
+    NoTracebackException,
+    get_duckdb,
+    get_duckdb_result,
+    get_histogram,
+    get_vars,
+    calculate_adler32_checksum,
+)
 import vegafusion as vf
 from vegafusion.renderer import spec_to_mime_bundle
 
@@ -381,12 +388,27 @@ class SqlCellWidget(DOMWidget, HasTraits):
             if self.export_to[0].endswith("csv"):
                 df.to_csv(self.export_to[0], index=False)
             elif self.export_to[0].endswith("xlsx"):
-                df.to_excel(self.export_to, index=False)
+                df.to_excel(self.export_to[0], index=False)
             if os.path.exists(self.export_to[0]):
                 file_size = os.path.getsize(self.export_to[0])
-                res = {"file_size": file_size, "preview": df[:5], "time_stamp": time(), "note": self.export_to[1]}
+                res = json.loads(self.export_to[1])
+                res["file_path"] = self.export_to[0]
+                res["file_size"] = file_size
+                res["file_checksum"] = calculate_adler32_checksum(self.export_to[0])
+                res["time_stamp"] = time()
                 self.export_report = json.dumps(res)
             else:
-                self.export_report = "ERROR"
+                raise Exception("File export failed!")
         except Exception as r:
             raise NoTracebackException(r)
+
+    @observe("explainsql")
+    def on_explainsql(self, _):
+        # assert self.explainsql is tuple
+        # try:
+        #     sql = "explain " + self.explainsql[1]
+        #     con = get_connection(self.shell, self.explainsql[0])
+        #     df = read_sql(sql, con=con)
+        # except Exception as r:
+        #     raise NoTracebackException(r)
+        pass

@@ -2,6 +2,8 @@ import duckdb
 import numpy as np
 from IPython.core.interactiveshell import InteractiveShell
 from pandas import DataFrame
+from sqlalchemy import Connection
+import zlib
 
 __DUCKDB = None
 
@@ -38,6 +40,16 @@ def get_duckdb_result(shell: InteractiveShell, sql, vlist=[]):
     for k, v in get_vars(shell, is_df=True).items():
         get_duckdb().unregister(k)
     return df
+
+
+def get_connection(self, var_name: str) -> Connection:
+    """
+    Get sql alchemy connection by the given name. Error will be thrown if type is incorrect.
+    """
+    var = self.shell.user_global_ns.get(var_name)
+    if type(var) is not Connection:
+        raise NameError("Failed to find connection variable")
+    return var
 
 
 def get_vars(shell: InteractiveShell, is_df=False):
@@ -125,3 +137,14 @@ class NoTracebackException(Exception):
         red_text = "\033[0;31m"
         black_text = "\033[0m"
         return [f"{red_text}Exception{black_text}: {str(self)}"]
+
+
+def calculate_adler32_checksum(file_path) -> int:
+    checksum = zlib.adler32(b"")
+    with open(file_path, "rb") as file:
+        while True:
+            data = file.read(4096)  # ???
+            if not data:
+                break
+            checksum = zlib.adler32(data, checksum)
+    return checksum
