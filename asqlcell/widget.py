@@ -50,7 +50,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
     quickview_vega = Unicode().tag(sync=True)
     cache = Unicode().tag(sync=True)
 
-    export_to = Tuple(Unicode(), Unicode(), default_value=("", "")).tag(sync=True)
+    export = Unicode().tag(sync=True)
     export_report = Unicode().tag(sync=True)
 
     need_aggr = Bool().tag(sync=True)
@@ -377,24 +377,22 @@ class SqlCellWidget(DOMWidget, HasTraits):
         df = df.reset_index()
         self.quickview_vega = self.to_json(Chart(df).mark_line().encode(x="index", y=select))
 
-    @observe("export_to")
-    def on_export_to(self, _):
-        assert type(self.export_to) is tuple
-        assert type(self.export_to[0]) is str
+    @observe("export")
+    def on_export(self, _):
+        assert type(self.export) is str
         assert type(self.data_name) is str
+        res = json.loads(self.export)
         try:
             df = self.shell.user_global_ns[self.data_name]
             assert type(df) is DataFrame
-            if self.export_to[0].endswith("csv"):
-                df.to_csv(self.export_to[0], index=False)
-            elif self.export_to[0].endswith("xlsx"):
-                df.to_excel(self.export_to[0], index=False)
-            if os.path.exists(self.export_to[0]):
-                file_size = os.path.getsize(self.export_to[0])
-                res = json.loads(self.export_to[1])
-                res["file_path"] = self.export_to[0]
+            if res["file_path"].endswith("csv"):
+                df.to_csv(res["file_path"], index=False)
+            elif res["file_path"].endswith("xlsx"):
+                df.to_excel(res["file_path"], index=False)
+            if os.path.exists(res["file_path"]):
+                file_size = os.path.getsize(res["file_path"])
                 res["file_size"] = file_size
-                res["file_checksum"] = calculate_adler32_checksum(self.export_to[0])
+                res["file_checksum"] = calculate_adler32_checksum(res["file_path"])
                 res["time_stamp"] = time()
                 self.export_report = json.dumps(res)
             else:
