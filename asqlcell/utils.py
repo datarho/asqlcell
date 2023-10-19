@@ -42,11 +42,11 @@ def get_duckdb_result(shell: InteractiveShell, sql, vlist=[]):
     return df
 
 
-def get_connection(self, var_name: str) -> Connection:
+def get_connection(shell: InteractiveShell, var_name: str) -> Connection:
     """
     Get sql alchemy connection by the given name. Error will be thrown if type is incorrect.
     """
-    var = self.shell.user_global_ns.get(var_name)
+    var = shell.user_global_ns.get(var_name)
     if type(var) is not Connection:
         raise NameError("Failed to find connection variable")
     return var
@@ -142,9 +142,5 @@ class NoTracebackException(Exception):
 def calculate_adler32_checksum(file_path) -> int:
     checksum = zlib.adler32(b"")
     with open(file_path, "rb") as file:
-        while True:
-            data = file.read(4096)  # ???
-            if not data:
-                break
-            checksum = zlib.adler32(data, checksum)
+        checksum = zlib.adler32(file.read())
     return checksum

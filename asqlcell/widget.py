@@ -372,7 +372,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
         name = self.data_name
         df = get_duckdb_result(
             self.shell,
-            f"select {select} from (SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM {name}) using SAMPLE reservoir (100 rows) REPEATABLE(42) order by index_rn1qaz2wsx",
+            f'select "{select}" from (SELECT *, ROW_NUMBER() OVER () AS index_rn1qaz2wsx FROM {name}) using SAMPLE reservoir (100 rows) REPEATABLE(42) order by index_rn1qaz2wsx',
         )
         df = df.reset_index()
         self.quickview_vega = self.to_json(Chart(df).mark_line().encode(x="index", y=select))
@@ -390,15 +390,14 @@ class SqlCellWidget(DOMWidget, HasTraits):
             elif res["file_path"].endswith("xlsx"):
                 df.to_excel(res["file_path"], index=False)
             if os.path.exists(res["file_path"]):
-                file_size = os.path.getsize(res["file_path"])
-                res["file_size"] = file_size
+                res["file_size"] = os.path.getsize(res["file_path"])
                 res["file_checksum"] = calculate_adler32_checksum(res["file_path"])
                 res["time_stamp"] = time()
-                self.export_report = json.dumps(res)
             else:
-                raise Exception("File export failed!")
+                res["error_message"] = "File export failed!"
         except Exception as r:
-            raise NoTracebackException(r)
+            res["error_message"] = str(r)
+        self.export_report = json.dumps(res)
 
     @observe("explainsql")
     def on_explainsql(self, _):
