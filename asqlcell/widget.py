@@ -432,6 +432,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 return
             df = read_sql(sql, con=con)
             res = {}
+            res["type"] = resulttype
             res["plan_summary"] = df.iloc[0, 0]
             res["time_stamp"] = datetime.datetime.now().strftime(
                 "%Y-%m-%d %H:%M:%S.%f"
