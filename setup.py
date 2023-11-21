@@ -91,6 +91,7 @@ setup_args = dict(
         "vegafusion>=1.4.0",
         "vl-convert-python>=0.13.0",
         "vegafusion-python-embed>=1.4.0",
+        "openpyxl>=3.1.2",
     ],
     extras_require={
         "test": [

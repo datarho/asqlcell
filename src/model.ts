@@ -8,17 +8,11 @@ import { MODULE_NAME, MODULE_VERSION } from "./version";
 import ReactWidget from "./view";
 
 export type WidgetModelState = {
-    data_name: string;
-    dfs_button: string;
     exec_time: number;
     row_range: [number, number];
     column_sort: [string, Order];
-    dfs_result: string;
-    sql_button: string;
-    mode: string;
     data_grid: string;
     column_color: string;
-    data_sql: string;
     quickview_var: [string, string];
     quickview_vega: string;
     title_hist: string;
@@ -38,22 +32,16 @@ export class SqlCellModel extends widgets.DOMWidgetModel {
             _view_name: SqlCellModel.view_name,
             _view_module: SqlCellModel.view_module,
             _view_module_version: SqlCellModel.view_module_version,
-            data_name: "",
-            dfs_button: "",
             exec_time: 0,
             row_range: [0, 10],
             column_sort: ["", Order.None],
-            dfs_result: "",
-            sql_button: "",
-            mode: "",
             data_grid: "",
             column_color: "",
-            data_sql: "",
             quickview_vega: "{}",
             quickview_var: ["", ""],
             quickview_data: "",
             title_hist: "",
-            cache: "[{}]",
+            cache: "{}",
             chart_config: "{}",
             preview_vega: "{}",
             persist_vega: "",

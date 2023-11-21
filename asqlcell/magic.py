@@ -29,9 +29,19 @@ class SqlMagics(Magics):
     @line_magic("sql")
     @cell_magic("sql")
     @magic_arguments()
-    @argument("output", nargs="?", type=str, help="The variable name for the result dataframe.")
-    @argument("-o", "--out", type=str, help="The variable name for the result dataframe.")
-    @argument("-c", "--con", type=str, help="The variable name for database connection.")
+    @argument(
+        "output",
+        nargs="?",
+        type=str,
+        help="The variable name for the result dataframe.",
+    )
+    @argument(
+        "-o", "--out", type=str, help="The variable name for the result dataframe."
+    )
+    @argument(
+        "-c", "--con", type=str, help="The variable name for database connection."
+    )
+    @argument("-e", "--explain", type=str, help="Return Sql Explain or not.")
     @argument("line", default="", nargs="*", type=str, help="The SQL statement.")
     def execute(self, line="", cell=""):
         """
@@ -71,7 +81,10 @@ class SqlMagics(Magics):
             widget.data_name = args.out
         if args.con:
             con = get_connection(self.shell, args.con)
-            widget.run_sql(cell, con)
+            if args.explain:
+                widget.explainsql(cell, con, args.explain)
+            else:
+                widget.run_sql(cell, con)
         else:
             widget.run_sql(cell)
         display(HTML(""), display_id=widget.cell_id)
@@ -89,7 +102,9 @@ class SqlMagics(Magics):
         """
         Set new sql cell widget with the given name.
         """
-        self.shell.user_global_ns[cell_id] = SqlCellWidget(shell=self.shell, cell_id=cell_id)
+        self.shell.user_global_ns[cell_id] = SqlCellWidget(
+            shell=self.shell, cell_id=cell_id
+        )
 
     def displayAns(self, q, a):
         from IPython.core.display import Markdown, display
@@ -105,10 +120,16 @@ class SqlMagics(Magics):
 
     def get_baidu_result(self, query):
         url = f"https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant?access_token={self.access_token}"
-        payload = json.dumps({"messages": [{"role": "user", "content": query}], "stream": True})
+        payload = json.dumps(
+            {"messages": [{"role": "user", "content": query}], "stream": True}
+        )
         headers = {"Content-Type": "application/json"}
         response = requests.request("POST", url, headers=headers, data=payload)
-        ll = [item.replace("data: ", "") for item in response.text.split("\n\n") if len(item) > 200]
+        ll = [
+            item.replace("data: ", "")
+            for item in response.text.split("\n\n")
+            if len(item) > 200
+        ]
         self.displayAns(query, "".join([json.loads(item)["result"] for item in ll]))
 
     def get_openai_result(self, query):
