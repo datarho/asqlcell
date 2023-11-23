@@ -2,6 +2,8 @@ import duckdb
 import numpy as np
 from IPython.core.interactiveshell import InteractiveShell
 from pandas import DataFrame
+from sqlalchemy import Connection
+import zlib
 
 __DUCKDB = None
 
@@ -33,11 +35,27 @@ def get_duckdb():
 
 def get_duckdb_result(shell: InteractiveShell, sql, vlist=[]):
     for k, v in get_vars(shell, is_df=True).items():
-        get_duckdb().register(k, v)
+        try:
+            get_duckdb().register(k, v)
+        except Exception:
+            pass
     df = get_duckdb().execute(sql, vlist).df()
     for k, v in get_vars(shell, is_df=True).items():
-        get_duckdb().unregister(k)
+        try:
+            get_duckdb().unregister(k)
+        except Exception:
+            pass
     return df
+
+
+def get_connection(shell: InteractiveShell, var_name: str) -> Connection:
+    """
+    Get sql alchemy connection by the given name. Error will be thrown if type is incorrect.
+    """
+    var = shell.user_global_ns.get(var_name)
+    if type(var) is not Connection:
+        raise NameError("Failed to find connection variable")
+    return var
 
 
 def get_vars(shell: InteractiveShell, is_df=False):
@@ -125,3 +143,23 @@ class NoTracebackException(Exception):
         red_text = "\033[0;31m"
         black_text = "\033[0m"
         return [f"{red_text}Exception{black_text}: {str(self)}"]
+
+
+def calculate_adler32_checksum(file_path) -> int:
+    checksum = zlib.adler32(b"")
+    with open(file_path, "rb") as file:
+        checksum = zlib.adler32(file.read())
+    return checksum
+
+
+def check_duplicate(self, *args):
+    li = [item for item in args if item is not None]
+    if len(li) == 0:
+        return
+    select = ",".join([f"'{item}'" for item in li])
+    group = ",".join([str(i + 1) for i in range(len(li))])
+    name = self.data_name
+    get_duckdb_result(
+        self.shell,
+        f"select {select} from {name} group by {group} having count(*) > 1",
+    )

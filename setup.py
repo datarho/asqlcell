@@ -39,7 +39,9 @@ data_files_spec = [
 ]
 
 
-cmdclass = create_cmdclass("jsdeps", package_data_spec=package_data_spec, data_files_spec=data_files_spec)
+cmdclass = create_cmdclass(
+    "jsdeps", package_data_spec=package_data_spec, data_files_spec=data_files_spec
+)
 npm_install = combine_commands(
     install_npm(HERE, build_cmd="build:prod"),
     ensure_targets(jstargets),
@@ -77,7 +79,7 @@ setup_args = dict(
     python_requires=">=3.8",
     install_requires=[
         "altair>=5.1.0",
-        "duckdb>=0.8.1",
+        "duckdb==0.8.1",
         "duckdb-engine>=0.9.2",
         "fastparquet>=2023.4.0",
         "ipywidgets>=8.0.0",
@@ -86,11 +88,12 @@ setup_args = dict(
         "StrEnum>=0.4.15",
         "sqlparse>=0.4.3",
         "sqlalchemy>=2.0.19",
-        "openai>= 0.27.10",
+        "openai>=0.27.10",
         "requests>=2.28.1",
         "vegafusion>=1.4.0",
         "vl-convert-python>=0.13.0",
         "vegafusion-python-embed>=1.4.0",
+        "openpyxl>=3.1.2",
     ],
     extras_require={
         "test": [
