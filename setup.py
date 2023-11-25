@@ -79,7 +79,7 @@ setup_args = dict(
     python_requires=">=3.8",
     install_requires=[
         "altair>=5.1.0",
-        "duckdb==0.8.1",
+        "duckdb>=0.9.2",
         "duckdb-engine>=0.9.2",
         "fastparquet>=2023.4.0",
         "ipywidgets>=8.0.0",
