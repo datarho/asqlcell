@@ -11,6 +11,7 @@ from pandas import DataFrame
 
 from asqlcell.utils import get_cell_id, get_duckdb_result, get_connection
 from asqlcell.widget import SqlCellWidget
+from sqlalchemy import text
 
 
 @magics_class
@@ -42,6 +43,7 @@ class SqlMagics(Magics):
         "-c", "--con", type=str, help="The variable name for database connection."
     )
     @argument("-e", "--explain", type=str, help="Return Sql Explain or not.")
+    @argument("-d", "--db", type=str, help="Use database.")
     @argument("line", default="", nargs="*", type=str, help="The SQL statement.")
     def execute(self, line="", cell=""):
         """
@@ -81,6 +83,8 @@ class SqlMagics(Magics):
             widget.data_name = args.out
         if args.con:
             con = get_connection(self.shell, args.con)
+            if args.db:
+                con.execute(text("use " + args.db))
             if args.explain:
                 widget.explainsql(cell, con, args.explain)
             else:

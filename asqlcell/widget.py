@@ -12,7 +12,7 @@ from IPython.display import update_display
 from ipywidgets import DOMWidget
 from pandas import DataFrame, read_sql
 from sqlalchemy import Connection, text
-from traitlets import Bool, Float, HasTraits, Int, Tuple, Unicode, observe
+from traitlets import Float, HasTraits, Int, Tuple, Unicode, observe
 
 from asqlcell.chart import ChartConfig, ChartType, SubChartType
 from asqlcell.jinjasql import JinjaSql
@@ -137,14 +137,19 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 )
                 df = get_duckdb_result(self.shell, res, vlist)
             else:
-                df = read_sql(sql, con=con)
-                dt_columns = {}
-                for column in df.columns:
-                    for i in range(len(df[column])):
-                        if df[column][i] and type(df[column][i]) == datetime.date:
-                            dt_columns[column] = "datetime64[ns]"
-                            break
-                df = df.astype(dt_columns, copy=False, errors="ignore")
+                # df = read_sql(sql, con=con)
+                cur = con.execute(text(sql))
+                if not cur.returns_rows:
+                    df = pd.DataFrame({"Number of affected rows": [cur.rowcount]})
+                else:
+                    df = pd.DataFrame(cur.fetchall(), columns=cur.keys())  # type: ignore
+                    dt_columns = {}
+                    for column in df.columns:
+                        for i in range(len(df[column])):
+                            if df[column][i] and type(df[column][i]) == datetime.date:
+                                dt_columns[column] = "datetime64[ns]"
+                                break
+                    df = df.astype(dt_columns, copy=False, errors="ignore")
             self.shell.user_global_ns[self.data_name] = df
             # Calculate time elapsed for running the sql queries.
             self.exec_time = time() - start
@@ -159,7 +164,7 @@ class SqlCellWidget(DOMWidget, HasTraits):
             self.cache = json.dumps(cache)
         except Exception as r:
             raise r
-            raise NoTracebackException(r)
+            # raise NoTracebackException(r)
 
     def set_data_grid(self):
         assert type(self.row_range) is tuple

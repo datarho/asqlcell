@@ -71,6 +71,38 @@ def test_duckdb_conn_standalone_metadata(shell: InteractiveShell):
     assert sorted(tables) == chinook
 
 
+def test_duckdb_drop_table_metadata(
+    shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"
+):
+    file = Path(dir, "chinook.duckdb")
+    con = create_engine(f"duckdb:///{file}").connect()
+
+    shell.user_global_ns["con"] = con
+
+    shell.run_cell_magic(
+        "sql",
+        "--out out --con con",
+        """
+        DROP TABLE Album
+        """,
+    )
+    tables = inspect(con).get_table_names()
+    chinook = [
+        "Artist",
+        "Customer",
+        "Employee",
+        "Genre",
+        "Invoice",
+        "InvoiceLine",
+        "MediaType",
+        "Playlist",
+        "PlaylistTrack",
+        "Track",
+    ]
+
+    assert sorted(tables) == chinook
+
+
 def test_duckdb_conn_standalone_cell_magic(
     shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"
 ):
