@@ -7,13 +7,23 @@ from sqlalchemy import create_engine, inspect
 dir = Path(__file__).parent.resolve()
 
 
-def test_sqlite_conn_embedded_metadata(shell: InteractiveShell):
-    conn = create_engine(
-        "sqlite:///:memory:",
-    ).connect()
+def test_sqlite_create_table_metadata(
+    shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"
+):
+    con = create_engine("sqlite:///:memory:").connect()
 
-    tables = inspect(conn).get_table_names()
-    assert tables == []
+    shell.user_global_ns["con"] = con
+
+    shell.run_cell_magic(
+        "sql",
+        "--con con",
+        """
+        create table aaa (a int)
+        """,
+    )
+
+    tables = inspect(con).get_table_names()
+    assert tables == ["aaa"]
 
 
 def test_sqlite_standalone_metadata(shell: InteractiveShell):
@@ -38,7 +48,9 @@ def test_sqlite_standalone_metadata(shell: InteractiveShell):
     assert sorted(tables) == chinook
 
 
-def test_sqlite_standalone_cell_magic(shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"):
+def test_sqlite_standalone_cell_magic(
+    shell: InteractiveShell, cell_id="076b741a-37f9-49c7-ad1f-d84fa5045a24"
+):
     file = Path(dir, "chinook.sqlite")
     con = create_engine(f"sqlite:///{file}").connect()
 
