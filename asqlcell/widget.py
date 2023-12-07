@@ -32,6 +32,7 @@ module_version = "0.1.0"
 
 
 class SqlCellWidget(DOMWidget, HasTraits):
+    debug = False
     _model_name = Unicode().tag(sync=True)
     _model_module = Unicode().tag(sync=True)
     _model_module_version = Unicode().tag(sync=True)
@@ -163,8 +164,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
             cache["tabValue"] = "table"
             self.cache = json.dumps(cache)
         except Exception as r:
-            raise r
-            # raise NoTracebackException(r)
+            if SqlCellWidget.debug:
+                raise r
+            else:
+                raise NoTracebackException(r)
 
     def set_data_grid(self):
         assert type(self.row_range) is tuple
@@ -448,7 +451,10 @@ class SqlCellWidget(DOMWidget, HasTraits):
             cache["tabValue"] = "analysis"
             self.cache = json.dumps(cache)
         except Exception as r:
-            raise NoTracebackException(r)
+            if SqlCellWidget.debug:
+                raise r
+            else:
+                raise NoTracebackException(r)
 
     @observe("persist_vega")
     def on_persist_vega(self, _):
