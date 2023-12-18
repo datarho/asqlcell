@@ -12,18 +12,21 @@ def get_cell_id(shell: InteractiveShell) -> str:
     """
     Get cell id for the current cell by walking the stack.
     """
-    i = 0
-    while True:
-        scope = shell.get_local_scope(i)
-        if scope.get("cell_id") is not None:
-            return scope["cell_id"].replace("-", "")
-        if "msg" in scope:
-            msg = scope["msg"]
-            if "metadata" in msg:
-                meta = msg.get("metadata")
-                if "cellId" in meta:
-                    return meta.get("cellId").replace("-", "")
-        i += 1
+    try:
+        i = 0
+        while True:
+            scope = shell.get_local_scope(i)
+            if scope.get("cell_id") is not None:
+                return scope["cell_id"].replace("-", "")
+            if "msg" in scope:
+                msg = scope["msg"]
+                if "metadata" in msg:
+                    meta = msg.get("metadata")
+                    if "cellId" in meta:
+                        return meta.get("cellId").replace("-", "")
+            i += 1
+    except Exception:
+        return "asqlcell_no_id"
 
 
 def get_duckdb():
