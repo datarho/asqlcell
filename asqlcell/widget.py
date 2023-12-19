@@ -138,19 +138,16 @@ class SqlCellWidget(DOMWidget, HasTraits):
                 )
                 df = get_duckdb_result(self.shell, res, vlist)
             else:
-                # df = read_sql(sql, con=con)
                 cur = con.execute(text(sql))
                 if not cur.returns_rows:
                     df = pd.DataFrame({"Number of affected rows": [cur.rowcount]})
                 else:
                     df = pd.DataFrame(cur.fetchall(), columns=cur.keys())  # type: ignore
-                    dt_columns = {}
-                    for column in df.columns:
-                        for i in range(len(df[column])):
-                            if df[column][i] and type(df[column][i]) == datetime.date:
-                                dt_columns[column] = "datetime64[ns]"
-                                break
-                    df = df.astype(dt_columns, copy=False, errors="ignore")
+            dt_columns = {}
+            for column in df.columns:
+                if df.dtypes[str(column)].kind == "M":
+                    dt_columns[column] = "datetime64[ns]"
+            df = df.astype(dt_columns, copy=False, errors="ignore")
             self.shell.user_global_ns[self.data_name] = df
             # Calculate time elapsed for running the sql queries.
             self.exec_time = time() - start
