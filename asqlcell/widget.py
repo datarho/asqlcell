@@ -147,6 +147,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
             for column in df.columns:
                 if df.dtypes[str(column)].kind == "M":
                     dt_columns[column] = "datetime64[ns]"
+                elif df.dtypes[str(column)].kind == "O":
+                    dt_columns[column] = "U"
             df = df.astype(dt_columns, copy=False, errors="ignore")
             self.shell.user_global_ns[self.data_name] = df
             # Calculate time elapsed for running the sql queries.
@@ -178,14 +180,17 @@ class SqlCellWidget(DOMWidget, HasTraits):
             + "\n"
             + str(len(df))
         )
-        df = (
-            df[self.row_range[0] : self.row_range[1]]
-            .astype(str)
-            .apply(pd.to_numeric, errors="coerce")
-        )
-        df = 1 - (df - df.min()) / (df.max() - df.min())
-        df = 150 * df + 105
-        self.column_color = df.to_json(orient="split", date_format="iso")
+        try:
+            df = (
+                df[self.row_range[0] : self.row_range[1]]
+                .astype(str)
+                .apply(pd.to_numeric, errors="coerce")
+            )
+            df = 1 - (df - df.min()) / (df.max() - df.min())
+            df = 150 * df + 105
+            self.column_color = df.to_json(orient="split", date_format="iso")
+        except:
+            pass
 
     def _get_sort_symbol(self, config: ChartConfig) -> Union[str, None]:
         """
