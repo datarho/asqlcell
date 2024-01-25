@@ -229,8 +229,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
         x, y, color = (
-            X(field=config["x"]["field"]),
-            Y(field=config["y"]["field"]),
+            X(config["x"]["field"]),
+            Y(config["y"]["field"]),
             config["color"]["field"],
         )
         x = x.aggregate(config["x"]["aggregation"])
@@ -256,8 +256,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
         x, y, color = (
-            X(field=config["x"]["field"]),
-            Y(field=config["y"]["field"]),
+            X(config["x"]["field"]),
+            Y(config["y"]["field"]),
             config["color"]["field"],
         )
         y = y.aggregate(config["y"]["aggregation"])
@@ -284,8 +284,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
         x, y, color = (
-            X(field=config["x"]["field"]),
-            Y(field=config["y"]["field"]),
+            X(config["x"]["field"]),
+            Y(config["y"]["field"]),
             config["color"]["field"],
         )
         y = y.aggregate(config["y"]["aggregation"])
@@ -309,8 +309,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
         x, y, color = (
-            X(field=config["x"]["field"]),
-            Y(field=config["y"]["field"]),
+            X(config["x"]["field"]),
+            Y(config["y"]["field"]),
             config["color"]["field"],
         )
         y = y.aggregate(config["y"]["aggregation"])
