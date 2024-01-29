@@ -89,6 +89,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "aggregation": "sum",
             "sort": None,
         },
+        "size": {
+            "label": None,
+            "field": None,
+            "aggregation": "sum",
+            "sort": None,
+        },
         "subtype": [],
         "width": 500,
         "height": 400,
@@ -331,12 +337,15 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def _generate_scatter(
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
-        x, y, color = (
+        x, y, color, size = (
             config["x"]["field"],
             config["y"]["field"],
             config["color"]["field"],
+            config["size"]["field"],
         )
         params = {"x": x, "y": y, "tooltip": [x, y]}
+        if size:
+            params["size"] = size
         return base.encode(
             **self._add_color(config["theme"], color, params)
         ).mark_point()

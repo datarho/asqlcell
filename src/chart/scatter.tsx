@@ -16,6 +16,10 @@ export const ScatterChart: FunctionComponent = () => {
             <Text fw={600}>Color</Text>
 
             <FieldSwitch major="color" clearable />
+
+            <Text fw={600}>Size</Text>
+
+            <FieldSwitch major="size" clearable />
         </Stack>
     );
 }
