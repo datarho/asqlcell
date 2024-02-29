@@ -61,9 +61,11 @@ export const DataTable: FunctionComponent = () => {
                         "& tbody tr td": {
                             padding: "0px 3px",
                         },
+                        "& thead tr th:first-of-type": {
+                            padding: 0
+                        },
                         "&  td:first-of-type": {
                             backgroundColor: "#ebebeb",
-                            width: "7%"
                         },
                         "&  tr:first-of-type": {
                             backgroundColor: "#ebebeb",
