@@ -1,6 +1,6 @@
 import { Stack, Text } from "@mantine/core";
 import React, { FunctionComponent } from "react";
-import { AggregationSwitch, FieldSwitch } from "./properties";
+import { AggregationSwitch, FieldSwitch } from "../properties";
 
 export const ComboChart: FunctionComponent = () => {
     return (

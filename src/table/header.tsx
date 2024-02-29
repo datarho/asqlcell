@@ -1,13 +1,14 @@
 import { ActionIcon, Box, Button, Collapse, Group, Popover, Stack, Text, Tooltip, createStyles } from "@mantine/core";
 import { IconChartLine } from "@tabler/icons-react";
 import React, { FunctionComponent, useEffect, useState } from "react";
-import { HistChart, QuickViewChart } from "../chart";
+import { QuickViewChart } from "../chart";
 import { Order } from "../const";
 import { useModelState } from "../hooks";
 import { Dfhead } from "../view";
 import { OrderIcons } from "./const";
 import { useClipboard, useDisclosure } from "@mantine/hooks";
 import { CgArrowsMergeAltV, CgArrowAlignV } from "react-icons/cg";
+import { HistChart } from "../chart/categories";
 
 interface HeaderProps {
     headerContent: Dfhead[];

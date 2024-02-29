@@ -1,6 +1,6 @@
 import { Stack, Text } from "@mantine/core";
 import React, { FunctionComponent } from "react";
-import { FieldSwitch } from "./properties";
+import { FieldSwitch } from "../properties";
 
 export const SunburstChart: FunctionComponent = () => {
     return (

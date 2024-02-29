@@ -22,7 +22,6 @@ interface TableElementProps {
     item: string | boolean | number,
 }
 
-
 export const InitialTextElement: FunctionComponent<{ item: string }> = ({ item }) => (
     <Text
         fz="xs"

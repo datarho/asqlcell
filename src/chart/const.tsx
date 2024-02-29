@@ -1,14 +1,6 @@
 import { Icon123, IconAbc, IconArrowsSort, IconCalendar, IconSortAscending, IconSortDescending } from "@tabler/icons-react";
 import React from "react";
-import { AreaChart } from "./area";
-import { BarChart } from "./bar";
-import { ColumnChart } from "./column";
-import { ComboChart } from "./combo";
-import { FunnelChart } from "./funnel";
-import { LineChart } from "./line";
-import { PieChart } from "./pie";
-import { ScatterChart } from "./scatter";
-import { SunburstChart } from "./sunburst";
+import { AreaChart, BarChart, ColumnChart, ComboChart, FunnelChart, LineChart, PieChart, ScatterChart, SunburstChart } from "./categories";
 
 export const ViewHeight = 264;
 export const MenuHeight = 311;
