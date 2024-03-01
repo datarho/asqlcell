@@ -22,7 +22,7 @@ export const DataTable: FunctionComponent = () => {
 
     const rows = [...Array(info.index.length).keys()].map((rowIndex: number) => (
         <tr key={uuid()}>
-            <td key={rowIndex}>{info?.index?.at(rowIndex) ?? ""}</td>
+            <td key={rowIndex}><Text>{info?.index?.at(rowIndex) ?? ""}</Text></td>
             {
                 info?.data?.at(rowIndex) ?
                     info.data.at(rowIndex).map((item: string | boolean | number, tdIndex: number) => (
@@ -53,7 +53,7 @@ export const DataTable: FunctionComponent = () => {
                     sx={{
                         width: "100%",
                         "& thead": {
-                            height: "57px",
+                            height: "fit-content",
                         },
                         "& td": {
                             maxWidth: "200px"
@@ -62,7 +62,8 @@ export const DataTable: FunctionComponent = () => {
                             padding: "0px 3px",
                         },
                         "& thead tr th:first-of-type": {
-                            padding: 0
+                            padding: 0,
+                            width: "fit-content"
                         },
                         "&  td:first-of-type": {
                             backgroundColor: "#ebebeb",
