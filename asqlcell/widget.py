@@ -428,12 +428,16 @@ class SqlCellWidget(DOMWidget, HasTraits):
         pie2 = base2.mark_arc(radius=r2)
         pie = base.mark_arc(radius=r)
         return layer(
-            pie2 + base2.mark_text(radius=max(r2 - 30, 0), color="black")
-            if config["label"]
-            else pie2,
-            pie + base.mark_text(radius=max(r - 30, 0), color="black")
-            if config["label"]
-            else pie,
+            (
+                pie2 + base2.mark_text(radius=max(r2 - 30, 0), color="black")
+                if config["label"]
+                else pie2
+            ),
+            (
+                pie + base.mark_text(radius=max(r - 30, 0), color="black")
+                if config["label"]
+                else pie
+            ),
         )
 
     def to_json(self, chart):
