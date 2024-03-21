@@ -11,6 +11,7 @@ interface HistChartProps {
 }
 
 export const HistChart: FunctionComponent<HistChartProps> = ({ item, headerContent }) => {
+    const data = headerContent.bins ?? [];
     const expo = (input: number) => { return input.toExponential(2) };
     const isScientific = (input: number) => { return (!(0.1 <= Math.abs(input) && Math.abs(input) <= 10000)) };
     const getIntervalSide = (input: number) => {
@@ -27,14 +28,12 @@ export const HistChart: FunctionComponent<HistChartProps> = ({ item, headerConte
     };
 
     const globalInterval = (item: string) => {
-        const left = headerContent.bins[0].bin_start;
-        const right = headerContent.bins[9].bin_end;
+        const left = data[0]?.bin_start ?? 0;
+        const right = data[9]?.bin_end ?? 1;
         return (
             `[${getIntervalSide(left)}, ${getIntervalSide(right)}]`
         )
     }
-
-    const data = headerContent.bins
     const barData = {
         table:
             data.map((item: any, index: number) => {
@@ -44,7 +43,9 @@ export const HistChart: FunctionComponent<HistChartProps> = ({ item, headerConte
                 return (
                     { a: interval, b: item.count, index: index }
                 )
-            }),
+            })
+            ??
+            [],
     };
     return (
         <Stack>
