@@ -68,122 +68,98 @@
             "name": "source_0",
             "values": [
                 {
-                    "BillingCountry": "Argentina",
                     "Sales": 37.620000000000005,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Australia",
                     "Sales": 37.620000000000005,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Austria",
                     "Sales": 42.62,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Belgium",
                     "Sales": 37.62,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Brazil",
                     "Sales": 190.09999999999997,
                     "Users": 5
                 },
                 {
-                    "BillingCountry": "Canada",
                     "Sales": 303.9599999999999,
                     "Users": 8
                 },
                 {
-                    "BillingCountry": "Chile",
                     "Sales": 46.62,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Czech Republic",
                     "Sales": 90.24000000000001,
                     "Users": 2
                 },
                 {
-                    "BillingCountry": "Denmark",
                     "Sales": 37.620000000000005,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Finland",
                     "Sales": 41.620000000000005,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "France",
                     "Sales": 195.09999999999994,
                     "Users": 5
                 },
                 {
-                    "BillingCountry": "Germany",
                     "Sales": 156.48,
                     "Users": 4
                 },
                 {
-                    "BillingCountry": "Hungary",
                     "Sales": 45.62,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "India",
                     "Sales": 75.25999999999999,
                     "Users": 2
                 },
                 {
-                    "BillingCountry": "Ireland",
                     "Sales": 45.62,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Italy",
                     "Sales": 37.620000000000005,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Netherlands",
                     "Sales": 40.62,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Norway",
                     "Sales": 39.62,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Poland",
                     "Sales": 37.620000000000005,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Portugal",
                     "Sales": 77.23999999999998,
                     "Users": 2
                 },
                 {
-                    "BillingCountry": "Spain",
                     "Sales": 37.62,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "Sweden",
                     "Sales": 38.620000000000005,
                     "Users": 1
                 },
                 {
-                    "BillingCountry": "USA",
                     "Sales": 523.0600000000003,
                     "Users": 13
                 },
                 {
-                    "BillingCountry": "United Kingdom",
                     "Sales": 112.85999999999999,
                     "Users": 3
                 }
@@ -206,105 +182,9 @@
                     "min": 37.62
                 }
             ]
-        },
-        {
-            "name": "source_0_color_domain_BillingCountry",
-            "values": [
-                {
-                    "BillingCountry": "Argentina"
-                },
-                {
-                    "BillingCountry": "Australia"
-                },
-                {
-                    "BillingCountry": "Austria"
-                },
-                {
-                    "BillingCountry": "Belgium"
-                },
-                {
-                    "BillingCountry": "Brazil"
-                },
-                {
-                    "BillingCountry": "Canada"
-                },
-                {
-                    "BillingCountry": "Chile"
-                },
-                {
-                    "BillingCountry": "Czech Republic"
-                },
-                {
-                    "BillingCountry": "Denmark"
-                },
-                {
-                    "BillingCountry": "Finland"
-                },
-                {
-                    "BillingCountry": "France"
-                },
-                {
-                    "BillingCountry": "Germany"
-                },
-                {
-                    "BillingCountry": "Hungary"
-                },
-                {
-                    "BillingCountry": "India"
-                },
-                {
-                    "BillingCountry": "Ireland"
-                },
-                {
-                    "BillingCountry": "Italy"
-                },
-                {
-                    "BillingCountry": "Netherlands"
-                },
-                {
-                    "BillingCountry": "Norway"
-                },
-                {
-                    "BillingCountry": "Poland"
-                },
-                {
-                    "BillingCountry": "Portugal"
-                },
-                {
-                    "BillingCountry": "Spain"
-                },
-                {
-                    "BillingCountry": "Sweden"
-                },
-                {
-                    "BillingCountry": "USA"
-                },
-                {
-                    "BillingCountry": "United Kingdom"
-                }
-            ]
         }
     ],
     "height": 600,
-    "legends": [
-        {
-            "encode": {
-                "symbols": {
-                    "update": {
-                        "fill": {
-                            "value": "transparent"
-                        },
-                        "opacity": {
-                            "value": 0.7
-                        }
-                    }
-                }
-            },
-            "stroke": "color",
-            "symbolType": "circle",
-            "title": "BillingCountry"
-        }
-    ],
     "marks": [
         {
             "encode": {
@@ -313,7 +193,7 @@
                         "value": "point"
                     },
                     "description": {
-                        "signal": "\"Users: \" + (format(datum[\"Users\"], \"\")) + \"; Sales: \" + (format(datum[\"Sales\"], \"\")) + \"; BillingCountry: \" + (isValid(datum[\"BillingCountry\"]) ? datum[\"BillingCountry\"] : \"\"+datum[\"BillingCountry\"])"
+                        "signal": "\"Users: \" + (format(datum[\"Users\"], \"\")) + \"; Sales: \" + (format(datum[\"Sales\"], \"\"))"
                     },
                     "fill": {
                         "value": "transparent"
@@ -322,11 +202,10 @@
                         "value": 0.7
                     },
                     "stroke": {
-                        "field": "BillingCountry",
-                        "scale": "color"
+                        "value": "#4c78a8"
                     },
                     "tooltip": {
-                        "signal": "{\"Users\": format(datum[\"Users\"], \"\"), \"Sales\": format(datum[\"Sales\"], \"\"), \"BillingCountry\": isValid(datum[\"BillingCountry\"]) ? datum[\"BillingCountry\"] : \"\"+datum[\"BillingCountry\"]}"
+                        "signal": "{\"Users\": format(datum[\"Users\"], \"\"), \"Sales\": format(datum[\"Sales\"], \"\")}"
                     },
                     "x": {
                         "field": "Users",
@@ -389,18 +268,6 @@
             ],
             "type": "linear",
             "zero": true
-        },
-        {
-            "domain": {
-                "data": "source_0_color_domain_BillingCountry",
-                "field": "BillingCountry",
-                "sort": true
-            },
-            "name": "color",
-            "range": {
-                "scheme": "tableau20"
-            },
-            "type": "ordinal"
         }
     ],
     "style": "cell",
