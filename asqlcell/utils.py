@@ -96,23 +96,29 @@ def get_histogram(df: DataFrame):
 
     for column in df:
         col = df[column]
+        res = {
+            "columnName": column,
+            "dtype": dtype_str(df.dtypes[str(column)].kind),
+            "bins": [],
+        }
         if is_type_numeric(col.dtypes):
             np_array = np.array(col.replace([np.inf, -np.inf], np.nan).dropna())
-            y, bins = np.histogram(np_array, bins=10)
-            hist.append(
-                {
-                    "columnName": column,
-                    "dtype": dtype_str(df.dtypes[str(column)].kind),
-                    "bins": [
+            try:
+                import warnings
+
+                with warnings.catch_warnings():
+                    warnings.filterwarnings("ignore", category=RuntimeWarning)
+                    y, bins = np.histogram(np_array, bins=10)
+                    res["bins"] = [
                         {
                             "bin_start": bins[i],
                             "bin_end": bins[i + 1],
                             "count": count.item(),
                         }
                         for i, count in enumerate(y)
-                    ],
-                }
-            )
+                    ]
+            except Exception:
+                pass
         else:
             col = col.astype(str)
             unique_values, value_counts = np.unique(col, return_counts=True)
@@ -130,14 +136,8 @@ def get_histogram(df: DataFrame):
                 else:
                     sum += value_counts[si].item()
             bins.append({"bin": "other", "count": sum})
-            hist.append(
-                {
-                    "columnName": column,
-                    "dtype": dtype_str(df.dtypes[str(column)].kind),
-                    "bins": bins,
-                }
-            )
-
+            res["bins"] = bins
+        hist.append(res)
     return hist
 
 

@@ -42,6 +42,12 @@ config: ChartConfig = {
         "aggregation": "sum",
         "sort": None,
     },
+    "size": {
+        "label": None,
+        "field": None,
+        "aggregation": "sum",
+        "sort": None,
+    },
     "subtype": [],
     "width": 500,
     "height": 400,
@@ -239,7 +245,6 @@ def test_generate_scatter_basic(session):
     c["type"] = ChartType.SCATTER
     c["x"]["field"] = "Users"
     c["y"]["field"] = "Sales"
-    c["color"]["field"] = "BillingCountry"
     c["width"] = 700
     c["height"] = 600
     run_cmp(session, query, c, "scatter_basic")

@@ -38,6 +38,7 @@ class ChartConfig(TypedDict):
     y: AxisConfig
     y2: AxisConfig
     color: AxisConfig
+    size: AxisConfig
     subtype: List[str]
     height: int
     width: int

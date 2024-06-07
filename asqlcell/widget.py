@@ -89,6 +89,12 @@ class SqlCellWidget(DOMWidget, HasTraits):
             "aggregation": "sum",
             "sort": None,
         },
+        "size": {
+            "label": None,
+            "field": None,
+            "aggregation": "sum",
+            "sort": None,
+        },
         "subtype": [],
         "width": 500,
         "height": 400,
@@ -147,6 +153,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
             for column in df.columns:
                 if df.dtypes[str(column)].kind == "M":
                     dt_columns[column] = "datetime64[ns]"
+                elif df.dtypes[str(column)].kind == "O":
+                    dt_columns[column] = "U"
             df = df.astype(dt_columns, copy=False, errors="ignore")
             self.shell.user_global_ns[self.data_name] = df
             # Calculate time elapsed for running the sql queries.
@@ -178,14 +186,17 @@ class SqlCellWidget(DOMWidget, HasTraits):
             + "\n"
             + str(len(df))
         )
-        df = (
-            df[self.row_range[0] : self.row_range[1]]
-            .astype(str)
-            .apply(pd.to_numeric, errors="coerce")
-        )
-        df = 1 - (df - df.min()) / (df.max() - df.min())
-        df = 150 * df + 105
-        self.column_color = df.to_json(orient="split", date_format="iso")
+        try:
+            df = (
+                df[self.row_range[0] : self.row_range[1]]
+                .astype(str)
+                .apply(pd.to_numeric, errors="coerce")
+            )
+            df = 1 - (df - df.min()) / (df.max() - df.min())
+            df = 150 * df + 105
+            self.column_color = df.to_json(orient="split", date_format="iso")
+        except:
+            pass
 
     def _get_sort_symbol(self, config: ChartConfig) -> Union[str, None]:
         """
@@ -224,8 +235,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
         x, y, color = (
-            X(field=config["x"]["field"]),
-            Y(field=config["y"]["field"]),
+            X(config["x"]["field"]),
+            Y(config["y"]["field"]),
             config["color"]["field"],
         )
         x = x.aggregate(config["x"]["aggregation"])
@@ -251,8 +262,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
         x, y, color = (
-            X(field=config["x"]["field"]),
-            Y(field=config["y"]["field"]),
+            X(config["x"]["field"]),
+            Y(config["y"]["field"]),
             config["color"]["field"],
         )
         y = y.aggregate(config["y"]["aggregation"])
@@ -279,8 +290,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
         x, y, color = (
-            X(field=config["x"]["field"]),
-            Y(field=config["y"]["field"]),
+            X(config["x"]["field"]),
+            Y(config["y"]["field"]),
             config["color"]["field"],
         )
         y = y.aggregate(config["y"]["aggregation"])
@@ -304,8 +315,8 @@ class SqlCellWidget(DOMWidget, HasTraits):
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
         x, y, color = (
-            X(field=config["x"]["field"]),
-            Y(field=config["y"]["field"]),
+            X(config["x"]["field"]),
+            Y(config["y"]["field"]),
             config["color"]["field"],
         )
         y = y.aggregate(config["y"]["aggregation"])
@@ -326,12 +337,15 @@ class SqlCellWidget(DOMWidget, HasTraits):
     def _generate_scatter(
         self, base: Chart, config: ChartConfig
     ) -> Union[Chart, LayerChart, None]:
-        x, y, color = (
+        x, y, color, size = (
             config["x"]["field"],
             config["y"]["field"],
             config["color"]["field"],
+            config["size"]["field"],
         )
         params = {"x": x, "y": y, "tooltip": [x, y]}
+        if size:
+            params["size"] = size
         return base.encode(
             **self._add_color(config["theme"], color, params)
         ).mark_point()
@@ -414,12 +428,16 @@ class SqlCellWidget(DOMWidget, HasTraits):
         pie2 = base2.mark_arc(radius=r2)
         pie = base.mark_arc(radius=r)
         return layer(
-            pie2 + base2.mark_text(radius=max(r2 - 30, 0), color="black")
-            if config["label"]
-            else pie2,
-            pie + base.mark_text(radius=max(r - 30, 0), color="black")
-            if config["label"]
-            else pie,
+            (
+                pie2 + base2.mark_text(radius=max(r2 - 30, 0), color="black")
+                if config["label"]
+                else pie2
+            ),
+            (
+                pie + base.mark_text(radius=max(r - 30, 0), color="black")
+                if config["label"]
+                else pie
+            ),
         )
 
     def to_json(self, chart):
