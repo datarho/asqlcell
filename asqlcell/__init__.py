@@ -1,8 +1,7 @@
 from IPython.core.interactiveshell import InteractiveShell
 
-from asqlcell._version import __version__, version_info
+from asqlcell._version import __version__
 from asqlcell.magic import SqlMagics
-from asqlcell.widget import SqlCellWidget
 
 
 def _jupyter_labextension_paths():
@@ -42,7 +41,14 @@ def _jupyter_nbextension_paths():
     require: Path to importable AMD Javascript module inside the
         <jupyter path>/nbextensions/<dest> directory
     """
-    return [{"section": "notebook", "src": "nbextension", "dest": "asqlcell", "require": "asqlcell/extension"}]
+    return [
+        {
+            "section": "notebook",
+            "src": "nbextension",
+            "dest": "asqlcell",
+            "require": "asqlcell/extension",
+        }
+    ]
 
 
 def load_ipython_extension(shell: InteractiveShell):

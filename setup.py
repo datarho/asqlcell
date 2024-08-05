@@ -95,8 +95,8 @@ setup_args = dict(
         "jinja2>=3.1.2",
         "StrEnum>=0.4.15",
         "sqlparse>=0.4.3",
-        "openai>=0.27.10",
-        "requests>=2.28.1",
+        # "openai>=0.27.10",
+        # "requests>=2.28.1",
         "openpyxl>=3.1.2",
     ],
     extras_require={
