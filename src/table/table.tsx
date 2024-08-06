@@ -28,7 +28,7 @@ export const DataTable: FunctionComponent = () => {
                     info.data.at(rowIndex).map((item: string | boolean | number, tdIndex: number) => (
                         <td key={tdIndex} style={{ fontSize: "8px" }}>
                             {
-                                item ?
+                                item !== undefined ?
                                     <TableElement item={item} index={rowIndex} tdIndex={tdIndex} />
                                     :
                                     <></>
