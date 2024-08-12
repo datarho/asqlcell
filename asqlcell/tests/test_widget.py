@@ -135,6 +135,7 @@ def test_generate_column_basic(session):
         JOIN Customer ON Customer.CustomerId = Invoice.CustomerId
         GROUP BY 1
         ORDER BY 2 DESC, 1
+        LIMIT 10
     """
     c = copy.deepcopy(config)
     c["type"] = ChartType.COLUMN

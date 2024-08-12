@@ -91,62 +91,6 @@
                 {
                     "Country": "Chile",
                     "sum_Total": 46.62
-                },
-                {
-                    "Country": "Hungary",
-                    "sum_Total": 45.62
-                },
-                {
-                    "Country": "Ireland",
-                    "sum_Total": 45.62
-                },
-                {
-                    "Country": "Austria",
-                    "sum_Total": 42.62
-                },
-                {
-                    "Country": "Finland",
-                    "sum_Total": 41.62
-                },
-                {
-                    "Country": "Netherlands",
-                    "sum_Total": 40.62
-                },
-                {
-                    "Country": "Norway",
-                    "sum_Total": 39.62
-                },
-                {
-                    "Country": "Sweden",
-                    "sum_Total": 38.62
-                },
-                {
-                    "Country": "Argentina",
-                    "sum_Total": 37.62
-                },
-                {
-                    "Country": "Australia",
-                    "sum_Total": 37.62
-                },
-                {
-                    "Country": "Belgium",
-                    "sum_Total": 37.62
-                },
-                {
-                    "Country": "Denmark",
-                    "sum_Total": 37.62
-                },
-                {
-                    "Country": "Italy",
-                    "sum_Total": 37.62
-                },
-                {
-                    "Country": "Poland",
-                    "sum_Total": 37.62
-                },
-                {
-                    "Country": "Spain",
-                    "sum_Total": 37.62
                 }
             ]
         },
@@ -192,62 +136,6 @@
                 {
                     "Country": "Chile",
                     "sort_field": 46.62
-                },
-                {
-                    "Country": "Hungary",
-                    "sort_field": 45.62
-                },
-                {
-                    "Country": "Ireland",
-                    "sort_field": 45.62
-                },
-                {
-                    "Country": "Austria",
-                    "sort_field": 42.62
-                },
-                {
-                    "Country": "Finland",
-                    "sort_field": 41.62
-                },
-                {
-                    "Country": "Netherlands",
-                    "sort_field": 40.62
-                },
-                {
-                    "Country": "Norway",
-                    "sort_field": 39.62
-                },
-                {
-                    "Country": "Sweden",
-                    "sort_field": 38.62
-                },
-                {
-                    "Country": "Argentina",
-                    "sort_field": 37.62
-                },
-                {
-                    "Country": "Australia",
-                    "sort_field": 37.62
-                },
-                {
-                    "Country": "Belgium",
-                    "sort_field": 37.62
-                },
-                {
-                    "Country": "Denmark",
-                    "sort_field": 37.62
-                },
-                {
-                    "Country": "Italy",
-                    "sort_field": 37.62
-                },
-                {
-                    "Country": "Poland",
-                    "sort_field": 37.62
-                },
-                {
-                    "Country": "Spain",
-                    "sort_field": 37.62
                 }
             ]
         },
@@ -256,7 +144,7 @@
             "values": [
                 {
                     "max": 523.06,
-                    "min": 37.62
+                    "min": 46.62
                 }
             ]
         }
