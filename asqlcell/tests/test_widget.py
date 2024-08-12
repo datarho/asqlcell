@@ -129,7 +129,7 @@ def test_generate_column_basic(session):
     """
     query = """
         SELECT
-            Customer.Country,
+            Country,
             SUM(Invoice.Total) AS Total
         FROM Invoice
         JOIN Customer ON Customer.CustomerId = Invoice.CustomerId
