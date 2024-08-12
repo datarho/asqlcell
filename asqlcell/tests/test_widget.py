@@ -92,8 +92,6 @@ def are_jsons_equal(json1, json2, float_tolerance=1e-6):
         dict1 = json.load(file, object_pairs_hook=OrderedDict)
     with open(json2, "r") as file:
         dict2 = json.load(file, object_pairs_hook=OrderedDict)
-    # dict1 = json.loads(json1, object_pairs_hook=OrderedDict)
-    # dict2 = json.loads(json2, object_pairs_hook=OrderedDict)
 
     return compare_dicts(dict1, dict2)
 
@@ -142,6 +140,7 @@ def test_generate_column_basic(session):
     c["type"] = ChartType.COLUMN
     c["x"]["field"] = "Country"
     c["y"]["field"] = "Total"
+    c["y"]["sort"] = "descending"
     c["width"] = 1000
     c["height"] = 400
     run_cmp(session, query, c, "column_basic")
