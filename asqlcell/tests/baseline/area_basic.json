@@ -146,9 +146,9 @@
                 {
                     "BillingCountry": "Canada",
                     "Date": "2010-10-01",
-                    "sum_Total": 4.949999999999999,
+                    "sum_Total": 4.95,
                     "sum_Total_end": 10.89,
-                    "sum_Total_start": 5.940000000000001
+                    "sum_Total_start": 5.94
                 },
                 {
                     "BillingCountry": "Canada",
@@ -195,9 +195,9 @@
                 {
                     "BillingCountry": "Canada",
                     "Date": "2011-10-01",
-                    "sum_Total": 11.879999999999999,
-                    "sum_Total_end": 23.759999999999998,
-                    "sum_Total_start": 11.879999999999999
+                    "sum_Total": 11.88,
+                    "sum_Total_end": 23.76,
+                    "sum_Total_start": 11.88
                 },
                 {
                     "BillingCountry": "Canada",
@@ -440,7 +440,7 @@
                 {
                     "BillingCountry": "France",
                     "Date": "2012-08-01",
-                    "sum_Total": 4.949999999999999,
+                    "sum_Total": 4.95,
                     "sum_Total_end": 28.81,
                     "sum_Total_start": 23.86
                 },
@@ -657,8 +657,8 @@
                 {
                     "BillingCountry": "USA",
                     "Date": "2011-07-01",
-                    "sum_Total": 14.850000000000001,
-                    "sum_Total_end": 14.850000000000001,
+                    "sum_Total": 14.85,
+                    "sum_Total_end": 14.85,
                     "sum_Total_start": 0.0
                 },
                 {
@@ -671,8 +671,8 @@
                 {
                     "BillingCountry": "USA",
                     "Date": "2011-10-01",
-                    "sum_Total": 11.879999999999999,
-                    "sum_Total_end": 11.879999999999999,
+                    "sum_Total": 11.88,
+                    "sum_Total_end": 11.88,
                     "sum_Total_start": 0.0
                 },
                 {
@@ -727,8 +727,8 @@
                 {
                     "BillingCountry": "USA",
                     "Date": "2012-09-01",
-                    "sum_Total": 29.85,
-                    "sum_Total_end": 29.85,
+                    "sum_Total": 29.849999999999998,
+                    "sum_Total_end": 29.849999999999998,
                     "sum_Total_start": 0.0
                 },
                 {
@@ -931,8 +931,8 @@
                     "BillingCountry": "Canada",
                     "Date": "2012-09-01",
                     "sum_Total": 0.0,
-                    "sum_Total_end": 29.85,
-                    "sum_Total_start": 29.85
+                    "sum_Total_end": 29.849999999999998,
+                    "sum_Total_start": 29.849999999999998
                 },
                 {
                     "BillingCountry": "Canada",
@@ -1043,8 +1043,8 @@
                     "BillingCountry": "France",
                     "Date": "2011-10-01",
                     "sum_Total": 0.0,
-                    "sum_Total_end": 11.879999999999999,
-                    "sum_Total_start": 11.879999999999999
+                    "sum_Total_end": 11.88,
+                    "sum_Total_start": 11.88
                 },
                 {
                     "BillingCountry": "France",
@@ -1155,8 +1155,8 @@
                     "BillingCountry": "France",
                     "Date": "2012-09-01",
                     "sum_Total": 0.0,
-                    "sum_Total_end": 29.85,
-                    "sum_Total_start": 29.85
+                    "sum_Total_end": 29.849999999999998,
+                    "sum_Total_start": 29.849999999999998
                 },
                 {
                     "BillingCountry": "France",

@@ -51,19 +51,19 @@
             "values": [
                 {
                     "Country": "USA",
-                    "sum_Total": 523.0600000000003
+                    "sum_Total": 523.06
                 },
                 {
                     "Country": "Canada",
-                    "sum_Total": 303.9599999999999
+                    "sum_Total": 303.96
                 },
                 {
                     "Country": "France",
-                    "sum_Total": 195.09999999999994
+                    "sum_Total": 195.1
                 },
                 {
                     "Country": "Brazil",
-                    "sum_Total": 190.09999999999997
+                    "sum_Total": 190.1
                 },
                 {
                     "Country": "Germany",
@@ -71,19 +71,19 @@
                 },
                 {
                     "Country": "United Kingdom",
-                    "sum_Total": 112.85999999999999
+                    "sum_Total": 112.86
                 },
                 {
                     "Country": "Czech Republic",
-                    "sum_Total": 90.24000000000001
+                    "sum_Total": 90.24
                 },
                 {
                     "Country": "Portugal",
-                    "sum_Total": 77.23999999999998
+                    "sum_Total": 77.24
                 },
                 {
                     "Country": "India",
-                    "sum_Total": 75.25999999999999
+                    "sum_Total": 75.26
                 },
                 {
                     "Country": "Chile",
@@ -103,7 +103,7 @@
                 },
                 {
                     "Country": "Finland",
-                    "sum_Total": 41.620000000000005
+                    "sum_Total": 41.62
                 },
                 {
                     "Country": "Netherlands",
@@ -115,34 +115,34 @@
                 },
                 {
                     "Country": "Sweden",
-                    "sum_Total": 38.620000000000005
-                },
-                {
-                    "Country": "Poland",
-                    "sum_Total": 37.620000000000005
-                },
-                {
-                    "Country": "Italy",
-                    "sum_Total": 37.620000000000005
-                },
-                {
-                    "Country": "Denmark",
-                    "sum_Total": 37.620000000000005
-                },
-                {
-                    "Country": "Australia",
-                    "sum_Total": 37.620000000000005
-                },
-                {
-                    "Country": "Argentina",
-                    "sum_Total": 37.620000000000005
+                    "sum_Total": 38.62
                 },
                 {
                     "Country": "Spain",
                     "sum_Total": 37.62
                 },
                 {
+                    "Country": "Poland",
+                    "sum_Total": 37.62
+                },
+                {
+                    "Country": "Italy",
+                    "sum_Total": 37.62
+                },
+                {
+                    "Country": "Denmark",
+                    "sum_Total": 37.62
+                },
+                {
                     "Country": "Belgium",
+                    "sum_Total": 37.62
+                },
+                {
+                    "Country": "Australia",
+                    "sum_Total": 37.62
+                },
+                {
+                    "Country": "Argentina",
                     "sum_Total": 37.62
                 }
             ]
@@ -202,6 +202,9 @@
                     "Country": "Sweden"
                 },
                 {
+                    "Country": "Spain"
+                },
+                {
                     "Country": "Poland"
                 },
                 {
@@ -211,16 +214,13 @@
                     "Country": "Denmark"
                 },
                 {
+                    "Country": "Belgium"
+                },
+                {
                     "Country": "Australia"
                 },
                 {
                     "Country": "Argentina"
-                },
-                {
-                    "Country": "Spain"
-                },
-                {
-                    "Country": "Belgium"
                 }
             ]
         },
@@ -228,7 +228,7 @@
             "name": "source_0_y_domain_sum_Total",
             "values": [
                 {
-                    "max": 523.0600000000003,
+                    "max": 523.06,
                     "min": 37.62
                 }
             ]

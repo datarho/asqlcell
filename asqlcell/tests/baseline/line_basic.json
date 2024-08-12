@@ -120,7 +120,7 @@
                 {
                     "BillingCountry": "Canada",
                     "Date": "2010-10-01",
-                    "sum_Total": 4.949999999999999
+                    "sum_Total": 4.95
                 },
                 {
                     "BillingCountry": "Canada",
@@ -155,7 +155,7 @@
                 {
                     "BillingCountry": "Canada",
                     "Date": "2011-10-01",
-                    "sum_Total": 11.879999999999999
+                    "sum_Total": 11.88
                 },
                 {
                     "BillingCountry": "Canada",
@@ -330,7 +330,7 @@
                 {
                     "BillingCountry": "France",
                     "Date": "2012-08-01",
-                    "sum_Total": 4.949999999999999
+                    "sum_Total": 4.95
                 },
                 {
                     "BillingCountry": "France",
@@ -485,7 +485,7 @@
                 {
                     "BillingCountry": "USA",
                     "Date": "2011-07-01",
-                    "sum_Total": 14.850000000000001
+                    "sum_Total": 14.85
                 },
                 {
                     "BillingCountry": "USA",
@@ -495,7 +495,7 @@
                 {
                     "BillingCountry": "USA",
                     "Date": "2011-10-01",
-                    "sum_Total": 11.879999999999999
+                    "sum_Total": 11.88
                 },
                 {
                     "BillingCountry": "USA",
@@ -535,7 +535,7 @@
                 {
                     "BillingCountry": "USA",
                     "Date": "2012-09-01",
-                    "sum_Total": 29.85
+                    "sum_Total": 29.849999999999998
                 },
                 {
                     "BillingCountry": "USA",
@@ -777,7 +777,7 @@
             "name": "data_0_y_domain_sum_Total",
             "values": [
                 {
-                    "max": 29.85,
+                    "max": 29.849999999999998,
                     "min": 0.99
                 }
             ]

@@ -49,15 +49,15 @@
             "values": [
                 {
                     "Sales Agent": "Jane Peacock",
-                    "sum_Total": 833.0400000000016
+                    "sum_Total": 833.04
                 },
                 {
                     "Sales Agent": "Margaret Park",
-                    "sum_Total": 775.4000000000005
+                    "sum_Total": 775.4
                 },
                 {
                     "Sales Agent": "Steve Johnson",
-                    "sum_Total": 720.1600000000011
+                    "sum_Total": 720.16
                 }
             ]
         },
@@ -65,8 +65,8 @@
             "name": "source_0_x_domain_sum_Total",
             "values": [
                 {
-                    "max": 833.0400000000016,
-                    "min": 720.1600000000011
+                    "max": 833.04,
+                    "min": 720.16
                 }
             ]
         },

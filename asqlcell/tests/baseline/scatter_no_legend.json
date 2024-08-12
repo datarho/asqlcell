@@ -69,12 +69,12 @@
             "values": [
                 {
                     "BillingCountry": "Argentina",
-                    "Sales": 37.620000000000005,
+                    "Sales": 37.62,
                     "Users": 1
                 },
                 {
                     "BillingCountry": "Australia",
-                    "Sales": 37.620000000000005,
+                    "Sales": 37.62,
                     "Users": 1
                 },
                 {
@@ -89,12 +89,12 @@
                 },
                 {
                     "BillingCountry": "Brazil",
-                    "Sales": 190.09999999999997,
+                    "Sales": 190.1,
                     "Users": 5
                 },
                 {
                     "BillingCountry": "Canada",
-                    "Sales": 303.9599999999999,
+                    "Sales": 303.96,
                     "Users": 8
                 },
                 {
@@ -104,22 +104,22 @@
                 },
                 {
                     "BillingCountry": "Czech Republic",
-                    "Sales": 90.24000000000001,
+                    "Sales": 90.24,
                     "Users": 2
                 },
                 {
                     "BillingCountry": "Denmark",
-                    "Sales": 37.620000000000005,
+                    "Sales": 37.62,
                     "Users": 1
                 },
                 {
                     "BillingCountry": "Finland",
-                    "Sales": 41.620000000000005,
+                    "Sales": 41.62,
                     "Users": 1
                 },
                 {
                     "BillingCountry": "France",
-                    "Sales": 195.09999999999994,
+                    "Sales": 195.1,
                     "Users": 5
                 },
                 {
@@ -134,7 +134,7 @@
                 },
                 {
                     "BillingCountry": "India",
-                    "Sales": 75.25999999999999,
+                    "Sales": 75.26,
                     "Users": 2
                 },
                 {
@@ -144,7 +144,7 @@
                 },
                 {
                     "BillingCountry": "Italy",
-                    "Sales": 37.620000000000005,
+                    "Sales": 37.62,
                     "Users": 1
                 },
                 {
@@ -159,12 +159,12 @@
                 },
                 {
                     "BillingCountry": "Poland",
-                    "Sales": 37.620000000000005,
+                    "Sales": 37.62,
                     "Users": 1
                 },
                 {
                     "BillingCountry": "Portugal",
-                    "Sales": 77.23999999999998,
+                    "Sales": 77.24,
                     "Users": 2
                 },
                 {
@@ -174,17 +174,17 @@
                 },
                 {
                     "BillingCountry": "Sweden",
-                    "Sales": 38.620000000000005,
+                    "Sales": 38.62,
                     "Users": 1
                 },
                 {
                     "BillingCountry": "USA",
-                    "Sales": 523.0600000000003,
+                    "Sales": 523.06,
                     "Users": 13
                 },
                 {
                     "BillingCountry": "United Kingdom",
-                    "Sales": 112.85999999999999,
+                    "Sales": 112.86,
                     "Users": 3
                 }
             ]
@@ -202,7 +202,7 @@
             "name": "source_0_y_domain_Sales",
             "values": [
                 {
-                    "max": 523.0600000000003,
+                    "max": 523.06,
                     "min": 37.62
                 }
             ]
