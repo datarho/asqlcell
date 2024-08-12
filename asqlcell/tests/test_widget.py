@@ -134,13 +134,12 @@ def test_generate_column_basic(session):
         FROM Invoice
         JOIN Customer ON Customer.CustomerId = Invoice.CustomerId
         GROUP BY 1
-        ORDER BY 2 DESC
+        ORDER BY 2 DESC, 1
     """
     c = copy.deepcopy(config)
     c["type"] = ChartType.COLUMN
     c["x"]["field"] = "Country"
     c["y"]["field"] = "Total"
-    c["y"]["sort"] = "descending"
     c["width"] = 1000
     c["height"] = 400
     run_cmp(session, query, c, "column_basic")
