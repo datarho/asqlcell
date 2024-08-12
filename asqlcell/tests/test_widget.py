@@ -140,6 +140,7 @@ def test_generate_column_basic(session):
     c["type"] = ChartType.COLUMN
     c["x"]["field"] = "Country"
     c["y"]["field"] = "Total"
+    c["y"]["sort"] = "descending"
     c["width"] = 1000
     c["height"] = 400
     run_cmp(session, query, c, "column_basic")
