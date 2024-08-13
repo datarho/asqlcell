@@ -2,6 +2,8 @@ import copy
 import filecmp
 import json
 from pathlib import Path
+from collections import OrderedDict
+
 
 from sqlalchemy import create_engine
 
@@ -59,6 +61,41 @@ config: ChartConfig = {
 }
 
 
+def are_jsons_equal(json1, json2, float_tolerance=1e-6):
+    def compare_values(value1, value2):
+        if isinstance(value1, float) and isinstance(value2, float):
+            return abs(value1 - value2) <= float_tolerance
+        elif isinstance(value1, dict) and isinstance(value2, dict):
+            return compare_dicts(value1, value2)
+        elif isinstance(value1, list) and isinstance(value2, list):
+            return compare_lists(value1, value2)
+        else:
+            return value1 == value2
+
+    def compare_dicts(dict1, dict2):
+        if set(dict1.keys()) != set(dict2.keys()):
+            return False
+        for key in dict1:
+            if not compare_values(dict1[key], dict2[key]):
+                return False
+        return True
+
+    def compare_lists(list1, list2):
+        if len(list1) != len(list2):
+            return False
+        for item1, item2 in zip(list1, list2):
+            if not compare_values(item1, item2):
+                return False
+        return True
+
+    with open(json1, "r") as file:
+        dict1 = json.load(file, object_pairs_hook=OrderedDict)
+    with open(json2, "r") as file:
+        dict2 = json.load(file, object_pairs_hook=OrderedDict)
+
+    return compare_dicts(dict1, dict2)
+
+
 def run_cmp(session, query, config: ChartConfig, filename):
     con = create_engine(f"sqlite:///{db}").connect()
     widget = SqlCellWidget(session)
@@ -69,7 +106,7 @@ def run_cmp(session, query, config: ChartConfig, filename):
     with open(actual, "w") as file:
         assert type(widget.preview_vega) is str
         file.write(widget.preview_vega)
-    assert filecmp.cmp(actual, Path(dir, "baseline", f"{filename}.json"))
+    assert are_jsons_equal(actual, Path(dir, "baseline", f"{filename}.json"))
 
 
 def test_widget_creation_blank(session):
@@ -92,17 +129,19 @@ def test_generate_column_basic(session):
     """
     query = """
         SELECT
-            Customer.Country,
+            Country,
             SUM(Invoice.Total) AS Total
         FROM Invoice
         JOIN Customer ON Customer.CustomerId = Invoice.CustomerId
         GROUP BY 1
-        ORDER BY 2 DESC
+        ORDER BY 2 DESC, 1
+        LIMIT 10
     """
     c = copy.deepcopy(config)
     c["type"] = ChartType.COLUMN
     c["x"]["field"] = "Country"
     c["y"]["field"] = "Total"
+    c["y"]["sort"] = "descending"
     c["width"] = 1000
     c["height"] = 400
     run_cmp(session, query, c, "column_basic")

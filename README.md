@@ -94,7 +94,7 @@ Mac OS and Windows Subsystem for Linux.
 Please run the following commands to create a conda environment:
 
 ```bash
-conda create -n asqlcell -c conda-forge nodejs=18.15 python=3.8 jupyterlab=3.6 jupyter_packaging=0.12
+conda create -n asqlcell -c conda-forge nodejs=18.15 python=3.9 jupyterlab=3.6 jupyter_packaging=0.12
 conda activate asqlcell
 ```
 
